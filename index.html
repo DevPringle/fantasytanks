@@ -823,7 +823,7 @@
     <header class="header" id="header">
         <nav class="nav container">
             <a href="#" class="logo">
-                <img src=images/WotFan200x36.png" alt="Fantasy Tanks Logo">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo">
             </a>
             
             <ul class="nav-menu" id="navMenu">
@@ -854,10 +854,10 @@
             <div class="container">
                 <div class="hero-content">
                     <h1>Fantasy League</h1>
-                    <p>Join the ultimate World of Tanks fantasy experience. Create your team, compete in tournaments, and climb the leaderboards across multiple regions.</p>
+                    <p>Join the ultimate World of Tanks fantasy experience. Draft your dream team of pro players, compete in fantasy tournaments, and climb the leaderboards across multiple regions.</p>
                     <div class="hero-cta">
-                        <a href="#tournaments" class="cta-btn cta-primary">Join Tournament</a>
-                        <a href="#guide" class="cta-btn cta-secondary">Quick Start Guide</a>
+                        <a href="#tournaments" class="cta-btn cta-primary"><span class="material-icons" style="font-size: 1.1rem; margin-right: 0.5rem; vertical-align: middle;">play_arrow</span>Play Now</a>
+                        <a href="#guide" class="cta-btn cta-secondary"><span class="material-icons" style="font-size: 1.1rem; margin-right: 0.5rem; vertical-align: middle;">quiz</span>Quick Start Guide</a>
                     </div>
                 </div>
             </div>
@@ -867,18 +867,22 @@
             <div class="container">
                 <div class="stats-grid">
                     <div class="stat-card fade-in">
+                        <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">people</span>
                         <span class="stat-number" data-count="2847">0</span>
-                        <span class="stat-label">Active Players</span>
+                        <span class="stat-label">Fantasy Players</span>
                     </div>
                     <div class="stat-card fade-in">
-                        <span class="stat-number" data-count="156">0</span>
-                        <span class="stat-label">Active Teams</span>
-                    </div>
-                    <div class="stat-card fade-in">
+                        <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">emoji_events</span>
                         <span class="stat-number" data-count="42">0</span>
-                        <span class="stat-label">Tournaments</span>
+                        <span class="stat-label">Active Tournaments</span>
                     </div>
                     <div class="stat-card fade-in">
+                        <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">groups</span>
+                        <span class="stat-number" data-count="28">0</span>
+                        <span class="stat-label">Community Groups</span>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">public</span>
                         <span class="stat-number" data-count="4">0</span>
                         <span class="stat-label">Regions</span>
                     </div>
@@ -888,124 +892,133 @@
 
         <section class="main-content container">
             <div class="section" id="tournaments">
-                <h2 class="section-title">Active Tournaments</h2>
-                <p class="section-subtitle">Join ongoing competitions and test your strategic skills against the best commanders worldwide</p>
+                <h2 class="section-title">Active Fantasy Leagues</h2>
+                <p class="section-subtitle">Join ongoing fantasy competitions and test your strategic skills against the best fantasy managers worldwide</p>
                 
                 <div class="no-tournaments">
                     <span class="material-icons">emoji_events</span>
-                    <h3>No Active Tournaments</h3>
-                    <p>There are currently no active tournaments, please check back later.</p>
+                    <h3>No Active Fantasy Leagues</h3>
+                    <p>There are currently no active fantasy leagues, please check back later or create your own!</p>
                     <button class="btn" style="margin-top: 2rem;" onclick="refreshTournaments()">
-                        <span id="refreshIcon">Refresh Tournaments</span>
+                        <span id="refreshIcon">Refresh Leagues</span>
                     </button>
                 </div>
             </div>
 
             <div class="section">
-                <h2 class="section-title">Featured Tournaments</h2>
-                <p class="section-subtitle">Upcoming high-stakes competitions with massive prize pools and elite competitors</p>
+                <h2 class="section-title">Featured Fantasy Championships</h2>
+                <p class="section-subtitle">Upcoming high-stakes fantasy competitions with massive prize pools and elite fantasy managers</p>
                 
                 <div class="tournament-grid">
                     <div class="tournament-card fade-in">
-                        <h3 class="tournament-title">Summer Championship 2025</h3>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="color: #00d4ff; font-size: 1.5rem;">military_tech</span>
+                            <h3 class="tournament-title" style="margin: 0;">Summer Fantasy Championship 2025</h3>
+                        </div>
                         <div class="tournament-meta">
-                            <span>Region: NA</span>
-                            <span>Prize Pool: $5,000</span>
-                            <span>Format: 7v7</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: NA</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">monetization_on</span> Prize Pool: $5,000</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">groups</span> Pick: 7 Players</span>
                             <span class="tournament-status status-upcoming">Registration Open</span>
                         </div>
-                        <p class="tournament-description">The biggest tournament of the summer season. Register your team and compete for the ultimate prize in North American tank warfare supremacy.</p>
+                        <p class="tournament-description">The biggest fantasy championship of the summer season. Pick your lineup of pro players and compete for the ultimate prize in North American fantasy tank warfare supremacy.</p>
                         <div class="tournament-actions">
-                            <button class="btn">Register Now</button>
-                            <button class="btn btn-secondary">View Details</button>
+                            <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">play_arrow</span>Play Now</button>
+                            <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">info</span>View Details</button>
                         </div>
                     </div>
                     
                     <div class="tournament-card fade-in">
-                        <h3 class="tournament-title">European Masters</h3>
-                        <div class="tournament-meta">
-                            <span>Region: EU</span>
-                            <span>Prize Pool: €3,500</span>
-                            <span>Format: 5v5</span>
-                            <span class="tournament-status status-active">Live Now</span>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="color: #00d4ff; font-size: 1.5rem;">workspace_premium</span>
+                            <h3 class="tournament-title" style="margin: 0;">European Fantasy Masters</h3>
                         </div>
-                        <p class="tournament-description">Currently ongoing! Watch the best European teams battle it out in real-time. Fast-paced 5v5 action with the continent's finest commanders.</p>
+                        <div class="tournament-meta">
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: EU</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">monetization_on</span> Prize Pool: €3,500</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">groups</span> Pick: 5 Players</span>
+                            <span class="tournament-status status-active">Live Scoring</span>
+                        </div>
+                        <p class="tournament-description">Currently ongoing! Track your fantasy team's performance in real-time as the best European pro players battle it out. Fast-paced 5v5 action with live fantasy scoring.</p>
                         <div class="tournament-actions">
-                            <button class="btn">Watch Live</button>
-                            <button class="btn btn-secondary">Brackets</button>
+                            <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">live_tv</span>Watch & Score</button>
+                            <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">leaderboard</span>Leaderboard</button>
                         </div>
                     </div>
 
                     <div class="tournament-card fade-in">
-                        <h3 class="tournament-title">Asia Pacific Cup</h3>
-                        <div class="tournament-meta">
-                            <span>Region: ASIA</span>
-                            <span>Prize Pool: ¥25,000</span>
-                            <span>Format: 3v3</span>
-                            <span class="tournament-status status-upcoming">Coming Soon</span>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="color: #00d4ff; font-size: 1.5rem;">emoji_events</span>
+                            <h3 class="tournament-title" style="margin: 0;">Asia Pacific Fantasy Cup</h3>
                         </div>
-                        <p class="tournament-description">Intense small-team battles featuring the most skilled players from across the Asia Pacific region. Quick matches, big rewards.</p>
+                        <div class="tournament-meta">
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: ASIA</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">monetization_on</span> Prize Pool: ¥25,000</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">groups</span> Pick: 3 Players</span>
+                            <span class="tournament-status status-upcoming">Registration Soon</span>
+                        </div>
+                        <p class="tournament-description">Intense small-team fantasy battles featuring the most skilled pro players from across the Asia Pacific region. Quick player picks, big rewards, strategic decisions.</p>
                         <div class="tournament-actions">
-                            <button class="btn">Get Notified</button>
-                            <button class="btn btn-secondary">Learn More</button>
+                            <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">notifications</span>Get Notified</button>
+                            <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">school</span>Strategy Guide</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="section">
-                <h2 class="section-title">Past Tournaments</h2>
-                <p class="section-subtitle">Results and statistics from recent competitions</p>
+                <h2 class="section-title">Past Fantasy Championships</h2>
+                <p class="section-subtitle">Results and statistics from recent fantasy competitions</p>
                 
                 <div class="table-container">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Tournament</th>
-                                <th>Region</th>
-                                <th>Winner</th>
-                                <th>Prize Pool</th>
-                                <th>Date</th>
-                                <th>Participants</th>
+                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">emoji_events</span>Fantasy Championship</th>
+                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">public</span>Region</th>
+                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">star</span>Fantasy Champion</th>
+                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">monetization_on</span>Prize Pool</th>
+                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">event</span>Date</th>
+                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">groups</span>Fantasy Managers</th>
                             </tr>
                         </thead>
                         <tbody id="pastTournaments">
                             <tr>
-                                <td>Spring Championship 2025</td>
+                                <td>Spring Fantasy Championship 2025</td>
                                 <td>NA</td>
-                                <td>Team Thunder</td>
+                                <td>ThunderManager_2025</td>
                                 <td>$4,000</td>
                                 <td>March 15, 2025</td>
                                 <td>128</td>
                             </tr>
                             <tr>
-                                <td>Winter Cup 2025</td>
+                                <td>Winter Fantasy Cup 2025</td>
                                 <td>EU</td>
-                                <td>Steel Warriors</td>
+                                <td>SteelStrategist</td>
                                 <td>€2,500</td>
                                 <td>February 28, 2025</td>
                                 <td>96</td>
                             </tr>
                             <tr>
-                                <td>New Year Clash</td>
+                                <td>New Year Fantasy Clash</td>
                                 <td>ASIA</td>
-                                <td>Dragon Force</td>
+                                <td>DragonDrafter</td>
                                 <td>¥20,000</td>
                                 <td>January 20, 2025</td>
                                 <td>64</td>
                             </tr>
                             <tr>
-                                <td>Holiday Showdown</td>
+                                <td>Holiday Fantasy Showdown</td>
                                 <td>RU</td>
-                                <td>Red Army Elite</td>
+                                <td>RedArmyFantasy</td>
                                 <td>₽150,000</td>
                                 <td>December 25, 2024</td>
                                 <td>80</td>
                             </tr>
                             <tr>
-                                <td>Autumn Championship</td>
+                                <td>Autumn Fantasy Championship</td>
                                 <td>NA</td>
-                                <td>Iron Eagles</td>
+                                <td>IronEagleManager</td>
                                 <td>$3,200</td>
                                 <td>November 18, 2024</td>
                                 <td>112</td>
@@ -1016,49 +1029,58 @@
             </div>
 
             <div class="section" id="groups">
-                <h2 class="section-title">Join the Community</h2>
-                <p class="section-subtitle">Connect with fellow commanders, share strategies, and find your perfect team</p>
+                <h2 class="section-title">Join the Fantasy Community</h2>
+                <p class="section-subtitle">Connect with fellow fantasy managers, share draft strategies, and find your perfect fantasy league</p>
                 
                 <div class="tournament-grid">
                     <div class="tournament-card fade-in">
-                        <h3 class="tournament-title">Competitive Players</h3>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="color: #00d4ff; font-size: 1.5rem;">trending_up</span>
+                            <h3 class="tournament-title" style="margin: 0;">Elite Fantasy Managers</h3>
+                        </div>
                         <div class="tournament-meta">
-                            <span>Members: 1,247</span>
-                            <span>Region: Global</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">groups</span> Members: 1,247</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: Global</span>
                             <span class="tournament-status status-active">Very Active</span>
                         </div>
-                        <p class="tournament-description">The premier community for competitive World of Tanks players. Share strategies, analyze replays, and find skilled teammates for tournaments.</p>
+                        <p class="tournament-description">The premier community for competitive fantasy managers. Share draft strategies, analyze player performance, and find skilled partners for fantasy leagues.</p>
                         <div class="tournament-actions">
-                            <button class="btn">Join Group</button>
-                            <button class="btn btn-secondary">View Members</button>
+                            <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">group_add</span>Join Community</button>
+                            <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">people</span>View Members</button>
                         </div>
                     </div>
                     
                     <div class="tournament-card fade-in">
-                        <h3 class="tournament-title">Casual League</h3>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="color: #00d4ff; font-size: 1.5rem;">sports_esports</span>
+                            <h3 class="tournament-title" style="margin: 0;">Casual Fantasy League</h3>
+                        </div>
                         <div class="tournament-meta">
-                            <span>Members: 892</span>
-                            <span>Region: NA/EU</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">groups</span> Members: 892</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: NA/EU</span>
                             <span class="tournament-status status-upcoming">Recruiting</span>
                         </div>
-                        <p class="tournament-description">For players who enjoy the game at a more relaxed pace. Participate in fun tournaments, make friends, and enjoy casual gameplay together.</p>
+                        <p class="tournament-description">For fantasy players who enjoy the game at a more relaxed pace. Participate in fun fantasy drafts, make friends, and enjoy casual fantasy gameplay together.</p>
                         <div class="tournament-actions">
-                            <button class="btn">Join Group</button>
-                            <button class="btn btn-secondary">Group Events</button>
+                            <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">group_add</span>Join League</button>
+                            <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">event</span>League Events</button>
                         </div>
                     </div>
 
                     <div class="tournament-card fade-in">
-                        <h3 class="tournament-title">Strategy Masters</h3>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="color: #00d4ff; font-size: 1.5rem;">psychology</span>
+                            <h3 class="tournament-title" style="margin: 0;">Fantasy Strategy Masters</h3>
+                        </div>
                         <div class="tournament-meta">
-                            <span>Members: 456</span>
-                            <span>Region: EU</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">groups</span> Members: 456</span>
+                            <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: EU</span>
                             <span class="tournament-status status-active">Active</span>
                         </div>
-                        <p class="tournament-description">Dedicated to advanced tactics and strategic gameplay. Weekly strategy sessions, map analysis, and meta discussions for serious players.</p>
+                        <p class="tournament-description">Dedicated to advanced fantasy tactics and strategic drafting. Weekly strategy sessions, player analysis, and meta discussions for serious fantasy managers.</p>
                         <div class="tournament-actions">
-                            <button class="btn">Join Group</button>
-                            <button class="btn btn-secondary">Strategy Guides</button>
+                            <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">group_add</span>Join Group</button>
+                            <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">auto_stories</span>Strategy Guides</button>
                         </div>
                     </div>
                 </div>
