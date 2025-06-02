@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Tanks - Tournaments</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* Material Icons fallback */
+        .material-icons {
+            font-family: 'Material Icons', 'Material Icons Outlined', sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Fallback for when Material Icons don't load */
+        .material-icons:before {
+            content: attr(data-fallback);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(15, 20, 25, 0.98);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 36px;
+            width: auto;
+            max-width: 220px;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-link.active,
+        .nav-link:hover {
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-link.active::after,
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .region-selector {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .region-btn {
+            padding: 0.6rem 1.2rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .region-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .region-btn.active {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border-color: #00d4ff;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .sign-in-btn {
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .sign-in-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+            background: linear-gradient(135deg, #00b8e6, #00d4ff);
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Page Header */
+        .page-header {
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(0, 212, 255, 0.15), transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(0, 184, 230, 0.1), transparent 50%),
+                linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(26, 35, 50, 0.2));
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #00b8e6 50%, #0099cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Filters Section */
+        .filters-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 80px;
+            z-index: 999;
+        }
+
+        .filters-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .filter-select,
+        .search-input {
+            padding: 0.7rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .filter-select:focus,
+        .search-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            padding-left: 2.5rem;
+            min-width: 250px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .status-filters {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .status-filter {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-filter.active {
+            background: #00d4ff;
+            border-color: #00d4ff;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Tournament Sections */
+        .tournament-sections {
+            padding: 3rem 0;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-count {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.3rem;
+            border-radius: 8px;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-btn.active {
+            background: #00d4ff;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Tournament Grid */
+        .tournament-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .tournament-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .tournament-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 184, 230, 0.02));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tournament-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 212, 255, 0.4);
+            box-shadow: 0 20px 50px rgba(0, 212, 255, 0.2);
+        }
+
+        .tournament-card:hover::before {
+            opacity: 1;
+        }
+
+        .tournament-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tournament-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .tournament-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .status-live {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+        }
+
+        .status-upcoming {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .status-registration {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .status-completed {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+            border: 1px solid rgba(107, 114, 128, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(34, 197, 94, 0.4); }
+        }
+
+        .tournament-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .meta-icon {
+            color: #00d4ff;
+            font-size: 1rem;
+        }
+
+        .tournament-description {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tournament-progress {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .tournament-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .prize-pool {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Tournament List View */
+        .tournament-list {
+            display: none;
+        }
+
+        .tournament-list.active {
+            display: block;
+        }
+
+        .list-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .list-item:hover {
+            border-color: rgba(0, 212, 255, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .list-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .list-meta {
+            display: flex;
+            gap: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .empty-state .material-icons {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+            color: #00d4ff;
+        }
+
+        /* Load More Button */
+        .load-more {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .load-more-btn {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .load-more-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00d4ff;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #00d4ff;
+            display: block;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(15, 20, 25, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 0 2rem;
+            margin-top: 5rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 3rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0.2rem;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #00d4ff;
+            transition: width 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        .footer-credits {
+            max-width: 350px;
+            text-align: right;
+        }
+
+        .footer-note {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-disclaimer {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(15, 20, 25, 0.98);
+                flex-direction: column;
+                padding: 2rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .filters-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                justify-content: center;
+            }
+
+            .tournament-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tournament-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .footer-links {
+                gap: 2rem;
+                justify-content: center;
+            }
+
+            .footer-credits {
+                max-width: 100%;
+                text-align: center;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .region-selector {
+                flex-wrap: wrap;
+                gap: 0.3rem;
+            }
+
+            .region-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .action-btn:focus,
+        .region-btn:focus,
+        .sign-in-btn:focus,
+        .view-btn:focus,
+        .status-filter:focus {
+            outline: 2px solid #00d4ff;
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .page-title {
+                color: #ffffff;
+                background: none;
+                -webkit-text-fill-color: #ffffff;
+            }
+            
+            .stat-number {
+                color: #00d4ff;
+                background: none;
+                -webkit-text-fill-color: #00d4ff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="#" class="logo">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo">
+            </a>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#" class="nav-link active">Tournaments</a></li>
+                <li><a href="#" class="nav-link">Groups</a></li>
+                <li><a href="#" class="nav-link">Guide</a></li>
+                <li><a href="#" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="region-selector">
+                <button class="region-btn active" data-region="na" aria-label="North America region">NA</button>
+                <button class="region-btn" data-region="eu" aria-label="Europe region">EU</button>
+                <button class="region-btn" data-region="ru" aria-label="Russia region">RU</button>
+                <button class="region-btn" data-region="asia" aria-label="Asia region">ASIA</button>
+            </div>
+
+            <div class="auth-section">
+                <button class="sign-in-btn" aria-label="Sign in to your account">Sign In</button>
+                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle mobile menu">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">Fantasy Tournaments</h1>
+                <p class="page-subtitle">Pick fantasy teams from pro players, analyze player performances, and compete in leagues based on real World of Tanks tournaments</p>
+            </div>
+        </section>
+
+        <section class="filters-section">
+            <div class="container">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <span class="filter-label">Status:</span>
+                        <div class="status-filters">
+                            <button class="status-filter active" data-status="all">All</button>
+                            <button class="status-filter" data-status="live">Live</button>
+                            <button class="status-filter" data-status="upcoming">Upcoming</button>
+                            <button class="status-filter" data-status="registration">Open</button>
+                            <button class="status-filter" data-status="completed">Completed</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <span class="filter-label">Format:</span>
+                        <select class="filter-select" id="formatFilter">
+                            <option value="all">All Formats</option>
+                            <option value="7v7">Pick 7 Players</option>
+                            <option value="5v5">Pick 5 Players</option>
+                            <option value="3v3">Pick 3 Players</option>
+                            <option value="1v1">Pick 1 Player</option>
+                        </select>
+
+                        <span class="filter-label">Prize:</span>
+                        <select class="filter-select" id="prizeFilter">
+                            <option value="all">All Prizes</option>
+                            <option value="5000+">$5,000+</option>
+                            <option value="1000+">$1,000+</option>
+                            <option value="500+">$500+</option>
+                            <option value="free">Free Entry</option>
+                        </select>
+                    </div>
+
+                    <div class="search-container">
+                        <span class="material-icons search-icon">search</span>
+                        <input type="text" class="search-input" placeholder="Search fantasy tournaments..." id="searchInput">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tournament-sections container">
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">live_tv</span>
+                    <span class="stat-number">12</span>
+                    <span class="stat-label">Live Fantasy Tournaments</span>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">event</span>
+                    <span class="stat-number">24</span>
+                    <span class="stat-label">Upcoming</span>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">monetization_on</span>
+                    <span class="stat-number">$47,500</span>
+                    <span class="stat-label">Total Prize Pool</span>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">people</span>
+                    <span class="stat-number">2,847</span>
+                    <span class="stat-label">Fantasy Players</span>
+                </div>
+            </div>
+
+            <!-- Live Tournaments -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-icons" style="color: #22c55e; margin-right: 0.5rem; animation: pulse 2s infinite;">radio_button_checked</span>
+                        Live Fantasy Tournaments
+                        <span class="section-count">12</span>
+                    </h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">grid_view</span>Grid
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">view_list</span>List
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tournament-grid active" id="liveGrid">
+                    <div class="tournament-card" onclick="goToTournament('european-masters-2025')">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">workspace_premium</span>
+                                    <h3 class="tournament-title" style="margin: 0;">European Fantasy Masters 2025</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-live">Live Scoring</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                Europe
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 5 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">sports_esports</span>
+                                16/16 Teams
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                Semifinals
+                            </div>
+                        </div>
+                        <p class="tournament-description">The premier European fantasy tournament featuring the continent's best pro players in intense 5v5 battles. Currently in semifinals stage with top fantasy managers competing for points.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Tournament Progress</span>
+                                <span>75%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="prize-pool">€3,500</span>
+                            <button class="action-btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">analytics</span>View Live Scores</button>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card" onclick="goToTournament('asia-pacific-cup-2025')">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">emoji_events</span>
+                                    <h3 class="tournament-title" style="margin: 0;">Asia Pacific Fantasy Cup</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-live">Live Scoring</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                Asia Pacific
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 3 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                Round of 16
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">people</span>
+                                16/16 Teams
+                            </div>
+                        </div>
+                        <p class="tournament-description">Fast-paced 3v3 action featuring elite pro players from across the Asia Pacific region. High-scoring format ideal for fantasy point accumulation and strategic picks.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Tournament Progress</span>
+                                <span>45%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 45%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="prize-pool">¥25,000</span>
+                            <button class="action-btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">analytics</span>View Live Scores</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tournament-list" id="liveList">
+                    <div class="list-item" onclick="goToTournament('european-masters-2025')">
+                        <div class="list-header">
+                            <h3 class="list-title">European Fantasy Masters 2025</h3>
+                            <span class="tournament-status status-live">Live Scoring</span>
+                        </div>
+                        <div class="list-meta">
+                            <span>Europe • Pick 5 Players • Semifinals • €3,500 Prize Pool</span>
+                        </div>
+                    </div>
+                    <div class="list-item" onclick="goToTournament('asia-pacific-cup-2025')">
+                        <div class="list-header">
+                            <h3 class="list-title">Asia Pacific Fantasy Cup</h3>
+                            <span class="tournament-status status-live">Live Scoring</span>
+                        </div>
+                        <div class="list-meta">
+                            <span>Asia Pacific • Pick 3 Players • Round of 16 • ¥25,000 Prize Pool</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Tournaments -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-icons" style="color: #00d4ff; margin-right: 0.5rem;">event</span>
+                        Upcoming Fantasy Tournaments
+                        <span class="section-count">8</span>
+                    </h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">grid_view</span>Grid
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">view_list</span>List
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tournament-grid active">
+                    <div class="tournament-card" onclick="goToTournament('summer-championship-2025')">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">military_tech</span>
+                                    <h3 class="tournament-title" style="margin: 0;">Summer Fantasy Championship 2025</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-upcoming">July 15</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                North America
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 7 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                July 15, 2025
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">people</span>
+                                24/32 Teams
+                            </div>
+                        </div>
+                        <p class="tournament-description">The biggest fantasy tournament of the summer season. Excellent opportunity for fantasy players to analyze top-tier pro talent and pick competitive lineups for maximum points.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Team Confirmations</span>
+                                <span>75%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="prize-pool">$5,000</span>
+                            <button class="action-btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">preview</span>View Player Pool</button>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card" onclick="goToTournament('russian-federation-cup-2025')">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">flag</span>
+                                    <h3 class="tournament-title" style="margin: 0;">Russian Fantasy Federation Cup</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-upcoming">June 20</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                Russia
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 5 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                June 20, 2025
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">people</span>
+                                12/24 Teams
+                            </div>
+                        </div>
+                        <p class="tournament-description">Premier Russian fantasy tournament featuring the nation's top competitive pro players. Rich player performance data available for fantasy lineup analysis and strategic picks.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Team Confirmations</span>
+                                <span>50%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 50%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="prize-pool">₽200,000</span>
+                            <button class="action-btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">preview</span>View Player Pool</button>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card" onclick="goToTournament('world-championship-qualifier-2025')">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">star</span>
+                                    <h3 class="tournament-title" style="margin: 0;">World Fantasy Championship Qualifier</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-upcoming">August 5</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                Global
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 7 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                August 5, 2025
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">people</span>
+                                8/64 Teams
+                            </div>
+                        </div>
+                        <p class="tournament-description">The ultimate fantasy qualifier for the World Championship. Access to the highest caliber of global pro talent for fantasy team building and elite competition.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Team Confirmations</span>
+                                <span>12%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 12%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="prize-pool">$15,000</span>
+                            <button class="action-btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">preview</span>View Player Pool</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <ul class="footer-links">
+                    <li><a href="#">Resources</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+                <div class="footer-credits">
+                    <p class="footer-note">
+                        Original concept by <strong>Hypnotik</strong><br>
+                        Created by <strong>Joshua Neuenhoff</strong>, aka Unknown0ne
+                    </p>
+                    <p class="footer-disclaimer">
+                        This website is not affiliated with Wargaming.net or World of Tanks
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        mobileToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            const icon = mobileToggle.querySelector('.material-icons');
+            icon.textContent = navMenu.classList.contains('active') ? 'close' : 'menu';
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                mobileToggle.querySelector('.material-icons').textContent = 'menu';
+            }
+        });
+
+        // Region selector
+        document.querySelectorAll('.region-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const region = btn.dataset.region.toUpperCase();
+                console.log(`Switched to ${region} region`);
+                filterTournamentsByRegion(region);
+
+                // Add brief loading effect
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btn.style.transform = '';
+                }, 150);
+            });
+        });
+
+        // Status filters
+        document.querySelectorAll('.status-filter').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.status-filter').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const status = btn.dataset.status;
+                filterTournamentsByStatus(status);
+            });
+        });
+
+        // View toggle (grid/list)
+        document.querySelectorAll('.view-toggle').forEach(toggle => {
+            toggle.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const section = btn.closest('.section');
+                    const view = btn.dataset.view;
+                    
+                    // Update button states
+                    toggle.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Toggle view
+                    const grid = section.querySelector('.tournament-grid');
+                    const list = section.querySelector('.tournament-list');
+                    
+                    if (view === 'grid') {
+                        if (grid) grid.classList.add('active');
+                        if (list) list.classList.remove('active');
+                    } else {
+                        if (grid) grid.classList.remove('active');
+                        if (list) list.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filterTournamentsBySearch(searchTerm);
+        });
+
+        // Filter functions
+        function filterTournamentsByRegion(region) {
+            console.log(`Filtering fantasy tournaments by region: ${region}`);
+            // Implementation would filter tournaments based on region
+        }
+
+        function filterTournamentsByStatus(status) {
+            const sections = document.querySelectorAll('.section');
+            
+            if (status === 'all') {
+                sections.forEach(section => section.style.display = 'block');
+                return;
+            }
+
+            sections.forEach(section => {
+                const title = section.querySelector('.section-title').textContent.toLowerCase();
+                
+                if (
+                    (status === 'live' && title.includes('live')) ||
+                    (status === 'upcoming' && title.includes('upcoming')) ||
+                    (status === 'registration' && title.includes('registration')) ||
+                    (status === 'completed' && title.includes('completed'))
+                ) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        function filterTournamentsBySearch(searchTerm) {
+            const cards = document.querySelectorAll('.tournament-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.tournament-title').textContent.toLowerCase();
+                const description = card.querySelector('.tournament-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = searchTerm === '' ? 'block' : 'none';
+                }
+            });
+        }
+
+        // Navigate to tournament page
+        function goToTournament(tournamentId) {
+            console.log(`Navigating to fantasy tournament: ${tournamentId}`);
+            alert(`Navigating to ${tournamentId} fantasy tournament page...`);
+        }
+
+        // Enhanced button click effects
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card click
+                
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add ripple animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Enhanced card hover effects
+        document.querySelectorAll('.tournament-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Keyboard navigation improvements
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Close mobile menu on escape
+                navMenu.classList.remove('active');
+                mobileToggle.querySelector('.material-icons').textContent = 'menu';
+            }
+        });
+
+        // Smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerHeight = document.querySelector('.header').offsetHeight;
+                    const targetPosition = target.offsetTop - headerHeight - 20;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // Close mobile menu after navigation
+                navMenu.classList.remove('active');
+                mobileToggle.querySelector('.material-icons').textContent = 'menu';
+            });
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Fantasy Tournaments page loaded successfully!');
+            
+            // Animate progress bars on load
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>
