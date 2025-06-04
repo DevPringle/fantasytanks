@@ -1455,4 +1455,76 @@
                 el.style.opacity = '0';
                 el.style.transform = 'translateY(30px)';
                 el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            });
             
+            // Trigger initial animations for visible elements
+            setTimeout(() => {
+                const viewportHeight = window.innerHeight;
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top < viewportHeight) {
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }
+                });
+            }, 100);
+        });
+
+        // Hero slideshow functionality
+        function initHeroSlideshow() {
+            const slides = document.querySelectorAll('.hero-slide');
+            if (slides.length === 0) return;
+            
+            let currentSlide = 0;
+            const slideInterval = 5000; // 5 seconds per slide
+            
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
+                });
+            }
+            
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+            
+            // Auto-advance slides
+            setInterval(nextSlide, slideInterval);
+            
+            // Optional: Pause slideshow on hover
+            const heroSection = document.querySelector('.hero');
+            let slideshowPaused = false;
+            let slideshowTimer;
+            
+            function startSlideshow() {
+                if (!slideshowPaused) {
+                    slideshowTimer = setInterval(nextSlide, slideInterval);
+                }
+            }
+            
+            function pauseSlideshow() {
+                clearInterval(slideshowTimer);
+            }
+            
+            heroSection.addEventListener('mouseenter', () => {
+                slideshowPaused = true;
+                pauseSlideshow();
+            });
+            
+            heroSection.addEventListener('mouseleave', () => {
+                slideshowPaused = false;
+                startSlideshow();
+            });
+            
+            // Start the slideshow
+            startSlideshow();
+        }
+
+        // Add some sample data loading simulation
+        setTimeout(() => {
+            console.log('Simulating tournament data refresh...');
+        }, 3000);
+    </script>
+</body>
+</html>
