@@ -210,14 +210,54 @@
         .hero {
             text-align: center;
             padding: 6rem 0;
-            background: 
-                radial-gradient(circle at 30% 20%, rgba(0, 212, 255, 0.15), transparent 50%),
-                radial-gradient(circle at 70% 80%, rgba(0, 184, 230, 0.1), transparent 50%),
-                linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(26, 35, 50, 0.2));
             position: relative;
             overflow: hidden;
         }
 
+        /* Background slideshow */
+        .hero-slideshow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+        }
+
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+        }
+
+        /* Gradient overlay (75% opacity) */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(0, 212, 255, 0.15), transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(0, 184, 230, 0.1), transparent 50%),
+                linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(26, 35, 50, 0.2));
+            opacity: 0.75;
+            z-index: 1;
+        }
+
+        /* Grid pattern overlay */
         .hero::before {
             content: '';
             position: absolute;
@@ -227,11 +267,12 @@
             bottom: 0;
             background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
             opacity: 0.5;
+            z-index: 2;
         }
 
         .hero-content {
             position: relative;
-            z-index: 2;
+            z-index: 3;
         }
 
         .hero h1 {
@@ -846,12 +887,12 @@
 <body>
     <header class="header" id="header">
         <nav class="nav container">
-            <a href="index.html" class="logo">
-                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo">
+            <a href="/index.html" class="logo">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo" onerror="console.log('Logo failed to load from: images/WotFan200x36.png')">
             </a>
             
             <ul class="nav-menu" id="navMenu">
-                <li><a href="tournaments.html" class="nav-link">Tournaments</a></li>
+                <li><a href="/tournaments.html" class="nav-link">Tournaments</a></li>
                 <li><a href="#groups" class="nav-link">Groups</a></li>
                 <li><a href="#guide" class="nav-link">Guide</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
@@ -875,10 +916,19 @@
 
     <main>
         <section class="hero">
+            <!-- Background slideshow -->
+            <div class="hero-slideshow">
+                <div class="hero-slide active" style="background-image: url('images/7C5A2461-opq3329748714.jpg')"></div>
+                <div class="hero-slide" style="background-image: url('images/RYZ_8730-opq3329904305.jpg')"></div>
+                <div class="hero-slide" style="background-image: url('images/0J9A6306-opq3330437515.jpg')"></div>
+                <div class="hero-slide" style="background-image: url('images/RYZ_9104-opq3330892701.jpg')"></div>
+                <div class="hero-slide" style="background-image: url('images/RYZ_9842-opq3331322542.jpg')"></div>
+            </div>
+            
             <div class="container">
                 <div class="hero-content">
                     <h1>Fantasy League</h1>
-                    <p>Back by demand: the original World of Tanks fantasy league experience returns. Build your team, track results, and aim for the top.</p>
+                    <p>Back by demand: the original World of Tanks fantasy eSports experience returns. Build your team, track results, and aim for the top.</p>
                     <div class="hero-cta">
                         <a href="/tournaments.html" class="cta-btn cta-primary"><span class="material-icons" style="font-size: 1.1rem; margin-right: 0.5rem; vertical-align: middle;">play_arrow</span>Play Now</a>
                         <a href="#guide" class="cta-btn cta-secondary"><span class="material-icons" style="font-size: 1.1rem; margin-right: 0.5rem; vertical-align: middle;">quiz</span>Quick Start Guide</a>
@@ -903,7 +953,7 @@
                     <div class="stat-card fade-in">
                         <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">groups</span>
                         <span class="stat-number" data-count="28">0</span>
-                        <span class="stat-label">Community Groups</span>
+                        <span class="stat-label">Fantasy Groups</span>
                     </div>
                     <div class="stat-card fade-in">
                         <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">public</span>
@@ -916,22 +966,22 @@
 
         <section class="main-content container">
             <div class="section" id="featured-tournaments">
-                <h2 class="section-title">Active Fantasy Leagues</h2>
-                <p class="section-subtitle">Join ongoing fantasy competitions and test your strategic skills against the best fantasy managers worldwide</p>
+                <h2 class="section-title">Active Tournaments</h2>
+                <p class="section-subtitle">Join ongoing fantasy tournaments where you compete against other fantasy teams by drafting real World of Tanks pro players</p>
                 
                 <div class="no-tournaments">
                     <span class="material-icons">emoji_events</span>
-                    <h3>No Active Fantasy Leagues</h3>
-                    <p>There are currently no active fantasy leagues, please check back later or create your own!</p>
+                    <h3>No Active Tournaments</h3>
+                    <p>There are currently no fantasy tournaments running. Check back later or create your own fantasy league!</p>
                     <button class="btn" style="margin-top: 2rem;" onclick="refreshTournaments()">
-                        <span id="refreshIcon">Refresh Leagues</span>
+                        <span id="refreshIcon">Refresh Tournaments</span>
                     </button>
                 </div>
             </div>
 
             <div class="section">
-                <h2 class="section-title">Featured Fantasy Championships</h2>
-                <p class="section-subtitle">Upcoming high-stakes fantasy competitions with massive prize pools and elite fantasy managers</p>
+                <h2 class="section-title">Featured Tournaments</h2>
+                <p class="section-subtitle">Upcoming high-stakes fantasy tournaments based on real World of Tanks pro competitions</p>
                 
                 <div class="tournament-grid">
                     <div class="tournament-card fade-in">
@@ -943,9 +993,9 @@
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: NA</span>
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">monetization_on</span> Prize Pool: $5,000</span>
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">groups</span> Pick: 7 Players</span>
-                            <span class="tournament-status status-upcoming">Registration Open</span>
+                            <span class="tournament-status status-upcoming">Draft Open</span>
                         </div>
-                        <p class="tournament-description">The biggest fantasy championship of the summer season. Pick your lineup of pro players and compete for the ultimate prize in North American fantasy tank warfare supremacy.</p>
+                        <p class="tournament-description">The biggest fantasy tournament of the summer season featuring the Summer Championship pro tournament. Draft your lineup of North American pro tank players and compete against other fantasy teams for fantasy supremacy.</p>
                         <div class="tournament-actions">
                             <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">play_arrow</span>Play Now</button>
                             <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">info</span>View Details</button>
@@ -963,7 +1013,7 @@
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">groups</span> Pick: 5 Players</span>
                             <span class="tournament-status status-active">Live Scoring</span>
                         </div>
-                        <p class="tournament-description">Currently ongoing! Track your fantasy team's performance in real-time as the best European pro players battle it out. Fast-paced 5v5 action with live fantasy scoring.</p>
+                        <p class="tournament-description">Fantasy tournament based on the ongoing European Masters pro competition. Track your fantasy team's performance in real-time as your drafted European pro players battle in the actual tournament. Fantasy teams compete for points based on their pros' performance.</p>
                         <div class="tournament-actions">
                             <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">live_tv</span>Watch & Score</button>
                             <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">leaderboard</span>Leaderboard</button>
@@ -979,9 +1029,9 @@
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: ASIA</span>
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">monetization_on</span> Prize Pool: ¥25,000</span>
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">groups</span> Pick: 3 Players</span>
-                            <span class="tournament-status status-upcoming">Registration Soon</span>
+                            <span class="tournament-status status-upcoming">Rosters Locked</span>
                         </div>
-                        <p class="tournament-description">Intense small-team fantasy battles featuring the most skilled pro players from across the Asia Pacific region. Quick player picks, big rewards, strategic decisions.</p>
+                        <p class="tournament-description">Fantasy tournament based on the upcoming Asia Pacific Cup pro competition. Draft from the most skilled pro tank players across the Asia Pacific region. Currently in draft preparation phase - rosters will unlock soon for the next tournament window.</p>
                         <div class="tournament-actions">
                             <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">notifications</span>Get Notified</button>
                             <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">school</span>Strategy Guide</button>
@@ -991,19 +1041,19 @@
             </div>
 
             <div class="section">
-                <h2 class="section-title">Past Fantasy Championships</h2>
+                <h2 class="section-title">Past Fantasy Tournaments</h2>
                 <p class="section-subtitle">Results and statistics from recent fantasy competitions</p>
                 
                 <div class="table-container">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">emoji_events</span>Fantasy Championship</th>
+                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">emoji_events</span>Tournament</th>
                                 <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">public</span>Region</th>
-                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">star</span>Fantasy Champion</th>
+                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">star</span>Winning Team</th>
                                 <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">monetization_on</span>Prize Pool</th>
                                 <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">event</span>Date</th>
-                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">groups</span>Fantasy Managers</th>
+                                <th><span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.5rem;">groups</span>Fantasy Teams</th>
                             </tr>
                         </thead>
                         <tbody id="pastTournaments">
@@ -1067,7 +1117,7 @@
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: Global</span>
                             <span class="tournament-status status-active">Very Active</span>
                         </div>
-                        <p class="tournament-description">The premier community for competitive fantasy managers. Share draft strategies, analyze player performance, and find skilled partners for fantasy leagues.</p>
+                        <p class="tournament-description">The premier community for competitive fantasy managers. Share draft strategies, analyze pro player performance, and find skilled partners for fantasy manager leagues.</p>
                         <div class="tournament-actions">
                             <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">group_add</span>Join Community</button>
                             <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">people</span>View Members</button>
@@ -1084,7 +1134,7 @@
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: NA/EU</span>
                             <span class="tournament-status status-upcoming">Recruiting</span>
                         </div>
-                        <p class="tournament-description">For fantasy players who enjoy the game at a more relaxed pace. Participate in fun fantasy drafts, make friends, and enjoy casual fantasy gameplay together.</p>
+                        <p class="tournament-description">For fantasy managers who enjoy the game at a more relaxed pace. Participate in fun fantasy drafts of pro tank players, make friends, and enjoy casual fantasy manager gameplay together.</p>
                         <div class="tournament-actions">
                             <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">group_add</span>Join League</button>
                             <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">event</span>League Events</button>
@@ -1101,7 +1151,7 @@
                             <span><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">public</span> Region: EU</span>
                             <span class="tournament-status status-active">Active</span>
                         </div>
-                        <p class="tournament-description">Dedicated to advanced fantasy tactics and strategic drafting. Weekly strategy sessions, player analysis, and meta discussions for serious fantasy managers.</p>
+                        <p class="tournament-description">Dedicated to advanced fantasy manager tactics and strategic drafting of pro players. Weekly strategy sessions, pro player analysis, and meta discussions for serious fantasy managers.</p>
                         <div class="tournament-actions">
                             <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">group_add</span>Join Group</button>
                             <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">auto_stories</span>Strategy Guides</button>
@@ -1359,6 +1409,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Fantasy Tanks website loaded successfully!');
             
+            // Initialize hero slideshow
+            initHeroSlideshow();
+            
             // Set initial animation state for fade-in elements
             document.querySelectorAll('.fade-in').forEach(el => {
                 el.style.opacity = '0';
@@ -1378,6 +1431,57 @@
                 });
             }, 100);
         });
+
+        // Hero slideshow functionality
+        function initHeroSlideshow() {
+            const slides = document.querySelectorAll('.hero-slide');
+            if (slides.length === 0) return;
+            
+            let currentSlide = 0;
+            const slideInterval = 5000; // 5 seconds per slide
+            
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
+                });
+            }
+            
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+            
+            // Auto-advance slides
+            setInterval(nextSlide, slideInterval);
+            
+            // Optional: Pause slideshow on hover
+            const heroSection = document.querySelector('.hero');
+            let slideshowPaused = false;
+            let slideshowTimer;
+            
+            function startSlideshow() {
+                if (!slideshowPaused) {
+                    slideshowTimer = setInterval(nextSlide, slideInterval);
+                }
+            }
+            
+            function pauseSlideshow() {
+                clearInterval(slideshowTimer);
+            }
+            
+            heroSection.addEventListener('mouseenter', () => {
+                slideshowPaused = true;
+                pauseSlideshow();
+            });
+            
+            heroSection.addEventListener('mouseleave', () => {
+                slideshowPaused = false;
+                startSlideshow();
+            });
+            
+            // Start the slideshow
+            startSlideshow();
+        }
 
         // Add some sample data loading simulation
         setTimeout(() => {
