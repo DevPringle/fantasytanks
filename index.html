@@ -1349,7 +1349,7 @@
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         };
-
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1360,7 +1360,14 @@
                     if (entry.target.classList.contains('stat-card') && 
                         !entry.target.hasAttribute('data-animated')) {
                         entry.target.setAttribute('data-animated', 'true');
-                        setTimeout(() => animateCounters(), 200);
+                        
+                        // Check if all stat cards are now animated, then start counters
+                        const allStatCards = document.querySelectorAll('.stat-card');
+                        const animatedCards = document.querySelectorAll('.stat-card[data-animated]');
+                        
+                        if (animatedCards.length === allStatCards.length) {
+                            setTimeout(() => animateCounters(), 200);
+                        }
                     }
                 }
             });
