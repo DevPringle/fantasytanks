@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - WoT Fantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            height: 48px;
+            width: auto;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #00b8e6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .form-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-button.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .form-button.loading {
+            color: transparent;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success-message {
+            color: #22c55e;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-footer a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .form-footer a:hover {
+            color: #ffffff;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem;
+            border-radius: 10px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #00d4ff;
+        }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-field .form-input {
+            padding-right: 3rem;
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                margin: 2rem 1rem;
+                padding: 2rem;
+            }
+
+            .back-button {
+                top: 1rem;
+                left: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">
+        <span class="material-icons" style="font-size: 1.2rem;">arrow_back</span>
+        Back to Home
+    </a>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo" class="logo">
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to manage your fantasy roster</p>
+        </div>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+            <button class="auth-tab" onclick="switchTab('register')">Register</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form active">
+            <div class="form-group">
+                <label for="loginUsername" class="form-label">Username or Email</label>
+                <input type="text" id="loginUsername" class="form-input" placeholder="Enter your username or email" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword" class="form-label">Password</label>
+                <div class="password-field">
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">
+                        <span class="material-icons">visibility</span>
+                    </button>
+                </div>
+            </div>
+            <div id="loginError" class="error-message" style="display: none;"></div>
+            <div id="loginSuccess" class="success-message" style="display: none;"></div>
+            <button type="submit" class="form-button">Sign In</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" class="auth-form">
+            <div class="form-group">
+                <label for="registerUsername" class="form-label">Username</label>
+                <input type="text" id="registerUsername" class="form-input" placeholder="Choose a username" required minlength="3" maxlength="20">
+            </div>
+            <div class="form-group">
+                <label for="registerEmail" class="form-label">Email</label>
+                <input type="email" id="registerEmail" class="form-input" placeholder="Enter your email address" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword" class="form-label">Password</label>
+                <div class="password-field">
+                    <input type="password" id="registerPassword" class="form-input" placeholder="Create a password (min 6 characters)" required minlength="6">
+                    <button type="button" class="password-toggle" onclick="togglePassword('registerPassword')">
+                        <span class="material-icons">visibility</span>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <div class="password-field">
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm your password" required minlength="6">
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                        <span class="material-icons">visibility</span>
+                    </button>
+                </div>
+            </div>
+            <div id="registerError" class="error-message" style="display: none;"></div>
+            <div id="registerSuccess" class="success-message" style="display: none;"></div>
+            <button type="submit" class="form-button">Create Account</button>
+        </form>
+
+        <div class="form-footer">
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                By signing up, you agree to our <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            document.getElementById(tab + 'Form').classList.add('active');
+
+            // Clear messages
+            clearMessages();
+
+            // Update title and subtitle
+            const title = document.querySelector('.auth-title');
+            const subtitle = document.querySelector('.auth-subtitle');
+            
+            if (tab === 'login') {
+                title.textContent = 'Welcome Back';
+                subtitle.textContent = 'Sign in to manage your fantasy roster';
+            } else {
+                title.textContent = 'Join Fantasy Tanks';
+                subtitle.textContent = 'Create an account to start competing';
+            }
+        }
+
+        // Password visibility toggle
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.parentElement.querySelector('.password-toggle span');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                button.textContent = 'visibility';
+            }
+        }
+
+        // Clear all error/success messages
+        function clearMessages() {
+            document.querySelectorAll('.error-message, .success-message').forEach(msg => {
+                msg.style.display = 'none';
+                msg.innerHTML = '';
+            });
+        }
+
+        // Show error message
+        function showError(formType, message) {
+            clearMessages();
+            const errorDiv = document.getElementById(formType + 'Error');
+            errorDiv.innerHTML = `
+                <span class="material-icons" style="font-size: 1rem;">error</span>
+                ${message}
+            `;
+            errorDiv.style.display = 'flex';
+        }
+
+        // Show success message
+        function showSuccess(formType, message) {
+            clearMessages();
+            const successDiv = document.getElementById(formType + 'Success');
+            successDiv.innerHTML = `
+                <span class="material-icons" style="font-size: 1rem;">check_circle</span>
+                ${message}
+            `;
+            successDiv.style.display = 'flex';
+        }
+
+        // Set button loading state
+        function setButtonLoading(button, loading) {
+            if (loading) {
+                button.disabled = true;
+                button.classList.add('loading');
+            } else {
+                button.disabled = false;
+                button.classList.remove('loading');
+            }
+        }
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const button = e.target.querySelector('.form-button');
+            setButtonLoading(button, true);
+            clearMessages();
+
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showError('login', 'Please fill in all fields');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            try {
+                const result = await api.login(username, password);
+                showSuccess('login', 'Login successful! Redirecting...');
+                
+                // Redirect after short delay
+                setTimeout(() => {
+                    const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+                    window.location.href = returnUrl;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('login', error.message || 'Login failed. Please try again.');
+                setButtonLoading(button, false);
+            }
+        });
+
+        // Handle register form submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const button = e.target.querySelector('.form-button');
+            setButtonLoading(button, true);
+            clearMessages();
+
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validation
+            if (!username || !email || !password || !confirmPassword) {
+                showError('register', 'Please fill in all fields');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            if (username.length < 3) {
+                showError('register', 'Username must be at least 3 characters');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('register', 'Password must be at least 6 characters');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('register', 'Passwords do not match');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            // Email format validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('register', 'Please enter a valid email address');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            // Username format validation
+            const usernameRegex = /^[a-zA-Z0-9_]+$/;
+            if (!usernameRegex.test(username)) {
+                showError('register', 'Username can only contain letters, numbers, and underscores');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            try {
+                const result = await api.register(username, email, password);
+                showSuccess('register', 'Account created successfully! Redirecting...');
+                
+                // Redirect after short delay
+                setTimeout(() => {
+                    const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+                    window.location.href = returnUrl;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showError('register', error.message || 'Registration failed. Please try again.');
+                setButtonLoading(button, false);
+            }
+        });
+
+        // Real-time password confirmation validation
+        document.getElementById('confirmPassword').addEventListener('input', (e) => {
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = e.target.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                e.target.style.borderColor = '#ef4444';
+            } else {
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            }
+        });
+
+        // Real-time username validation
+        document.getElementById('registerUsername').addEventListener('input', (e) => {
+            const username = e.target.value;
+            const usernameRegex = /^[a-zA-Z0-9_]+$/;
+            
+            if (username && !usernameRegex.test(username)) {
+                e.target.style.borderColor = '#ef4444';
+            } else if (username.length >= 3) {
+                e.target.style.borderColor = '#22c55e';
+            } else {
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            }
+        });
+
+        // Check if user is already logged in
+        window.addEventListener('load', () => {
+            if (api.isAuthenticated()) {
+                // User is already logged in, redirect them
+                const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+                window.location.href = returnUrl;
+            }
+        });
+
+        // Handle Enter key in forms
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const form = input.closest('form');
+                    if (form) {
+                        form.querySelector('.form-button').click();
+                    }
+                }
+            });
+        });
+
+        // Auto-focus first input
+        document.getElementById('loginUsername').focus();
+    </script>
+</body>
+</html>
