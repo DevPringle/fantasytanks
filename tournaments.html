@@ -705,7 +705,17 @@
             // Animate progress bars on load
             setTimeout(() => {
                 document.querySelectorAll('.progress-fill').forEach(bar => {
-                    const<!DOCTYPE html>
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">

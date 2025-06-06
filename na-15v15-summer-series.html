@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NA 15v15 Summer Series - WoT Fantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* Material Icons fallback */
+        .material-icons {
+            font-family: 'Material Icons', 'Material Icons Outlined', sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 36px;
+            width: auto;
+            max-width: 220px;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-link:hover {
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .region-selector {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .region-btn {
+            padding: 0.6rem 1.2rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .region-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .region-btn.active {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border-color: #00d4ff;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .sign-in-btn {
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .sign-in-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+            background: linear-gradient(135deg, #00b8e6, #00d4ff);
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        /* Tournament Header */
+        .tournament-header {
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(0, 212, 255, 0.15), transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(0, 184, 230, 0.1), transparent 50%),
+                linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(26, 35, 50, 0.2));
+            padding: 3rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tournament-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .tournament-header-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tournament-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .tournament-breadcrumb {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tournament-breadcrumb a {
+            color: #00d4ff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .tournament-breadcrumb a:hover {
+            color: #ffffff;
+        }
+
+        .tournament-name {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #00b8e6 50%, #0099cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .tournament-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+
+        .meta-icon {
+            color: #00d4ff;
+            font-size: 1.2rem;
+        }
+
+        .tournament-status-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+        }
+
+        .fantasy-info {
+            text-align: right;
+        }
+
+        .fantasy-stat {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .fantasy-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .roster-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        /* Tournament Navigation */
+        .tournament-nav {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 80px;
+            z-index: 999;
+        }
+
+        .tournament-nav-container {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .tournament-nav-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+            list-style: none;
+            min-width: max-content;
+        }
+
+        .nav-tab {
+            padding: 1.2rem 2rem;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 3px solid transparent;
+            position: relative;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-tab:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-tab.active {
+            color: #00d4ff;
+            border-bottom-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        /* Main Content Area */
+        .tournament-content {
+            padding: 3rem 0;
+            min-height: 60vh;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Overview Tab */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .overview-main {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .overview-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tournament-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .quick-stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .quick-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Top Teams List */
+        .teams-list {
+            list-style: none;
+        }
+
+        .team-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .team-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .team-rank {
+            font-weight: 700;
+            color: #00d4ff;
+            min-width: 2rem;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .team-score {
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            color: #00d4ff;
+            font-size: 1.2rem;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .activity-time {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(15, 20, 25, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 0 2rem;
+            margin-top: 5rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .footer-note {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(15, 20, 25, 0.98);
+                flex-direction: column;
+                padding: 2rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .tournament-name {
+                font-size: 2rem;
+            }
+
+            .tournament-header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .tournament-meta {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-tab {
+                padding: 1rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .roster-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .action-btn:focus,
+        .nav-tab:focus,
+        .region-btn:focus {
+            outline: 2px solid #00d4ff;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="index.html" class="logo">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo">
+            </a>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="tournaments.html" class="nav-link">Tournaments</a></li>
+                <li><a href="index.html#groups" class="nav-link">Groups</a></li>
+                <li><a href="index.html#guide" class="nav-link">Guide</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="region-selector">
+                <button class="region-btn active" data-region="na" aria-label="North America region">NA</button>
+                <button class="region-btn" data-region="eu" aria-label="Europe region">EU</button>
+                <button class="region-btn" data-region="ru" aria-label="Russia region">RU</button>
+                <button class="region-btn" data-region="asia" aria-label="Asia region">ASIA</button>
+            </div>
+
+            <div class="auth-section">
+                <button class="sign-in-btn" aria-label="Sign in to your account">Sign In</button>
+                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle mobile menu">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Tournament Header -->
+        <section class="tournament-header">
+            <div class="container">
+                <div class="tournament-header-content">
+                    <div class="tournament-info">
+                        <div class="tournament-breadcrumb">
+                            <a href="tournaments.html">Tournaments</a>
+                            <span class="material-icons" style="font-size: 1rem;">chevron_right</span>
+                            <span>NA 15v15 Summer Series</span>
+                        </div>
+                        
+                        <h1 class="tournament-name">NA 15v15 Summer Series</h1>
+                        
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                <span>North America</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                <span>Pick 10 Players</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                <span>22d 14h left</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">sports_esports</span>
+                                <span>93 Fantasy Teams</span>
+                            </div>
+                        </div>
+
+                        <div class="tournament-status-header">
+                            <span class="status-badge">Rosters Open</span>
+                        </div>
+
+                        <div class="roster-actions">
+                            <button class="action-btn">
+                                <span class="material-icons">sports_esports</span>
+                                Set My Roster
+                            </button>
+                            <button class="action-btn secondary">
+                                <span class="material-icons">leaderboard</span>
+                                View Leaderboard
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="fantasy-info">
+                        <div class="fantasy-label">Fantasy Teams Competing</div>
+                        <div class="fantasy-stat">93</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tournament Navigation -->
+        <nav class="tournament-nav">
+            <div class="container">
+                <div class="tournament-nav-container">
+                    <ul class="nav-tabs">
+                        <li><a href="#overview" class="nav-tab active" data-tab="overview">
+                            <span class="material-icons" style="font-size: 1rem;">home</span>
+                            Overview
+                        </a></li>
+                        <li><a href="#schedule" class="nav-tab" data-tab="schedule">
+                            <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                            Schedule
+                        </a></li>
+                        <li><a href="#standings" class="nav-tab" data-tab="standings">
+                            <span class="material-icons" style="font-size: 1rem;">leaderboard</span>
+                            Standings
+                        </a></li>
+                        <li><a href="#players" class="nav-tab" data-tab="players">
+                            <span class="material-icons" style="font-size: 1rem;">people</span>
+                            Players
+                        </a></li>
+                        <li><a href="#teams" class="nav-tab" data-tab="teams">
+                            <span class="material-icons" style="font-size: 1rem;">groups</span>
+                            Teams
+                        </a></li>
+                        <li><a href="#stats" class="nav-tab" data-tab="stats">
+                            <span class="material-icons" style="font-size: 1rem;">analytics</span>
+                            Stats
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Tournament Content -->
+        <section class="tournament-content container">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="overview-grid">
+                    <div class="overview-main">
+                        <h2 class="section-title">
+                            <span class="material-icons">info</span>
+                            Tournament Information
+                        </h2>
+                        <p class="tournament-description">
+                            Welcome to the fantasy tournament based on the NA 15v15 Summer Series professional league. Draft your ultimate fantasy lineup from the real pro players competing in the actual tournament and earn points based on their performance.
+                        </p>
+                        <p class="tournament-description">
+                            Fantasy points are awarded based on real-time performance metrics including eliminations, damage dealt, objectives captured, and overall team performance. Build your roster of 10 players strategically to maximize your fantasy points and climb the leaderboard against other fantasy teams.
+                        </p>
+
+                        <div class="progress-section">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">timeline</span>
+                                Tournament Progress
+                            </h3>
+                            <div class="progress-label">
+                                <span>Pro Tournament Phase: Qualifiers</span>
+                                <span>15%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 15%;"></div>
+                            </div>
+                            <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 0.5rem;">
+                                Pro teams are currently competing in the qualifier stage. Fantasy scoring begins when group stage starts in 8 days.
+                            </p>
+                        </div>
+
+                        <div class="quick-stats">
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">16</span>
+                                <span class="quick-stat-label">Pro Teams</span>
+                            </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">160</span>
+                                <span class="quick-stat-label">Available Players</span>
+                            </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">93</span>
+                                <span class="quick-stat-label">Fantasy Teams</span>
+                            </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">4</span>
+                                <span class="quick-stat-label">Weeks Duration</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overview-sidebar">
+                        <div class="sidebar-card">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">emoji_events</span>
+                                Top Fantasy Teams
+                            </h3>
+                            <ul class="teams-list">
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">1</span>
+                                        <span class="team-name">TankCommander_Pro</span>
+                                    </div>
+                                    <span class="team-score">2,847</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">2</span>
+                                        <span class="team-name">SteelStrategist_2025</span>
+                                    </div>
+                                    <span class="team-score">2,739</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">3</span>
+                                        <span class="team-name">ArmorMaster_Elite</span>
+                                    </div>
+                                    <span class="team-score">2,681</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">4</span>
+                                        <span class="team-name">BattlefieldGuru</span>
+                                    </div>
+                                    <span class="team-score">2,594</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">5</span>
+                                        <span class="team-name">IronEagle_Manager</span>
+                                    </div>
+                                    <span class="team-score">2,512</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="sidebar-card">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">notifications</span>
+                                Recent Activity
+                            </h3>
+                            <ul class="activity-list">
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">person_add</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">New fantasy team joined: TankMaster_2025</div>
+                                        <div class="activity-time">2 hours ago</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">swap_horiz</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Popular pick: SlyGuy_2 drafted by 12 fantasy teams</div>
+                                        <div class="activity-time">4 hours ago</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">star</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Fantasy leader: GrapeKun_PourOneOut most valuable pick</div>
+                                        <div class="activity-time">6 hours ago</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">schedule</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Fantasy scoring starts when pro matches begin in 18 hours</div>
+                                        <div class="activity-time">8 hours ago</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Tab -->
+            <div id="schedule" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">schedule</span>
+                    Pro Tournament Schedule
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">schedule</span>
+                    <h3 style="margin-bottom: 1rem;">Pro Match Schedule Coming Soon</h3>
+                    <p>Pro tournament match schedules will be available here to help you track when your fantasy players compete.</p>
+                </div>
+            </div>
+
+            <!-- Standings Tab -->
+            <div id="standings" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">leaderboard</span>
+                    Fantasy Leaderboard
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">leaderboard</span>
+                    <h3 style="margin-bottom: 1rem;">Fantasy Leaderboard Updating</h3>
+                    <p>Fantasy team rankings will be available once pro tournament scoring begins in the group stage.</p>
+                </div>
+            </div>
+
+            <!-- Players Tab -->
+            <div id="players" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">people</span>
+                    Fantasy Player Pool
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">people</span>
+                    <h3 style="margin-bottom: 1rem;">Player Stats Loading</h3>
+                    <p>Complete pro player statistics and fantasy values for drafting will be available soon.</p>
+                </div>
+            </div>
+
+            <!-- Teams Tab -->
+            <div id="teams" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">groups</span>
+                    Pro Team Rosters
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
+                    <h3 style="margin-bottom: 1rem;">Pro Team Rosters Loading</h3>
+                    <p>Professional team rosters showing which players are available for fantasy drafting will be displayed here.</p>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="stats" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">analytics</span>
+                    Fantasy Statistics
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">analytics</span>
+                    <h3 style="margin-bottom: 1rem;">Fantasy Stats Coming Soon</h3>
+                    <p>Detailed fantasy performance analytics, player trends, and optimal drafting insights will be available during the tournament.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <ul class="footer-links">
+                    <li><a href="#resources">Resources</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                </ul>
+                <div class="footer-note">
+                    <p>Original concept by Hypnotik • Created by Joshua Neuenhoff, aka Unknown0ne</p>
+                    <p>This website is not affiliated with Wargaming.net or World of Tanks</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        if (mobileToggle && navMenu) {
+            mobileToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const icon = mobileToggle.querySelector('.material-icons');
+                icon.textContent = navMenu.classList.contains('active') ? 'close' : 'menu';
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!mobileToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    mobileToggle.querySelector('.material-icons').textContent = 'menu';
+                }
+            });
+        }
+
+        // Region selector
+        document.querySelectorAll('.region-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const region = btn.dataset.region.toUpperCase();
+                console.log(`Switched to ${region} region`);
+                
+                // Add brief loading effect
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btn.style.transform = '';
+                }, 150);
+            });
+        });
+
+        // Tournament Navigation Tabs
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                const targetTab = tab.dataset.tab;
+                const targetContent = document.getElementById(targetTab);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                
+                // Update URL hash
+                window.history.replaceState(null, null, `#${targetTab}`);
+            });
+        });
+
+        // Handle direct hash navigation
+        function handleHashNavigation() {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const targetTab = document.querySelector(`[data-tab="${hash}"]`);
+                const targetContent = document.getElementById(hash);
+                
+                if (targetTab && targetContent) {
+                    // Remove active class from all tabs and content
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Activate target tab and content
+                    targetTab.classList.add('active');
+                    targetContent.classList.add('active');
+                }
+            }
+        }
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', handleHashNavigation);
+
+        // Handle initial hash on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            handleHashNavigation();
+            console.log('Tournament detail page loaded successfully!');
+            
+            // Animate progress bar
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+
+        // Enhanced button click effects
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+                
+                // Handle button actions
+                if (this.textContent.includes('Set My Roster')) {
+                    alert('Roster management functionality will be implemented here');
+                } else if (this.textContent.includes('View Leaderboard')) {
+                    // Switch to standings tab
+                    const standingsTab = document.querySelector('[data-tab="standings"]');
+                    if (standingsTab) {
+                        standingsTab.click();
+                    }
+                }
+            });
+        });
+
+        // Add ripple animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href.startsWith('#') && href.length > 1) {
+                    // Let the tab navigation handle it
+                    return;
+                }
+                
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    const headerHeight = document.querySelector('.header').offsetHeight;
+                    const navHeight = document.querySelector('.tournament-nav').offsetHeight;
+                    const targetPosition = target.offsetTop - headerHeight - navHeight - 20;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Team item hover effects
+        document.querySelectorAll('.team-item').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.transform = 'translateX(5px)';
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
+</body>
+</html>
