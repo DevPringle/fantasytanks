@@ -206,6 +206,57 @@
             }
         });
 
+        // Tab navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                const targetTab = tab.dataset.tab;
+                const targetContent = document.getElementById(targetTab);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                
+                // Load standings data when switching to standings tab
+                if (targetTab === 'standings') {
+                    loadStandings();
+                }
+            });
+        });
+
+        // Button actions
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent.includes('Set My Roster')) {
+                    if (!isAuthenticated) {
+                        showNotification('Please sign in to set your roster', 'error');
+                        return;
+                    }
+                    const playersTab = document.querySelector('[data-tab="players"]');
+                    if (playersTab) {
+                        playersTab.click();
+                    }
+                }
+            });
+        });
+
+        // Standings tab switching
+        function switchStandingsTab(tab) {
+            document.querySelectorAll('.standings-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.standings-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-standings').classList.add('active');
+        }
+
         function updateAuthUI() {
             const signInBtn = document.getElementById('signInBtn');
             const userMenu = document.getElementById('userMenu');
