@@ -1,4 +1,655 @@
-<!DOCTYPE html>
+    <script>
+        // Initialize API
+        const api = new FantasyAPI();
+
+        // Sample player data
+        const samplePlayers = [
+            { name: 'muscles1', team: 'LHG', battles: '100%', points: 5714.7, avg: 53.9, picked: '50.04%' },
+            { name: 'notch123', team: '25%', battles: '99%', points: 5550.5, avg: 48.7, picked: '57.61%' },
+            { name: 'TheLoveHitman', team: 'TT6', battles: '100%', points: 5298.5, avg: 49.5, picked: '55.14%' },
+            { name: 'JxMAN20', team: '25%', battles: '91%', points: 4868.7, avg: 46.4, picked: '11.85%' },
+            { name: 'Vyraall', team: 'TT6', battles: '97%', points: 4781.3, avg: 45.8, picked: '29.86%' },
+            { name: 'CommanderHalesBrother', team: '25%', battles: '90%', points: 4567.0, avg: 43.9, picked: '17.93%' },
+            { name: 'Major_Kenway', team: '25%', battles: '80%', points: 4513.9, avg: 49.1, picked: '10.58%' },
+            { name: '_BlitzWolf', team: 'TT6', battles: '79%', points: 4492.0, avg: 52.8, picked: '7.50%' },
+            { name: 'Accretia', team: 'WAR', battles: '100%', points: 4461.1, avg: 44.6, picked: '33.53%' },
+            { name: '_bloop', team: 'SB', battles: '96%', points: 4395.0, avg: 48.3, picked: '63.84%' },
+            { name: 'SgtRumsey', team: 'LHG', battles: '75%', points: 4339.6, avg: 49.1, picked: '25.67%' },
+            { name: 'iWrangleEmus', team: 'TT6', battles: '92%', points: 4268.6, avg: 47.8, picked: '18.42%' },
+            { name: 'ShiraiKan_ExcalibuR', team: 'WAR', battles: '91%', points: 4036.9, avg: 44.2, picked: '22.15%' },
+            { name: 'Mlopesz', team: 'WAR', battles: '100%', points: 4029.7, avg: 40.3, picked: '15.78%' },
+            { name: 'SlyGuy_2', team: 'SB', battles: '99%', points: 3998.4, avg: 45.7, picked: '31.25%' },
+            { name: 'Captian_Jack9', team: 'SB', battles: '81%', points: 3967.1, avg: 48.9, picked: '28.94%' },
+            { name: 'Starick', team: 'WAR', battles: '83%', points: 3895.5, avg: 46.9, picked: '19.73%' },
+            { name: 'RM_xD', team: 'SB', battles: '100%', points: 3659.2, avg: 36.6, picked: '8.55%' }
+        ];
+
+        let currentRoster = [];
+        let maxRosterSize = 10;
+        let rostersUnlocked = true; // This will be controlled by cutoff times
+        let isAuthenticated = false;
+        let currentMatchDay = 1;
+
+        // Roster cutoff configuration - SET YOUR CUTOFF TIMES HERE
+        const rosterCutoffs = {
+            1: new Date('2025-01-15T18:00:00Z'), // Match Day 1 cutoff
+            2: new Date('2025-01-22T18:00:00Z'), // Match Day 2 cutoff  
+            3: new Date('2025-01-29T18:00:00Z'), // Match Day 3 cutoff
+            4: new Date('2025-02-05T18:00:00Z'), // Match Day 4 cutoff
+        };
+
+        // Check if rosters are locked based on current time
+        function checkRosterLockStatus() {
+            const now = new Date();
+            const nextCutoff = rosterCutoffs[currentMatchDay];
+            
+            if (!nextCutoff) {
+                rostersUnlocked = false;
+                return;
+            }
+
+            if (now >= nextCutoff) {
+                rostersUnlocked = false;
+                updateRosterStatusUI('locked');
+            } else {
+                rostersUnlocked = true;
+                updateRosterStatusUI('open', nextCutoff);
+                startCountdownTimer(nextCutoff);
+            }
+        }
+
+        function updateRosterStatusUI(status, cutoffTime = null) {
+            const statusBadge = document.getElementById('rosterStatus');
+            const cutoffTimer = document.getElementById('cutoffTimer');
+            
+            if (status === 'locked') {
+                statusBadge.textContent = 'Rosters Locked';
+                statusBadge.classList.add('locked');
+                cutoffTimer.style.display = 'none';
+            } else {
+                statusBadge.textContent = 'Rosters Open';
+                statusBadge.classList.remove('locked');
+                if (cutoffTime) {
+                    cutoffTimer.style.display = 'flex';
+                }
+            }
+        }
+
+        function startCountdownTimer(cutoffTime) {
+            const timeDisplay = document.getElementById('timeRemaining');
+            
+            function updateTimer() {
+                const now = new Date();
+                const timeLeft = cutoffTime - now;
+                
+                if (timeLeft <= 0) {
+                    rostersUnlocked = false;
+                    updateRosterStatusUI('locked');
+                    populatePlayersTable(); // Refresh to show locked state
+                    return;
+                }
+                
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                timeDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        // Standings functionality
+        let standingsData = [];
+        let filteredStandings = [];
+
+        function switchStandingsTab(tab) {
+            document.querySelectorAll('.standings-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.standings-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-standings').classList.add('active');
+        }
+
+        async function loadStandings() {
+            if (!api.isAuthenticated()) return;
+            
+            try {
+                const matchDay = document.getElementById('matchDayFilter').value;
+                const response = await api.getLeaderboard('na-15v15-summer-series', matchDay || null);
+                
+                if (response && response.leaderboard) {
+                    standingsData = response.leaderboard;
+                    filterAndDisplayStandings();
+                } else {
+                    displayEmptyStandings();
+                }
+            } catch (error) {
+                console.error('Error loading standings:', error);
+                displayEmptyStandings();
+            }
+        }
+
+        function filterAndDisplayStandings() {
+            const searchTerm = document.getElementById('usernameSearch').value.toLowerCase();
+            
+            filteredStandings = standingsData.filter(entry => 
+                entry.username.toLowerCase().includes(searchTerm)
+            );
+            
+            displayStandings();
+        }
+
+        function displayStandings() {
+            const tbody = document.getElementById('standingsTableBody');
+            const emptyState = document.getElementById('standingsEmpty');
+            
+            if (filteredStandings.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // Update header based on filter
+            const matchDayFilter = document.getElementById('matchDayFilter').value;
+            const matchDaysHeader = document.getElementById('matchDaysHeader');
+            
+            if (matchDayFilter) {
+                matchDaysHeader.textContent = 'Match Day';
+            } else {
+                matchDaysHeader.textContent = 'Match Days';
+            }
+            
+            tbody.innerHTML = filteredStandings.map((entry, index) => {
+                const rank = index + 1;
+                const rankClass = rank <= 3 ? 'top-3' : '';
+                
+                return `
+                    <tr>
+                        <td class="standings-rank ${rankClass}">${rank}</td>
+                        <td class="standings-username">${entry.username}</td>
+                        <td class="standings-score">${parseFloat(entry.total_points || 0).toLocaleString()}</td>
+                        <td>${parseFloat(entry.avg_points || 0).toFixed(1)}</td>
+                        <td>${matchDayFilter ? matchDayFilter : (entry.match_days_played || 0)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function displayEmptyStandings() {
+            document.getElementById('standingsTableBody').innerHTML = '';
+            document.getElementById('standingsEmpty').style.display = 'block';
+        }
+
+        // Authentication functions
+        function redirectToLogin() {
+            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
+        }
+
+        function handleLogout() {
+            api.logout();
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userMenu');
+            if (userMenu && !userMenu.contains(e.target)) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+
+        function updateAuthUI() {
+            const signInBtn = document.getElementById('signInBtn');
+            const userMenu = document.getElementById('userMenu');
+            const authOverlay = document.getElementById('authOverlay');
+            
+            if (api.isAuthenticated()) {
+                isAuthenticated = true;
+                const user = api.getCurrentUser();
+                
+                // Hide sign in button, show user menu
+                signInBtn.style.display = 'none';
+                userMenu.style.display = 'block';
+                document.getElementById('username').textContent = user.username;
+                
+                // Hide auth overlay
+                authOverlay.style.display = 'none';
+                
+                // Load user's roster
+                loadUserRoster();
+            } else {
+                isAuthenticated = false;
+                
+                // Show sign in button, hide user menu
+                signInBtn.style.display = 'block';
+                userMenu.style.display = 'none';
+                
+                // Show auth overlay on roster
+                authOverlay.style.display = 'flex';
+            }
+        }
+
+        async function loadUserRoster() {
+            if (!api.isAuthenticated()) return;
+            
+            try {
+                const response = await api.getRoster('na-15v15-summer-series');
+                if (response && response.roster) {
+                    currentRoster = response.roster;
+                    console.log('User roster loaded:', currentRoster);
+                }
+            } catch (error) {
+                console.error('Error loading user roster:', error);
+                // Fall back to local storage for demo
+                const saved = localStorage.getItem('roster_na-15v15-summer-series_demo');
+                if (saved) {
+                    currentRoster = JSON.parse(saved);
+                    console.log('Roster loaded from local storage:', currentRoster);
+                }
+            }
+        }
+
+        // Populate players table
+        function populatePlayersTable() {
+            const tbody = document.getElementById('playersTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+
+            // Filter players by team if selected
+            const teamFilter = document.getElementById('teamFilter');
+            const selectedTeam = teamFilter ? teamFilter.value : '';
+            const filteredPlayers = selectedTeam ? 
+                samplePlayers.filter(p => p.team === selectedTeam) : 
+                samplePlayers;
+
+            filteredPlayers.forEach(player => {
+                const row = document.createElement('tr');
+                
+                // Determine action button state
+                let actionIcon = 'lock';
+                let actionClass = '';
+                let actionTitle = 'Rosters are locked';
+                
+                if (!isAuthenticated) {
+                    actionIcon = 'lock';
+                    actionClass = '';
+                    actionTitle = 'Please sign in to add players';
+                } else if (rostersUnlocked) {
+                    if (currentRoster.includes(player.name)) {
+                        actionIcon = 'remove';
+                        actionClass = 'remove';
+                        actionTitle = 'Remove from roster';
+                    } else if (currentRoster.length < maxRosterSize) {
+                        actionIcon = 'add';
+                        actionClass = 'add';
+                        actionTitle = 'Add to roster';
+                    } else {
+                        actionIcon = 'lock';
+                        actionClass = '';
+                        actionTitle = 'Roster is full';
+                    }
+                } else {
+                    actionIcon = 'lock';
+                    actionClass = '';
+                    actionTitle = 'Rosters are locked';
+                }
+
+                row.innerHTML = `
+                    <td class="action-column">
+                        <button class="player-action-btn ${actionClass}" 
+                                data-player="${player.name}" 
+                                title="${actionTitle}">
+                            <span class="material-icons">${actionIcon}</span>
+                        </button>
+                    </td>
+                    <td class="player-name">${player.name}</td>
+                    <td class="player-team">${player.team}</td>
+                    <td class="player-battles">${player.battles}</td>
+                    <td class="player-points">${parseFloat(player.points).toLocaleString()}</td>
+                    <td class="player-avg">${player.avg}</td>
+                    <td class="player-picked">${player.picked}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+
+            // Add event listeners to action buttons
+            document.querySelectorAll('.player-action-btn').forEach(btn => {
+                btn.addEventListener('click', handlePlayerAction);
+            });
+        }
+
+        // Handle player roster actions
+        function handlePlayerAction(e) {
+            const playerName = e.currentTarget.dataset.player;
+            const button = e.currentTarget;
+            
+            if (!isAuthenticated) {
+                showNotification('Please sign in to manage your roster', 'error');
+                return;
+            }
+            
+            if (!rostersUnlocked) {
+                showNotification('Rosters are currently locked for this tournament', 'error');
+                return;
+            }
+            
+            if (button.classList.contains('add')) {
+                addPlayerToRoster(playerName);
+            } else if (button.classList.contains('remove')) {
+                removePlayerFromRoster(playerName);
+            }
+        }
+
+        // Add player to roster
+        function addPlayerToRoster(playerName) {
+            if (!isAuthenticated) {
+                showNotification('Please sign in to add players to your roster', 'error');
+                return;
+            }
+
+            if (currentRoster.length >= maxRosterSize) {
+                showNotification(`Roster is full (${maxRosterSize} players maximum)`, 'error');
+                return;
+            }
+            
+            if (currentRoster.includes(playerName)) {
+                showNotification('Player is already in your roster', 'error');
+                return;
+            }
+            
+            currentRoster.push(playerName);
+            updateRosterDisplay();
+            populatePlayersTable();
+            saveRosterToStorage();
+            
+            showNotification(`${playerName} added to roster`, 'success');
+        }
+
+        // Remove player from roster
+        function removePlayerFromRoster(playerName) {
+            if (!isAuthenticated) {
+                showNotification('Please sign in to manage your roster', 'error');
+                return;
+            }
+
+            const index = currentRoster.indexOf(playerName);
+            if (index > -1) {
+                currentRoster.splice(index, 1);
+                updateRosterDisplay();
+                populatePlayersTable();
+                saveRosterToStorage();
+                
+                showNotification(`${playerName} removed from roster`, 'success');
+            }
+        }
+
+        // Update roster display
+        function updateRosterDisplay() {
+            const rosterCount = document.getElementById('rosterCount');
+            const rosterList = document.getElementById('rosterList');
+            const rosterMessage = document.getElementById('rosterMessage');
+            
+            if (!rosterCount) return;
+            
+            rosterCount.textContent = currentRoster.length;
+            
+            if (isAuthenticated && rostersUnlocked && currentRoster.length > 0) {
+                if (rosterMessage) rosterMessage.style.display = 'none';
+                if (rosterList) {
+                    rosterList.style.display = 'block';
+                    rosterList.innerHTML = currentRoster.map(playerName => `
+                        <div class="roster-player">
+                            <span class="roster-player-name">${playerName}</span>
+                            <button class="roster-player-remove" 
+                                    onclick="removePlayerFromRoster('${playerName}')"
+                                    title="Remove player">
+                                <span class="material-icons" style="font-size: 1rem;">close</span>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                if (rosterMessage) {
+                    rosterMessage.style.display = 'block';
+                    if (!isAuthenticated) {
+                        rosterMessage.innerHTML = 'Your roster is empty. Add players from the table above to build your fantasy team.';
+                    } else if (!rostersUnlocked) {
+                        rosterMessage.innerHTML = `
+                            Rosters are currently locked for this tournament.
+                            <br><br>
+                            Tournament administrators may be configuring the site or the tournament may be in progress.
+                            <br><br>
+                            <small style="color: #00d4ff;">Developer Note: Change "rostersUnlocked" to true in the code to test roster functionality</small>
+                        `;
+                    } else {
+                        rosterMessage.innerHTML = 'Your roster is empty. Add players from the table above to build your fantasy team.';
+                    }
+                }
+                if (rosterList) rosterList.style.display = 'none';
+            }
+        }
+
+        // Save roster
+        async function saveRosterToStorage() {
+            if (!isAuthenticated) return;
+
+            try {
+                await api.saveRoster('na-15v15-summer-series', currentRoster);
+                console.log('Roster saved to backend:', currentRoster);
+            } catch (error) {
+                console.error('Error saving roster:', error);
+                // Fall back to local storage
+                localStorage.setItem('roster_na-15v15-summer-series_demo', JSON.stringify(currentRoster));
+                console.log('Roster saved locally:', currentRoster);
+            }
+        }
+
+        // Sort table functionality
+        function sortTable(column, direction) {
+            samplePlayers.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+                
+                if (column === 'points' || column === 'avg') {
+                    aVal = parseFloat(aVal);
+                    bVal = parseFloat(bVal);
+                } else if (column === 'picked' || column === 'battles') {
+                    aVal = parseFloat(aVal.replace('%', ''));
+                    bVal = parseFloat(bVal.replace('%', ''));
+                }
+                
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+            
+            populatePlayersTable();
+        }
+
+        // Filter table functionality
+        function filterTable() {
+            populatePlayersTable();
+        }
+
+        // Show notification messages
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">
+                    <span class="material-icons">close</span>
+                </button>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: ${type === 'success' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)'};
+                color: white;
+                padding: 1rem;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                z-index: 10000;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(10px);
+                animation: slideInRight 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 4000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Tournament page loaded successfully!');
+            
+            // Update authentication UI first
+            updateAuthUI();
+            
+            // Check roster lock status and start timer
+            checkRosterLockStatus();
+            
+            // Then populate table and roster
+            populatePlayersTable();
+            updateRosterDisplay();
+            
+            // Load standings
+            loadStandings();
+            
+            // Add table sorting
+            document.querySelectorAll('.sortable').forEach(th => {
+                th.addEventListener('click', () => {
+                    const column = th.dataset.sort;
+                    const currentDirection = th.classList.contains('asc') ? 'desc' : 'asc';
+                    
+                    document.querySelectorAll('.sortable').forEach(header => {
+                        header.classList.remove('asc', 'desc');
+                    });
+                    
+                    th.classList.add(currentDirection);
+                    
+                    // Check if this is standings table or players table
+                    if (th.closest('.standings-table')) {
+                        sortStandings(column, currentDirection);
+                    } else {
+                        sortTable(column, currentDirection);
+                    }
+                });
+            });
+            
+            // Add filter functionality
+            const teamFilter = document.getElementById('teamFilter');
+            if (teamFilter) {
+                teamFilter.addEventListener('change', filterTable);
+            }
+            
+            // Add standings filters
+            const matchDayFilter = document.getElementById('matchDayFilter');
+            if (matchDayFilter) {
+                matchDayFilter.addEventListener('change', loadStandings);
+            }
+            
+            const usernameSearch = document.getElementById('usernameSearch');
+            if (usernameSearch) {
+                usernameSearch.addEventListener('input', filterAndDisplayStandings);
+            }
+        });
+
+        function sortStandings(column, direction) {
+            filteredStandings.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(column) {
+                    case 'username':
+                        aVal = a.username;
+                        bVal = b.username;
+                        break;
+                    case 'score':
+                        aVal = parseFloat(a.total_points || 0);
+                        bVal = parseFloat(b.total_points || 0);
+                        break;
+                    case 'average':
+                        aVal = parseFloat(a.avg_points || 0);
+                        bVal = parseFloat(b.avg_points || 0);
+                        break;
+                    case 'matchDays':
+                        aVal = parseInt(a.match_days_played || 0);
+                        bVal = parseInt(b.match_days_played || 0);
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+            
+            displayStandings();
+        }
+
+        // Tab navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                
+                const targetTab = tab.dataset.tab;
+                const targetContent = document.getElementById(targetTab);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+
+        // Button actions
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent.includes('Set My Roster')) {
+                    if (!isAuthenticated) {
+                        showNotification('Please sign in to set your roster', 'error');
+                        return;
+                    }
+                    const playersTab = document.querySelector('[data-tab="players"]');
+                    if (playersTab) {
+                        playersTab.click();
+                    }
+                }
+            });
+        });
+
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -161,6 +812,78 @@
             align-items: center;
         }
 
+        .user-menu {
+            position: relative;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: rgba(15, 20, 25, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.5rem;
+            min-width: 200px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-dropdown.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0.5rem 0;
+        }
+
         .sign-in-btn {
             padding: 0.8rem 2rem;
             background: linear-gradient(135deg, #00d4ff, #00b8e6);
@@ -298,6 +1021,176 @@
             color: #22c55e;
             border: 1px solid rgba(34, 197, 94, 0.4);
             box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+        }
+
+        .status-badge.locked {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .cutoff-timer {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Standings Styles */
+        .standings-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            width: fit-content;
+        }
+
+        .standings-tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .standings-tab.active {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .standings-content {
+            display: none;
+        }
+
+        .standings-content.active {
+            display: block;
+        }
+
+        .standings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .standings-filters {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 200px;
+        }
+
+        .filter-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .standings-table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .standings-table th {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1rem;
+            text-align: left;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .standings-table th.sortable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .standings-table th.sortable:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #00d4ff;
+        }
+
+        .standings-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }
+
+        .standings-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .standings-rank {
+            font-weight: 700;
+            color: #00d4ff;
+            min-width: 3rem;
+        }
+
+        .standings-rank.top-3 {
+            color: #ffd700;
+        }
+
+        .standings-username {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .standings-score {
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .standings-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .standings-empty h3 {
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .fantasy-info {
@@ -865,6 +1758,48 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .roster-message.auth-required {
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .auth-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .auth-message {
+            background: rgba(15, 20, 25, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+            max-width: 280px;
+        }
+
+        .auth-message h4 {
+            color: #00d4ff;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .auth-message p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
         .roster-list {
             display: none;
         }
@@ -1065,7 +2000,29 @@
             </div>
 
             <div class="auth-section">
-                <button class="sign-in-btn" aria-label="Sign in to your account">Sign In</button>
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <button class="user-btn" onclick="toggleUserDropdown()">
+                        <span class="material-icons">person</span>
+                        <span id="username"></span>
+                        <span class="material-icons">expand_more</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#profile" class="dropdown-item">
+                            <span class="material-icons">person</span>
+                            Profile
+                        </a>
+                        <a href="#settings" class="dropdown-item">
+                            <span class="material-icons">settings</span>
+                            Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#logout" class="dropdown-item" onclick="handleLogout()">
+                            <span class="material-icons">logout</span>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+                <button class="sign-in-btn" id="signInBtn" aria-label="Sign in to your account" onclick="redirectToLogin()">Sign In</button>
                 <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle mobile menu">
                     <span class="material-icons">menu</span>
                 </button>
@@ -1107,7 +2064,11 @@
                         </div>
 
                         <div class="tournament-status-header">
-                            <span class="status-badge">Rosters Open</span>
+                            <span class="status-badge" id="rosterStatus">Rosters Open</span>
+                            <div class="cutoff-timer" id="cutoffTimer" style="display: none;">
+                                <span class="material-icons">schedule</span>
+                                <span id="timeRemaining">--:--:--</span>
+                            </div>
                         </div>
 
                         <div class="roster-actions">
@@ -1320,12 +2281,76 @@
             <div id="standings" class="tab-content">
                 <h2 class="section-title">
                     <span class="material-icons">leaderboard</span>
-                    Fantasy Leaderboard
+                    Tournament Standings
                 </h2>
-                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">leaderboard</span>
-                    <h3 style="margin-bottom: 1rem;">Fantasy Leaderboard Updating</h3>
-                    <p>Fantasy team rankings will be available once pro tournament scoring begins in the group stage.</p>
+                
+                <!-- Standings Sub-tabs -->
+                <div class="standings-tabs">
+                    <button class="standings-tab active" onclick="switchStandingsTab('fantasy')">Fantasy Standings</button>
+                    <button class="standings-tab" onclick="switchStandingsTab('teams')">Team Standings</button>
+                </div>
+
+                <!-- Fantasy Standings -->
+                <div id="fantasy-standings" class="standings-content active">
+                    <div class="standings-header">
+                        <div class="standings-filters">
+                            <div class="filter-group">
+                                <label for="matchDayFilter">Match Day:</label>
+                                <select id="matchDayFilter" class="filter-select">
+                                    <option value="">All Match Days (Overall)</option>
+                                    <option value="1">Match Day 1</option>
+                                    <option value="2">Match Day 2</option>
+                                    <option value="3">Match Day 3</option>
+                                    <option value="4">Match Day 4</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <input type="text" id="usernameSearch" class="filter-input" placeholder="Search by username...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standings-table-container">
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-sort="rank">Rank</th>
+                                    <th class="sortable" data-sort="username">
+                                        Username
+                                        <span class="material-icons sort-icon">expand_more</span>
+                                    </th>
+                                    <th class="sortable" data-sort="score">
+                                        Score
+                                        <span class="material-icons sort-icon">expand_more</span>
+                                    </th>
+                                    <th class="sortable" data-sort="average">
+                                        Avg. Score
+                                    </th>
+                                    <th class="sortable" data-sort="matchDays" id="matchDaysHeader">
+                                        Match Days
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="standingsTableBody">
+                                <!-- Standings will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="standings-empty" id="standingsEmpty" style="display: none;">
+                        <span class="material-icons" style="font-size: 4rem; opacity: 0.4;">leaderboard</span>
+                        <h3>No Fantasy Standings Yet</h3>
+                        <p>Fantasy standings will appear here once match scoring begins.</p>
+                    </div>
+                </div>
+
+                <!-- Team Standings (Pro Teams) -->
+                <div id="team-standings" class="standings-content">
+                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                        <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
+                        <h3 style="margin-bottom: 1rem;">Pro Team Standings Coming Soon</h3>
+                        <p>Professional team standings from the actual tournament will be displayed here.</p>
+                    </div>
                 </div>
             </div>
 
@@ -1399,6 +2424,12 @@
                         <div class="roster-list" id="rosterList">
                             <!-- Selected players will appear here -->
                         </div>
+                        <div class="auth-overlay" id="authOverlay" style="display: none;">
+                            <div class="auth-message">
+                                <h4>Sign In Required</h4>
+                                <p>Please sign in to start building your Fantasy Roster. Click the Sign In button in the top-right of the page.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1448,6 +2479,7 @@
         </div>
     </footer>
 
+    <script src="js/api.js"></script>
     <script>
         // API client for connecting to your Railway backend
         class FantasyAPI {
