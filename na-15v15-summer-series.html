@@ -2422,6 +2422,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Tournament page loaded successfully!');
             
+            // Initialize tab navigation first
+            initializeTabNavigation();
+            
             // Update authentication UI first
             updateAuthUI();
             
@@ -2472,6 +2475,22 @@
             if (usernameSearch) {
                 usernameSearch.addEventListener('input', filterAndDisplayStandings);
             }
+
+            // Button actions
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.textContent.includes('Set My Roster')) {
+                        if (!isAuthenticated) {
+                            showNotification('Please sign in to set your roster', 'error');
+                            return;
+                        }
+                        const playersTab = document.querySelector('[data-tab="players"]');
+                        if (playersTab) {
+                            playersTab.click();
+                        }
+                    }
+                });
+            });
         });
 
         function sortStandings(column, direction) {
@@ -2509,5 +2528,44 @@
             displayStandings();
         }
 
-        // Tab
+        // Tab navigation - moved to end of DOMContentLoaded to ensure all elements are available
+        function initializeTabNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove active class from all tabs and content
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    const targetTab = tab.dataset.tab;
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                        console.log('Switched to tab:', targetTab); // Debug log
+                    } else {
+                        console.error('Tab content not found:', targetTab); // Debug log
+                    }
+                });
+            });
+        }
+
+        // Button actions - removed duplicate code since it's now in DOMContentLoaded
+        
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
                                 
