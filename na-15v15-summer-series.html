@@ -1,4 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NA 15v15 Summer Series - WoT Fantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* Material Icons fallback */
+        .material-icons {
+            font-family: 'Material Icons', 'Material Icons Outlined', sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="index.html" class="logo">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo">
+            </a>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="tournaments.html" class="nav-link">Tournaments</a></li>
+                <li><a href="index.html#groups" class="nav-link">Groups</a></li>
+                <li><a href="index.html#guide" class="nav-link">Guide</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="region-selector">
+                <button class="region-btn active" data-region="na" aria-label="North America region">NA</button>
+                <button class="region-btn" data-region="eu" aria-label="Europe region">EU</button>
+                <button class="region-btn" data-region="ru" aria-label="Russia region">RU</button>
+                <button class="region-btn" data-region="asia" aria-label="Asia region">ASIA</button>
+            </div>
+
+            <div class="auth-section">
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <button class="user-btn" onclick="toggleUserDropdown()">
+                        <span class="material-icons">person</span>
+                        <span id="username"></span>
+                        <span class="material-icons">expand_more</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#profile" class="dropdown-item">
+                            <span class="material-icons">person</span>
+                            Profile
+                        </a>
+                        <a href="#settings" class="dropdown-item">
+                            <span class="material-icons">settings</span>
+                            Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#logout" class="dropdown-item" onclick="handleLogout()">
+                            <span class="material-icons">logout</span>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+                <button class="sign-in-btn" id="signInBtn" aria-label="Sign in to your account" onclick="redirectToLogin()">Sign In</button>
+                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle mobile menu">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Tournament Header -->
+        <section class="tournament-header">
+            <div class="container">
+                <div class="tournament-header-content">
+                    <div class="tournament-info">
+                        <div class="tournament-breadcrumb">
+                            <a href="tournaments.html">Tournaments</a>
+                            <span class="material-icons" style="font-size: 1rem;">chevron_right</span>
+                            <span>NA 15v15 Summer Series</span>
+                        </div>
+                        
+                        <h1 class="tournament-name">NA 15v15 Summer Series</h1>
+                        
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                <span>North America</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                <span>Pick 10 Players</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                <span>22d 14h left</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">sports_esports</span>
+                                <span>93 Fantasy Teams</span>
+                            </div>
+                        </div>
+
+                        <div class="tournament-status-header">
+                            <span class="status-badge" id="rosterStatus">Rosters Open</span>
+                            <div class="cutoff-timer" id="cutoffTimer" style="display: none;">
+                                <span class="material-icons">schedule</span>
+                                <span id="timeRemaining">--:--:--</span>
+                            </div>
+                        </div>
+
+                        <div class="roster-actions">
+                            <button class="action-btn">
+                                <span class="material-icons">sports_esports</span>
+                                Set My Roster
+                            </button>
+                            <button class="action-btn secondary">
+                                <span class="material-icons">leaderboard</span>
+                                View Leaderboard
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="fantasy-info">
+                        <div class="fantasy-label">Fantasy Teams Competing</div>
+                        <div class="fantasy-stat">93</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tournament Navigation -->
+        <nav class="tournament-nav">
+            <div class="container">
+                <div class="tournament-nav-container">
+                    <ul class="nav-tabs">
+                        <li><a href="#overview" class="nav-tab active" data-tab="overview">
+                            <span class="material-icons" style="font-size: 1rem;">home</span>
+                            Overview
+                        </a></li>
+                        <li><a href="#schedule" class="nav-tab" data-tab="schedule">
+                            <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                            Schedule
+                        </a></li>
+                        <li><a href="#standings" class="nav-tab" data-tab="standings">
+                            <span class="material-icons" style="font-size: 1rem;">leaderboard</span>
+                            Standings
+                        </a></li>
+                        <li><a href="#players" class="nav-tab" data-tab="players">
+                            <span class="material-icons" style="font-size: 1rem;">people</span>
+                            Players
+                        </a></li>
+                        <li><a href="#teams" class="nav-tab" data-tab="teams">
+                            <span class="material-icons" style="font-size: 1rem;">groups</span>
+                            Teams
+                        </a></li>
+                        <li><a href="#stats" class="nav-tab" data-tab="stats">
+                            <span class="material-icons" style="font-size: 1rem;">analytics</span>
+                            Stats
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Tournament Content -->
+        <section class="tournament-content container">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="overview-grid">
+                    <div class="overview-main">
+                        <h2 class="section-title">
+                            <span class="material-icons">info</span>
+                            Tournament Information
+                        </h2>
+                        <p class="tournament-description">
+                            Welcome to the fantasy tournament based on the NA 15v15 Summer Series professional league. Draft your ultimate fantasy lineup from the real pro players competing in the actual tournament and earn points based on their performance.
+                        </p>
+                        <p class="tournament-description">
+                            Fantasy points are awarded based on real-time performance metrics including eliminations, damage dealt, objectives captured, and overall team performance. Build your roster of 10 players strategically to maximize your fantasy points and climb the leaderboard against other fantasy teams.
+                        </p>
+
+                        <div class="progress-section">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">timeline</span>
+                                Tournament Progress
+                            </h3>
+                            <div class="progress-label">
+                                <span>Pro Tournament Phase: Qualifiers</span>
+                                <span>15%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 15%;"></div>
+                            </div>
+                            <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 0.5rem;">
+                                Pro teams are currently competing in the qualifier stage. Fantasy scoring begins when group stage starts in 8 days.
+                            </p>
+                        </div>
+
+                        <div class="quick-stats">
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">16</span>
+                                <span class="quick-stat-label">Pro Teams</span>
+                            </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">160</span>
+                                <span class="quick-stat-label">Available Players</span>
+                            </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">93</span>
+                                <span class="quick-stat-label">Fantasy Teams</span>
+                            </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">4</span>
+                                <span class="quick-stat-label">Weeks Duration</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overview-sidebar">
+                        <div class="sidebar-card">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">emoji_events</span>
+                                Top Fantasy Teams
+                            </h3>
+                            <ul class="teams-list">
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">1</span>
+                                        <span class="team-name">TankCommander_Pro</span>
+                                    </div>
+                                    <span class="team-score">2,847</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">2</span>
+                                        <span class="team-name">SteelStrategist_2025</span>
+                                    </div>
+                                    <span class="team-score">2,739</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">3</span>
+                                        <span class="team-name">ArmorMaster_Elite</span>
+                                    </div>
+                                    <span class="team-score">2,681</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">4</span>
+                                        <span class="team-name">BattlefieldGuru</span>
+                                    </div>
+                                    <span class="team-score">2,594</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">5</span>
+                                        <span class="team-name">IronEagle_Manager</span>
+                                    </div>
+                                    <span class="team-score">2,512</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="sidebar-card">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">notifications</span>
+                                Recent Activity
+                            </h3>
+                            <ul class="activity-list">
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">person_add</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">New fantasy team joined: TankMaster_2025</div>
+                                        <div class="activity-time">2 hours ago</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">swap_horiz</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Popular pick: SlyGuy_2 drafted by 12 fantasy teams</div>
+                                        <div class="activity-time">4 hours ago</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">star</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Fantasy leader: GrapeKun_PourOneOut most valuable pick</div>
+                                        <div class="activity-time">6 hours ago</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">schedule</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Fantasy scoring starts when pro matches begin in 18 hours</div>
+                                        <div class="activity-time">8 hours ago</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Tab -->
+            <div id="schedule" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">schedule</span>
+                    Pro Tournament Schedule
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">schedule</span>
+                    <h3 style="margin-bottom: 1rem;">Pro Match Schedule Coming Soon</h3>
+                    <p>Pro tournament match schedules will be available here to help you track when your fantasy players compete.</p>
+                </div>
+            </div>
+
+            <!-- Standings Tab -->
+            <div id="standings" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">leaderboard</span>
+                    Tournament Standings
+                </h2>
+                
+                <!-- Standings Sub-tabs -->
+                <div class="standings-tabs">
+                    <button class="standings-tab active" onclick="switchStandingsTab('fantasy')">Fantasy Standings</button>
+                    <button class="standings-tab" onclick="switchStandingsTab('teams')">Team Standings</button>
+                </div>
+
+                <!-- Fantasy Standings -->
+                <div id="fantasy-standings" class="standings-content active">
+                    <div class="standings-header">
+                        <div class="standings-filters">
+                            <div class="filter-group">
+                                <label for="matchDayFilter">Match Day:</label>
+                                <select id="matchDayFilter" class="filter-select">
+                                    <option value="">All Match Days (Overall)</option>
+                                    <option value="1">Match Day 1</option>
+                                    <option value="2">Match Day 2</option>
+                                    <option value="3">Match Day 3</option>
+                                    <option value="4">Match Day 4</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <input type="text" id="usernameSearch" class="filter-input" placeholder="Search by username...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standings-table-container">
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-sort="rank">Rank</th>
+                                    <th class="sortable" data-sort="username">
+                                        Username
+                                        <span class="material-icons sort-icon">expand_more</span>
+                                    </th>
+                                    <th class="sortable" data-sort="score">
+                                        Score
+                                        <span class="material-icons sort-icon">expand_more</span>
+                                    </th>
+                                    <th class="sortable" data-sort="average">
+                                        Avg. Score
+                                    </th>
+                                    <th class="sortable" data-sort="matchDays" id="matchDaysHeader">
+                                        Match Days
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="standingsTableBody">
+                                <!-- Standings will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="standings-empty" id="standingsEmpty" style="display: none;">
+                        <span class="material-icons" style="font-size: 4rem; opacity: 0.4;">leaderboard</span>
+                        <h3>No Fantasy Standings Yet</h3>
+                        <p>Fantasy standings will appear here once match scoring begins.</p>
+                    </div>
+                </div>
+
+                <!-- Team Standings (Pro Teams) -->
+                <div id="team-standings" class="standings-content">
+                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                        <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
+                        <h3 style="margin-bottom: 1rem;">Pro Team Standings Coming Soon</h3>
+                        <p>Professional team standings from the actual tournament will be displayed here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Players Tab -->
+            <div id="players" class="tab-content">
+                <div class="players-header">
+                    <h2 class="section-title">
+                        <span class="material-icons">people</span>
+                        Fantasy Player Pool
+                    </h2>
+                    <div class="players-filters">
+                        <div class="filter-group">
+                            <label for="teamFilter">Team:</label>
+                            <select id="teamFilter" class="filter-select">
+                                <option value="">All Teams</option>
+                                <option value="LHG">LHG</option>
+                                <option value="25%">25%</option>
+                                <option value="TT6">TT6</option>
+                                <option value="WAR">WAR</option>
+                                <option value="SB">SB</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <span class="show-label">SHOW</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="players-table-container">
+                    <table class="players-table">
+                        <thead>
+                            <tr>
+                                <th class="action-column">Action</th>
+                                <th class="sortable" data-sort="name">
+                                    Name
+                                    <span class="material-icons sort-icon">expand_more</span>
+                                </th>
+                                <th class="sortable" data-sort="team">
+                                    Team
+                                </th>
+                                <th class="sortable" data-sort="battles">
+                                    Battles
+                                </th>
+                                <th class="sortable" data-sort="points">
+                                    Points
+                                    <span class="material-icons sort-icon">expand_more</span>
+                                </th>
+                                <th class="sortable" data-sort="avg">
+                                    Avg. Points
+                                </th>
+                                <th class="sortable" data-sort="picked">
+                                    Picked By
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="playersTableBody">
+                            <!-- Players will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="roster-sidebar">
+                    <div class="roster-card">
+                        <h3 class="roster-title">Your Fantasy Roster</h3>
+                        <div class="roster-status">
+                            <span id="rosterCount">0</span>/10 Players Selected
+                        </div>
+                        <div class="roster-message" id="rosterMessage">
+                            Your roster is empty. Add players from the table above to build your fantasy team.
+                        </div>
+                        <div class="roster-list" id="rosterList">
+                            <!-- Selected players will appear here -->
+                        </div>
+                        <div class="auth-overlay" id="authOverlay" style="display: none;">
+                            <div class="auth-message">
+                                <h4>Sign In Required</h4>
+                                <p>Please sign in to start building your Fantasy Roster. Click the Sign In button in the top-right of the page.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teams Tab -->
+            <div id="teams" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">groups</span>
+                    Pro Team Rosters
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
+                    <h3 style="margin-bottom: 1rem;">Pro Team Rosters Loading</h3>
+                    <p>Professional team rosters showing which players are available for fantasy drafting will be displayed here.</p>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="stats" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">analytics</span>
+                    Fantasy Statistics
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">analytics</span>
+                    <h3 style="margin-bottom: 1rem;">Fantasy Stats Coming Soon</h3>
+                    <p>Detailed fantasy performance analytics, player trends, and optimal drafting insights will be available during the tournament.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <ul class="footer-links">
+                    <li><a href="#resources">Resources</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                </ul>
+                <div class="footer-note">
+                    <p>Original concept by Hypnotik • Created by Joshua Neuenhoff, aka Unknown0ne</p>
+                    <p>This website is not affiliated with Wargaming.net or World of Tanks</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script>
+        // API client for connecting to your Railway backend
+        class FantasyAPI {
+            constructor() {
+                this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
+                this.token = localStorage.getItem('authToken');
+            }
+
+            async request(endpoint, options = {}) {
+                const url = `${this.baseURL}${endpoint}`;
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                };
+
+                if (this.token) {
+                    config.headers.Authorization = `Bearer ${this.token}`;
+                }
+
+                try {
+                    const response = await fetch(url, config);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'API request failed');
+                    }
+
+                    return data;
+                } catch (error) {
+                    console.error('API request error:', error);
+                    throw error;
+                }
+            }
+
+            async getRoster(tournamentId) {
+                return await this.request(`/roster?tournamentId=${tournamentId}`);
+            }
+
+            async saveRoster(tournamentId, roster) {
+                return await this.request('/roster', {
+                    method: 'POST',
+                    body: JSON.stringify({ tournamentId, roster })
+                });
+            }
+
+            async getLeaderboard(tournamentId, matchDay = null) {
+                const params = new URLSearchParams({ tournamentId });
+                if (matchDay) {
+                    params.append('matchDay', matchDay);
+                }
+                return await this.request(`/leaderboard?${params.toString()}`);
+            }
+
+            getCurrentUser() {
+                try {
+                    const payload = JSON.parse(atob(this.token.split('.')[1]));
+                    return payload;
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            logout() {
+                localStorage.removeItem('authToken');
+                this.token = null;
+                window.location.reload();
+            }
+
+            isAuthenticated() {
+                return !!this.token;
+            }
+        }
+
         // Initialize API
         const api = new FantasyAPI();
 
@@ -478,6 +1083,41 @@
             populatePlayersTable();
         }
 
+        function sortStandings(column, direction) {
+            filteredStandings.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(column) {
+                    case 'username':
+                        aVal = a.username;
+                        bVal = b.username;
+                        break;
+                    case 'score':
+                        aVal = parseFloat(a.total_points || 0);
+                        bVal = parseFloat(b.total_points || 0);
+                        break;
+                    case 'average':
+                        aVal = parseFloat(a.avg_points || 0);
+                        bVal = parseFloat(b.avg_points || 0);
+                        break;
+                    case 'matchDays':
+                        aVal = parseInt(a.match_days_played || 0);
+                        bVal = parseInt(b.match_days_played || 0);
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+            
+            displayStandings();
+        }
+
         // Filter table functionality
         function filterTable() {
             populatePlayersTable();
@@ -571,41 +1211,6 @@
             }
         });
 
-        function sortStandings(column, direction) {
-            filteredStandings.sort((a, b) => {
-                let aVal, bVal;
-                
-                switch(column) {
-                    case 'username':
-                        aVal = a.username;
-                        bVal = b.username;
-                        break;
-                    case 'score':
-                        aVal = parseFloat(a.total_points || 0);
-                        bVal = parseFloat(b.total_points || 0);
-                        break;
-                    case 'average':
-                        aVal = parseFloat(a.avg_points || 0);
-                        bVal = parseFloat(b.avg_points || 0);
-                        break;
-                    case 'matchDays':
-                        aVal = parseInt(a.match_days_played || 0);
-                        bVal = parseInt(b.match_days_played || 0);
-                        break;
-                    default:
-                        return 0;
-                }
-                
-                if (direction === 'asc') {
-                    return aVal > bVal ? 1 : -1;
-                } else {
-                    return aVal < bVal ? 1 : -1;
-                }
-            });
-            
-            displayStandings();
-        }
-
         // Tab navigation
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -645,15 +1250,6 @@
             });
         });
 
-        // Standings tab switching
-        function switchStandingsTab(tab) {
-            document.querySelectorAll('.standings-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.standings-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tab + '-standings').classList.add('active');
-        }
-
         // Add animations
         const style = document.createElement('style');
         style.textContent = `
@@ -663,33 +1259,10 @@
             }
         `;
         document.head.appendChild(style);
-    </script><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NA 15v15 Summer Series - WoT Fantasy</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <style>
-        /* Material Icons fallback */
-        .material-icons {
-            font-family: 'Material Icons', 'Material Icons Outlined', sans-serif;
-            font-weight: normal;
-            font-style: normal;
-            font-size: 24px;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            display: inline-block;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            -webkit-font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
-        }
+    </script>
+</body>
+</html>
+                                    
 
         * {
             margin: 0;
@@ -1990,904 +2563,3 @@
                 font-size: 0.85rem;
             }
         }
-    </style>
-</head>
-<body>
-    <header class="header" id="header">
-        <nav class="nav container">
-            <a href="index.html" class="logo">
-                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo">
-            </a>
-            
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="tournaments.html" class="nav-link">Tournaments</a></li>
-                <li><a href="index.html#groups" class="nav-link">Groups</a></li>
-                <li><a href="index.html#guide" class="nav-link">Guide</a></li>
-                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
-            </ul>
-
-            <div class="region-selector">
-                <button class="region-btn active" data-region="na" aria-label="North America region">NA</button>
-                <button class="region-btn" data-region="eu" aria-label="Europe region">EU</button>
-                <button class="region-btn" data-region="ru" aria-label="Russia region">RU</button>
-                <button class="region-btn" data-region="asia" aria-label="Asia region">ASIA</button>
-            </div>
-
-            <div class="auth-section">
-                <div class="user-menu" id="userMenu" style="display: none;">
-                    <button class="user-btn" onclick="toggleUserDropdown()">
-                        <span class="material-icons">person</span>
-                        <span id="username"></span>
-                        <span class="material-icons">expand_more</span>
-                    </button>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="#profile" class="dropdown-item">
-                            <span class="material-icons">person</span>
-                            Profile
-                        </a>
-                        <a href="#settings" class="dropdown-item">
-                            <span class="material-icons">settings</span>
-                            Settings
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#logout" class="dropdown-item" onclick="handleLogout()">
-                            <span class="material-icons">logout</span>
-                            Sign Out
-                        </a>
-                    </div>
-                </div>
-                <button class="sign-in-btn" id="signInBtn" aria-label="Sign in to your account" onclick="redirectToLogin()">Sign In</button>
-                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle mobile menu">
-                    <span class="material-icons">menu</span>
-                </button>
-            </div>
-        </nav>
-    </header>
-
-    <main>
-        <!-- Tournament Header -->
-        <section class="tournament-header">
-            <div class="container">
-                <div class="tournament-header-content">
-                    <div class="tournament-info">
-                        <div class="tournament-breadcrumb">
-                            <a href="tournaments.html">Tournaments</a>
-                            <span class="material-icons" style="font-size: 1rem;">chevron_right</span>
-                            <span>NA 15v15 Summer Series</span>
-                        </div>
-                        
-                        <h1 class="tournament-name">NA 15v15 Summer Series</h1>
-                        
-                        <div class="tournament-meta">
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">public</span>
-                                <span>North America</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">groups</span>
-                                <span>Pick 10 Players</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">schedule</span>
-                                <span>22d 14h left</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">sports_esports</span>
-                                <span>93 Fantasy Teams</span>
-                            </div>
-                        </div>
-
-                        <div class="tournament-status-header">
-                            <span class="status-badge" id="rosterStatus">Rosters Open</span>
-                            <div class="cutoff-timer" id="cutoffTimer" style="display: none;">
-                                <span class="material-icons">schedule</span>
-                                <span id="timeRemaining">--:--:--</span>
-                            </div>
-                        </div>
-
-                        <div class="roster-actions">
-                            <button class="action-btn">
-                                <span class="material-icons">sports_esports</span>
-                                Set My Roster
-                            </button>
-                            <button class="action-btn secondary">
-                                <span class="material-icons">leaderboard</span>
-                                View Leaderboard
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="fantasy-info">
-                        <div class="fantasy-label">Fantasy Teams Competing</div>
-                        <div class="fantasy-stat">93</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tournament Navigation -->
-        <nav class="tournament-nav">
-            <div class="container">
-                <div class="tournament-nav-container">
-                    <ul class="nav-tabs">
-                        <li><a href="#overview" class="nav-tab active" data-tab="overview">
-                            <span class="material-icons" style="font-size: 1rem;">home</span>
-                            Overview
-                        </a></li>
-                        <li><a href="#schedule" class="nav-tab" data-tab="schedule">
-                            <span class="material-icons" style="font-size: 1rem;">schedule</span>
-                            Schedule
-                        </a></li>
-                        <li><a href="#standings" class="nav-tab" data-tab="standings">
-                            <span class="material-icons" style="font-size: 1rem;">leaderboard</span>
-                            Standings
-                        </a></li>
-                        <li><a href="#players" class="nav-tab" data-tab="players">
-                            <span class="material-icons" style="font-size: 1rem;">people</span>
-                            Players
-                        </a></li>
-                        <li><a href="#teams" class="nav-tab" data-tab="teams">
-                            <span class="material-icons" style="font-size: 1rem;">groups</span>
-                            Teams
-                        </a></li>
-                        <li><a href="#stats" class="nav-tab" data-tab="stats">
-                            <span class="material-icons" style="font-size: 1rem;">analytics</span>
-                            Stats
-                        </a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Tournament Content -->
-        <section class="tournament-content container">
-            <!-- Overview Tab -->
-            <div id="overview" class="tab-content active">
-                <div class="overview-grid">
-                    <div class="overview-main">
-                        <h2 class="section-title">
-                            <span class="material-icons">info</span>
-                            Tournament Information
-                        </h2>
-                        <p class="tournament-description">
-                            Welcome to the fantasy tournament based on the NA 15v15 Summer Series professional league. Draft your ultimate fantasy lineup from the real pro players competing in the actual tournament and earn points based on their performance.
-                        </p>
-                        <p class="tournament-description">
-                            Fantasy points are awarded based on real-time performance metrics including eliminations, damage dealt, objectives captured, and overall team performance. Build your roster of 10 players strategically to maximize your fantasy points and climb the leaderboard against other fantasy teams.
-                        </p>
-
-                        <div class="progress-section">
-                            <h3 class="section-subtitle">
-                                <span class="material-icons">timeline</span>
-                                Tournament Progress
-                            </h3>
-                            <div class="progress-label">
-                                <span>Pro Tournament Phase: Qualifiers</span>
-                                <span>15%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 15%;"></div>
-                            </div>
-                            <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 0.5rem;">
-                                Pro teams are currently competing in the qualifier stage. Fantasy scoring begins when group stage starts in 8 days.
-                            </p>
-                        </div>
-
-                        <div class="quick-stats">
-                            <div class="quick-stat">
-                                <span class="quick-stat-number">16</span>
-                                <span class="quick-stat-label">Pro Teams</span>
-                            </div>
-                            <div class="quick-stat">
-                                <span class="quick-stat-number">160</span>
-                                <span class="quick-stat-label">Available Players</span>
-                            </div>
-                            <div class="quick-stat">
-                                <span class="quick-stat-number">93</span>
-                                <span class="quick-stat-label">Fantasy Teams</span>
-                            </div>
-                            <div class="quick-stat">
-                                <span class="quick-stat-number">4</span>
-                                <span class="quick-stat-label">Weeks Duration</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="overview-sidebar">
-                        <div class="sidebar-card">
-                            <h3 class="section-subtitle">
-                                <span class="material-icons">emoji_events</span>
-                                Top Fantasy Teams
-                            </h3>
-                            <ul class="teams-list">
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">1</span>
-                                        <span class="team-name">TankCommander_Pro</span>
-                                    </div>
-                                    <span class="team-score">2,847</span>
-                                </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">2</span>
-                                        <span class="team-name">SteelStrategist_2025</span>
-                                    </div>
-                                    <span class="team-score">2,739</span>
-                                </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">3</span>
-                                        <span class="team-name">ArmorMaster_Elite</span>
-                                    </div>
-                                    <span class="team-score">2,681</span>
-                                </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">4</span>
-                                        <span class="team-name">BattlefieldGuru</span>
-                                    </div>
-                                    <span class="team-score">2,594</span>
-                                </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">5</span>
-                                        <span class="team-name">IronEagle_Manager</span>
-                                    </div>
-                                    <span class="team-score">2,512</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="sidebar-card">
-                            <h3 class="section-subtitle">
-                                <span class="material-icons">notifications</span>
-                                Recent Activity
-                            </h3>
-                            <ul class="activity-list">
-                                <li class="activity-item">
-                                    <span class="material-icons activity-icon">person_add</span>
-                                    <div class="activity-content">
-                                        <div class="activity-text">New fantasy team joined: TankMaster_2025</div>
-                                        <div class="activity-time">2 hours ago</div>
-                                    </div>
-                                </li>
-                                <li class="activity-item">
-                                    <span class="material-icons activity-icon">swap_horiz</span>
-                                    <div class="activity-content">
-                                        <div class="activity-text">Popular pick: SlyGuy_2 drafted by 12 fantasy teams</div>
-                                        <div class="activity-time">4 hours ago</div>
-                                    </div>
-                                </li>
-                                <li class="activity-item">
-                                    <span class="material-icons activity-icon">star</span>
-                                    <div class="activity-content">
-                                        <div class="activity-text">Fantasy leader: GrapeKun_PourOneOut most valuable pick</div>
-                                        <div class="activity-time">6 hours ago</div>
-                                    </div>
-                                </li>
-                                <li class="activity-item">
-                                    <span class="material-icons activity-icon">schedule</span>
-                                    <div class="activity-content">
-                                        <div class="activity-text">Fantasy scoring starts when pro matches begin in 18 hours</div>
-                                        <div class="activity-time">8 hours ago</div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Schedule Tab -->
-            <div id="schedule" class="tab-content">
-                <h2 class="section-title">
-                    <span class="material-icons">schedule</span>
-                    Pro Tournament Schedule
-                </h2>
-                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">schedule</span>
-                    <h3 style="margin-bottom: 1rem;">Pro Match Schedule Coming Soon</h3>
-                    <p>Pro tournament match schedules will be available here to help you track when your fantasy players compete.</p>
-                </div>
-            </div>
-
-            <!-- Standings Tab -->
-            <div id="standings" class="tab-content">
-                <h2 class="section-title">
-                    <span class="material-icons">leaderboard</span>
-                    Tournament Standings
-                </h2>
-                
-                <!-- Standings Sub-tabs -->
-                <div class="standings-tabs">
-                    <button class="standings-tab active" onclick="switchStandingsTab('fantasy')">Fantasy Standings</button>
-                    <button class="standings-tab" onclick="switchStandingsTab('teams')">Team Standings</button>
-                </div>
-
-                <!-- Fantasy Standings -->
-                <div id="fantasy-standings" class="standings-content active">
-                    <div class="standings-header">
-                        <div class="standings-filters">
-                            <div class="filter-group">
-                                <label for="matchDayFilter">Match Day:</label>
-                                <select id="matchDayFilter" class="filter-select">
-                                    <option value="">All Match Days (Overall)</option>
-                                    <option value="1">Match Day 1</option>
-                                    <option value="2">Match Day 2</option>
-                                    <option value="3">Match Day 3</option>
-                                    <option value="4">Match Day 4</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <input type="text" id="usernameSearch" class="filter-input" placeholder="Search by username...">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="standings-table-container">
-                        <table class="standings-table">
-                            <thead>
-                                <tr>
-                                    <th class="sortable" data-sort="rank">Rank</th>
-                                    <th class="sortable" data-sort="username">
-                                        Username
-                                        <span class="material-icons sort-icon">expand_more</span>
-                                    </th>
-                                    <th class="sortable" data-sort="score">
-                                        Score
-                                        <span class="material-icons sort-icon">expand_more</span>
-                                    </th>
-                                    <th class="sortable" data-sort="average">
-                                        Avg. Score
-                                    </th>
-                                    <th class="sortable" data-sort="matchDays" id="matchDaysHeader">
-                                        Match Days
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="standingsTableBody">
-                                <!-- Standings will be populated by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="standings-empty" id="standingsEmpty" style="display: none;">
-                        <span class="material-icons" style="font-size: 4rem; opacity: 0.4;">leaderboard</span>
-                        <h3>No Fantasy Standings Yet</h3>
-                        <p>Fantasy standings will appear here once match scoring begins.</p>
-                    </div>
-                </div>
-
-                <!-- Team Standings (Pro Teams) -->
-                <div id="team-standings" class="standings-content">
-                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                        <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
-                        <h3 style="margin-bottom: 1rem;">Pro Team Standings Coming Soon</h3>
-                        <p>Professional team standings from the actual tournament will be displayed here.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Players Tab -->
-            <div id="players" class="tab-content">
-                <div class="players-header">
-                    <h2 class="section-title">
-                        <span class="material-icons">people</span>
-                        Fantasy Player Pool
-                    </h2>
-                    <div class="players-filters">
-                        <div class="filter-group">
-                            <label for="teamFilter">Team:</label>
-                            <select id="teamFilter" class="filter-select">
-                                <option value="">All Teams</option>
-                                <option value="LHG">LHG</option>
-                                <option value="25%">25%</option>
-                                <option value="TT6">TT6</option>
-                                <option value="WAR">WAR</option>
-                                <option value="SB">SB</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <span class="show-label">SHOW</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="players-table-container">
-                    <table class="players-table">
-                        <thead>
-                            <tr>
-                                <th class="action-column">Action</th>
-                                <th class="sortable" data-sort="name">
-                                    Name
-                                    <span class="material-icons sort-icon">expand_more</span>
-                                </th>
-                                <th class="sortable" data-sort="team">
-                                    Team
-                                </th>
-                                <th class="sortable" data-sort="battles">
-                                    Battles
-                                </th>
-                                <th class="sortable" data-sort="points">
-                                    Points
-                                    <span class="material-icons sort-icon">expand_more</span>
-                                </th>
-                                <th class="sortable" data-sort="avg">
-                                    Avg. Points
-                                </th>
-                                <th class="sortable" data-sort="picked">
-                                    Picked By
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="playersTableBody">
-                            <!-- Players will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="roster-sidebar">
-                    <div class="roster-card">
-                        <h3 class="roster-title">Your Fantasy Roster</h3>
-                        <div class="roster-status">
-                            <span id="rosterCount">0</span>/10 Players Selected
-                        </div>
-                        <div class="roster-message" id="rosterMessage">
-                            Your roster is empty. Add players from the table above to build your fantasy team.
-                        </div>
-                        <div class="roster-list" id="rosterList">
-                            <!-- Selected players will appear here -->
-                        </div>
-                        <div class="auth-overlay" id="authOverlay" style="display: none;">
-                            <div class="auth-message">
-                                <h4>Sign In Required</h4>
-                                <p>Please sign in to start building your Fantasy Roster. Click the Sign In button in the top-right of the page.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Teams Tab -->
-            <div id="teams" class="tab-content">
-                <h2 class="section-title">
-                    <span class="material-icons">groups</span>
-                    Pro Team Rosters
-                </h2>
-                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
-                    <h3 style="margin-bottom: 1rem;">Pro Team Rosters Loading</h3>
-                    <p>Professional team rosters showing which players are available for fantasy drafting will be displayed here.</p>
-                </div>
-            </div>
-
-            <!-- Stats Tab -->
-            <div id="stats" class="tab-content">
-                <h2 class="section-title">
-                    <span class="material-icons">analytics</span>
-                    Fantasy Statistics
-                </h2>
-                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">analytics</span>
-                    <h3 style="margin-bottom: 1rem;">Fantasy Stats Coming Soon</h3>
-                    <p>Detailed fantasy performance analytics, player trends, and optimal drafting insights will be available during the tournament.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <ul class="footer-links">
-                    <li><a href="#resources">Resources</a></li>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                </ul>
-                <div class="footer-note">
-                    <p>Original concept by Hypnotik • Created by Joshua Neuenhoff, aka Unknown0ne</p>
-                    <p>This website is not affiliated with Wargaming.net or World of Tanks</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script src="js/api.js"></script>
-    <script>
-        // API client for connecting to your Railway backend
-        class FantasyAPI {
-            constructor() {
-                this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
-                this.token = localStorage.getItem('authToken');
-            }
-
-            async request(endpoint, options = {}) {
-                const url = `${this.baseURL}${endpoint}`;
-                const config = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    },
-                    ...options
-                };
-
-                if (this.token) {
-                    config.headers.Authorization = `Bearer ${this.token}`;
-                }
-
-                try {
-                    const response = await fetch(url, config);
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || 'API request failed');
-                    }
-
-                    return data;
-                } catch (error) {
-                    console.error('API request error:', error);
-                    throw error;
-                }
-            }
-
-            async getRoster(tournamentId) {
-                return await this.request(`/roster?tournamentId=${tournamentId}`);
-            }
-
-            async saveRoster(tournamentId, roster) {
-                return await this.request('/roster', {
-                    method: 'POST',
-                    body: JSON.stringify({ tournamentId, roster })
-                });
-            }
-
-            isAuthenticated() {
-                return !!this.token;
-            }
-        }
-
-        // Initialize API
-        const api = new FantasyAPI();
-
-        // Sample player data
-        const samplePlayers = [
-            { name: 'muscles1', team: 'LHG', battles: '100%', points: 5714.7, avg: 53.9, picked: '50.04%' },
-            { name: 'notch123', team: '25%', battles: '99%', points: 5550.5, avg: 48.7, picked: '57.61%' },
-            { name: 'TheLoveHitman', team: 'TT6', battles: '100%', points: 5298.5, avg: 49.5, picked: '55.14%' },
-            { name: 'JxMAN20', team: '25%', battles: '91%', points: 4868.7, avg: 46.4, picked: '11.85%' },
-            { name: 'Vyraall', team: 'TT6', battles: '97%', points: 4781.3, avg: 45.8, picked: '29.86%' },
-            { name: 'CommanderHalesBrother', team: '25%', battles: '90%', points: 4567.0, avg: 43.9, picked: '17.93%' },
-            { name: 'Major_Kenway', team: '25%', battles: '80%', points: 4513.9, avg: 49.1, picked: '10.58%' },
-            { name: '_BlitzWolf', team: 'TT6', battles: '79%', points: 4492.0, avg: 52.8, picked: '7.50%' },
-            { name: 'Accretia', team: 'WAR', battles: '100%', points: 4461.1, avg: 44.6, picked: '33.53%' },
-            { name: '_bloop', team: 'SB', battles: '96%', points: 4395.0, avg: 48.3, picked: '63.84%' },
-            { name: 'SgtRumsey', team: 'LHG', battles: '75%', points: 4339.6, avg: 49.1, picked: '25.67%' },
-            { name: 'iWrangleEmus', team: 'TT6', battles: '92%', points: 4268.6, avg: 47.8, picked: '18.42%' },
-            { name: 'ShiraiKan_ExcalibuR', team: 'WAR', battles: '91%', points: 4036.9, avg: 44.2, picked: '22.15%' },
-            { name: 'Mlopesz', team: 'WAR', battles: '100%', points: 4029.7, avg: 40.3, picked: '15.78%' },
-            { name: 'SlyGuy_2', team: 'SB', battles: '99%', points: 3998.4, avg: 45.7, picked: '31.25%' },
-            { name: 'Captian_Jack9', team: 'SB', battles: '81%', points: 3967.1, avg: 48.9, picked: '28.94%' },
-            { name: 'Starick', team: 'WAR', battles: '83%', points: 3895.5, avg: 46.9, picked: '19.73%' },
-            { name: 'RM_xD', team: 'SB', battles: '100%', points: 3659.2, avg: 36.6, picked: '8.55%' }
-        ];
-
-        let currentRoster = [];
-        let maxRosterSize = 10;
-        let rostersUnlocked = true; // Change this to false to lock rosters
-
-        // Populate players table
-        function populatePlayersTable() {
-            const tbody = document.getElementById('playersTableBody');
-            if (!tbody) return;
-            
-            tbody.innerHTML = '';
-
-            // Filter players by team if selected
-            const teamFilter = document.getElementById('teamFilter');
-            const selectedTeam = teamFilter ? teamFilter.value : '';
-            const filteredPlayers = selectedTeam ? 
-                samplePlayers.filter(p => p.team === selectedTeam) : 
-                samplePlayers;
-
-            filteredPlayers.forEach(player => {
-                const row = document.createElement('tr');
-                
-                // Determine action button state
-                let actionIcon = 'lock';
-                let actionClass = '';
-                let actionTitle = 'Rosters are locked';
-                
-                if (rostersUnlocked) {
-                    if (currentRoster.includes(player.name)) {
-                        actionIcon = 'remove';
-                        actionClass = 'remove';
-                        actionTitle = 'Remove from roster';
-                    } else if (currentRoster.length < maxRosterSize) {
-                        actionIcon = 'add';
-                        actionClass = 'add';
-                        actionTitle = 'Add to roster';
-                    } else {
-                        actionIcon = 'lock';
-                        actionClass = '';
-                        actionTitle = 'Roster is full';
-                    }
-                }
-
-                row.innerHTML = `
-                    <td class="action-column">
-                        <button class="player-action-btn ${actionClass}" 
-                                data-player="${player.name}" 
-                                title="${actionTitle}">
-                            <span class="material-icons">${actionIcon}</span>
-                        </button>
-                    </td>
-                    <td class="player-name">${player.name}</td>
-                    <td class="player-team">${player.team}</td>
-                    <td class="player-battles">${player.battles}</td>
-                    <td class="player-points">${parseFloat(player.points).toLocaleString()}</td>
-                    <td class="player-avg">${player.avg}</td>
-                    <td class="player-picked">${player.picked}</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-
-            // Add event listeners to action buttons
-            document.querySelectorAll('.player-action-btn').forEach(btn => {
-                btn.addEventListener('click', handlePlayerAction);
-            });
-        }
-
-        // Handle player roster actions
-        function handlePlayerAction(e) {
-            const playerName = e.currentTarget.dataset.player;
-            const button = e.currentTarget;
-            
-            if (!rostersUnlocked) {
-                showNotification('Rosters are currently locked for this tournament', 'error');
-                return;
-            }
-            
-            if (button.classList.contains('add')) {
-                addPlayerToRoster(playerName);
-            } else if (button.classList.contains('remove')) {
-                removePlayerFromRoster(playerName);
-            }
-        }
-
-        // Add player to roster
-        function addPlayerToRoster(playerName) {
-            if (currentRoster.length >= maxRosterSize) {
-                showNotification(`Roster is full (${maxRosterSize} players maximum)`, 'error');
-                return;
-            }
-            
-            if (currentRoster.includes(playerName)) {
-                showNotification('Player is already in your roster', 'error');
-                return;
-            }
-            
-            currentRoster.push(playerName);
-            updateRosterDisplay();
-            populatePlayersTable();
-            saveRosterToStorage();
-            
-            showNotification(`${playerName} added to roster`, 'success');
-        }
-
-        // Remove player from roster
-        function removePlayerFromRoster(playerName) {
-            const index = currentRoster.indexOf(playerName);
-            if (index > -1) {
-                currentRoster.splice(index, 1);
-                updateRosterDisplay();
-                populatePlayersTable();
-                saveRosterToStorage();
-                
-                showNotification(`${playerName} removed from roster`, 'success');
-            }
-        }
-
-        // Update roster display
-        function updateRosterDisplay() {
-            const rosterCount = document.getElementById('rosterCount');
-            const rosterList = document.getElementById('rosterList');
-            const rosterMessage = document.getElementById('rosterMessage');
-            
-            if (!rosterCount) return;
-            
-            rosterCount.textContent = currentRoster.length;
-            
-            if (rostersUnlocked && currentRoster.length > 0) {
-                if (rosterMessage) rosterMessage.style.display = 'none';
-                if (rosterList) {
-                    rosterList.style.display = 'block';
-                    rosterList.innerHTML = currentRoster.map(playerName => `
-                        <div class="roster-player">
-                            <span class="roster-player-name">${playerName}</span>
-                            <button class="roster-player-remove" 
-                                    onclick="removePlayerFromRoster('${playerName}')"
-                                    title="Remove player">
-                                <span class="material-icons" style="font-size: 1rem;">close</span>
-                            </button>
-                        </div>
-                    `).join('');
-                }
-            } else {
-                if (rosterMessage) {
-                    rosterMessage.style.display = 'block';
-                    if (!rostersUnlocked) {
-                        rosterMessage.innerHTML = `
-                            Rosters are currently locked for this tournament.
-                            <br><br>
-                            Tournament administrators may be configuring the site or the tournament may be in progress.
-                            <br><br>
-                            <small style="color: #00d4ff;">Developer Note: Change "rostersUnlocked" to true in the code to test roster functionality</small>
-                        `;
-                    } else {
-                        rosterMessage.innerHTML = 'Your roster is empty. Add players from the table above to build your fantasy team.';
-                    }
-                }
-                if (rosterList) rosterList.style.display = 'none';
-            }
-        }
-
-        // Save roster
-        async function saveRosterToStorage() {
-            try {
-                if (api.isAuthenticated()) {
-                    await api.saveRoster('na-15v15-summer-series', currentRoster);
-                    console.log('Roster saved to backend:', currentRoster);
-                } else {
-                    localStorage.setItem('roster_na-15v15-summer-series_demo', JSON.stringify(currentRoster));
-                    console.log('Roster saved locally:', currentRoster);
-                }
-            } catch (error) {
-                console.error('Error saving roster:', error);
-                localStorage.setItem('roster_na-15v15-summer-series_demo', JSON.stringify(currentRoster));
-            }
-        }
-
-        // Load roster from storage
-        function loadRosterFromStorage() {
-            const saved = localStorage.getItem('roster_na-15v15-summer-series_demo');
-            if (saved) {
-                currentRoster = JSON.parse(saved);
-                console.log('Roster loaded:', currentRoster);
-            }
-        }
-
-        // Sort table functionality
-        function sortTable(column, direction) {
-            samplePlayers.sort((a, b) => {
-                let aVal = a[column];
-                let bVal = b[column];
-                
-                if (column === 'points' || column === 'avg') {
-                    aVal = parseFloat(aVal);
-                    bVal = parseFloat(bVal);
-                } else if (column === 'picked' || column === 'battles') {
-                    aVal = parseFloat(aVal.replace('%', ''));
-                    bVal = parseFloat(bVal.replace('%', ''));
-                }
-                
-                if (direction === 'asc') {
-                    return aVal > bVal ? 1 : -1;
-                } else {
-                    return aVal < bVal ? 1 : -1;
-                }
-            });
-            
-            populatePlayersTable();
-        }
-
-        // Filter table functionality
-        function filterTable() {
-            populatePlayersTable();
-        }
-
-        // Show notification messages
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.innerHTML = `
-                <span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span>
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()">
-                    <span class="material-icons">close</span>
-                </button>
-            `;
-            
-            notification.style.cssText = `
-                position: fixed;
-                top: 2rem;
-                right: 2rem;
-                background: ${type === 'success' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)'};
-                color: white;
-                padding: 1rem;
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                z-index: 10000;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-                backdrop-filter: blur(10px);
-                animation: slideInRight 0.3s ease;
-            `;
-            
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 4000);
-        }
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Tournament page loaded successfully!');
-            
-            loadRosterFromStorage();
-            populatePlayersTable();
-            updateRosterDisplay();
-            
-            // Add table sorting
-            document.querySelectorAll('.sortable').forEach(th => {
-                th.addEventListener('click', () => {
-                    const column = th.dataset.sort;
-                    const currentDirection = th.classList.contains('asc') ? 'desc' : 'asc';
-                    
-                    document.querySelectorAll('.sortable').forEach(header => {
-                        header.classList.remove('asc', 'desc');
-                    });
-                    
-                    th.classList.add(currentDirection);
-                    sortTable(column, currentDirection);
-                });
-            });
-            
-            // Add filter functionality
-            const teamFilter = document.getElementById('teamFilter');
-            if (teamFilter) {
-                teamFilter.addEventListener('change', filterTable);
-            }
-        });
-
-        // Tab navigation
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                tab.classList.add('active');
-                
-                const targetTab = tab.dataset.tab;
-                const targetContent = document.getElementById(targetTab);
-                if (targetContent) {
-                    targetContent.classList.add('active');
-                }
-            });
-        });
-
-        // Button actions
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (this.textContent.includes('Set My Roster')) {
-                    const playersTab = document.querySelector('[data-tab="players"]');
-                    if (playersTab) {
-                        playersTab.click();
-                    }
-                }
-            });
-        });
-
-        // Add animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
-</body>
-</html>
