@@ -103,15 +103,15 @@ class FantasyAPI {
     }
 
     async getLeaderboard(tournamentId, matchDay = null) {
-        let endpoint = `/leaderboard?tournamentId=${tournamentId}`;
+        let endpoint = `/leaderboard/${tournamentId}`;
         if (matchDay) {
-            endpoint += `&matchDay=${matchDay}`;
+            endpoint += `?matchDay=${matchDay}`;
         }
         return await this.request(endpoint);
     }
 
     async getPlayers(tournamentId) {
-    return await this.request(`/tournaments/${tournamentId}/players`);
+        return await this.request(`/tournaments/${tournamentId}/players`);
     }
     
     async getTeams(tournamentId) {
