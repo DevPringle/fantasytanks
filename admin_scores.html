@@ -71,7 +71,7 @@
         }
 
         .form-textarea {
-            min-height: 200px;
+            min-height: 300px;
             font-family: 'Courier New', monospace;
             resize: vertical;
         }
@@ -84,7 +84,7 @@
 
         .form-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 1rem;
         }
 
@@ -110,6 +110,15 @@
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .danger-btn {
+            background: rgba(239, 68, 68, 0.8);
         }
 
         .message {
@@ -156,6 +165,72 @@
             overflow-x: auto;
         }
 
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .current-data {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .player-details {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -164,64 +239,173 @@
             body {
                 padding: 1rem;
             }
+
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="admin-header">
-            <h1 class="admin-title">Admin - Update Player Scores</h1>
-            <p style="color: rgba(255, 255, 255, 0.7);">Update fantasy player scores for match days</p>
+            <h1 class="admin-title">Fantasy Tanks Admin Panel</h1>
+            <p style="color: rgba(255, 255, 255, 0.7);">Manage tournament data and player scores</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('scores')">Update Scores</button>
+            <button class="tab" onclick="switchTab('view')">View Current Data</button>
+            <button class="tab" onclick="switchTab('manage')">Manage Tournament</button>
         </div>
 
         <div id="messageContainer"></div>
 
-        <form class="admin-form" id="scoresForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="tournamentId" class="form-label">Tournament ID</label>
-                    <input type="text" id="tournamentId" class="form-input" value="na-15v15-summer-series" required>
-                </div>
-                <div class="form-group">
-                    <label for="matchDay" class="form-label">Match Day</label>
-                    <select id="matchDay" class="form-select" required>
-                        <option value="1">Match Day 1</option>
-                        <option value="2">Match Day 2</option>
-                        <option value="3">Match Day 3</option>
-                        <option value="4">Match Day 4</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="playerScores" class="form-label">Player Scores (JSON Format)</label>
-                <textarea id="playerScores" class="form-textarea" placeholder="Enter player scores in JSON format..." required></textarea>
+        <!-- UPDATE SCORES TAB -->
+        <div id="scores-tab" class="tab-content active">
+            <form class="admin-form" id="scoresForm">
+                <h3 style="color: #00d4ff; margin-bottom: 1.5rem;">Update Player Scores</h3>
                 
-                <div class="example-section">
-                    <div class="example-title">Example Format:</div>
-                    <div class="example-code">{
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tournamentId" class="form-label">Tournament ID</label>
+                        <input type="text" id="tournamentId" class="form-input" value="na-15v15-summer-series" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="matchDay" class="form-label">Match Day</label>
+                        <select id="matchDay" class="form-select" required>
+                            <option value="1">Match Day 1</option>
+                            <option value="2">Match Day 2</option>
+                            <option value="3">Match Day 3</option>
+                            <option value="4">Match Day 4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateMode" class="form-label">Update Mode</label>
+                        <select id="updateMode" class="form-select" onchange="toggleUpdateMode()">
+                            <option value="scores">Points Only</option>
+                            <option value="full">Full Data (Points + Battles)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="playerScores" class="form-label">Player Data (JSON Format)</label>
+                    <textarea id="playerScores" class="form-textarea" placeholder="Enter player data in JSON format..." required></textarea>
+                    
+                    <div class="example-section">
+                        <div class="example-title">Example Format:</div>
+                        <div class="example-code" id="exampleFormat">
+{
   "muscles1": 125.5,
   "notch123": 98.3,
   "TheLoveHitman": 87.2,
   "JxMAN20": 76.8,
   "Vyraall": 45.1
 }</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button type="submit" class="submit-btn">Update Player Scores</button>
+                    <button type="button" onclick="loadSampleData()" class="submit-btn secondary-btn">Load Sample Data</button>
+                    <button type="button" onclick="clearScores()" class="submit-btn danger-btn">Clear Form</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- VIEW DATA TAB -->
+        <div id="view-tab" class="tab-content">
+            <div class="admin-form">
+                <h3 style="color: #00d4ff; margin-bottom: 1.5rem;">Current Tournament Data</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="viewTournament" class="form-label">Tournament</label>
+                        <select id="viewTournament" class="form-select" onchange="loadCurrentData()">
+                            <option value="na-15v15-summer-series">NA 15v15 Summer Series</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="viewMatchDay" class="form-label">Match Day</label>
+                        <select id="viewMatchDay" class="form-select" onchange="loadCurrentData()">
+                            <option value="1">Match Day 1</option>
+                            <option value="2">Match Day 2</option>
+                            <option value="3">Match Day 3</option>
+                            <option value="4">Match Day 4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button onclick="loadCurrentData()" class="submit-btn">Refresh Data</button>
+                    </div>
+                </div>
+
+                <div class="current-data">
+                    <h4 style="color: #ffffff; margin-bottom: 1rem;">Player Scores</h4>
+                    <div id="currentDataDisplay" class="players-grid">
+                        <p style="color: rgba(255, 255, 255, 0.6);">Click "Refresh Data" to load current scores</p>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <button type="submit" class="submit-btn">Update Player Scores</button>
-        </form>
-
-        <div class="admin-form">
-            <h3 style="color: #00d4ff; margin-bottom: 1rem;">Quick Actions</h3>
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <button onclick="loadSampleData()" class="submit-btn" style="background: rgba(255, 255, 255, 0.1);">Load Sample Data</button>
-                <button onclick="clearScores()" class="submit-btn" style="background: rgba(239, 68, 68, 0.8);">Clear Form</button>
+        <!-- MANAGE TOURNAMENT TAB -->
+        <div id="manage-tab" class="tab-content">
+            <div class="admin-form">
+                <h3 style="color: #00d4ff; margin-bottom: 1.5rem;">Tournament Management</h3>
+                
+                <div style="display: grid; gap: 1rem;">
+                    <button onclick="resetTournament()" class="submit-btn danger-btn">Reset All Scores</button>
+                    <button onclick="exportData()" class="submit-btn secondary-btn">Export Tournament Data</button>
+                    <button onclick="calculatePickPercentages()" class="submit-btn">Recalculate Pick Percentages</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleUpdateMode() {
+            const mode = document.getElementById('updateMode').value;
+            const exampleFormat = document.getElementById('exampleFormat');
+            
+            if (mode === 'full') {
+                exampleFormat.textContent = `{
+  "muscles1": {
+    "points": 125.5,
+    "battlesPlayed": 10,
+    "totalBattles": 10
+  },
+  "notch123": {
+    "points": 98.3,
+    "battlesPlayed": 9,
+    "totalBattles": 10
+  }
+}`;
+            } else {
+                exampleFormat.textContent = `{
+  "muscles1": 125.5,
+  "notch123": 98.3,
+  "TheLoveHitman": 87.2,
+  "JxMAN20": 76.8,
+  "Vyraall": 45.1
+}`;
+            }
+        }
+
         function showMessage(text, type) {
             const container = document.getElementById('messageContainer');
             const message = document.createElement('div');
@@ -238,34 +422,188 @@
         }
 
         function loadSampleData() {
-            const sampleData = {
-                "muscles1": 125.5,
-                "notch123": 98.3,
-                "TheLoveHitman": 87.2,
-                "JxMAN20": 76.8,
-                "Vyraall": 65.4,
-                "CommanderHalesBrother": 54.2,
-                "Major_Kenway": 48.7,
-                "_BlitzWolf": 42.1,
-                "Accretia": 38.9,
-                "_bloop": 35.6,
-                "SgtRumsey": 32.3,
-                "iWrangleEmus": 29.8,
-                "ShiraiKan_ExcalibuR": 27.4,
-                "Mlopesz": 24.1,
-                "SlyGuy_2": 21.8,
-                "Captian_Jack9": 19.5,
-                "Starick": 17.2,
-                "RM_xD": 15.0
-            };
+            const mode = document.getElementById('updateMode').value;
             
-            document.getElementById('playerScores').value = JSON.stringify(sampleData, null, 2);
+            if (mode === 'full') {
+                const sampleData = {
+                    "muscles1": {
+                        "points": 125.5,
+                        "battlesPlayed": 10,
+                        "totalBattles": 10
+                    },
+                    "notch123": {
+                        "points": 98.3,
+                        "battlesPlayed": 9,
+                        "totalBattles": 10
+                    },
+                    "TheLoveHitman": {
+                        "points": 87.2,
+                        "battlesPlayed": 10,
+                        "totalBattles": 10
+                    },
+                    "JxMAN20": {
+                        "points": 76.8,
+                        "battlesPlayed": 9,
+                        "totalBattles": 10
+                    },
+                    "Vyraall": {
+                        "points": 65.4,
+                        "battlesPlayed": 8,
+                        "totalBattles": 10
+                    }
+                };
+                document.getElementById('playerScores').value = JSON.stringify(sampleData, null, 2);
+            } else {
+                const sampleData = {
+                    "muscles1": 125.5,
+                    "notch123": 98.3,
+                    "TheLoveHitman": 87.2,
+                    "JxMAN20": 76.8,
+                    "Vyraall": 65.4,
+                    "CommanderHalesBrother": 54.2,
+                    "Major_Kenway": 48.7,
+                    "_BlitzWolf": 42.1,
+                    "Accretia": 38.9,
+                    "_bloop": 35.6,
+                    "SgtRumsey": 32.3,
+                    "iWrangleEmus": 29.8,
+                    "ShiraiKan_ExcalibuR": 27.4,
+                    "Mlopesz": 24.1,
+                    "SlyGuy_2": 21.8,
+                    "Captian_Jack9": 19.5,
+                    "Starick": 17.2,
+                    "RM_xD": 15.0
+                };
+                document.getElementById('playerScores').value = JSON.stringify(sampleData, null, 2);
+            }
+            
             showMessage('Sample data loaded', 'success');
         }
 
         function clearScores() {
             document.getElementById('playerScores').value = '';
             showMessage('Form cleared', 'success');
+        }
+
+        async function loadCurrentData() {
+            const tournament = document.getElementById('viewTournament').value;
+            const matchDay = document.getElementById('viewMatchDay').value;
+            const container = document.getElementById('currentDataDisplay');
+            
+            container.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6);">Loading...</p>';
+            
+            try {
+                const response = await fetch(`https://fantasytanks-production.up.railway.app/api/admin/scores/${tournament}/${matchDay}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load data');
+                }
+                
+                if (data.players && data.players.length > 0) {
+                    container.innerHTML = data.players.map(player => `
+                        <div class="player-card">
+                            <div class="player-name">${player.player_name}</div>
+                            <div class="player-details">
+                                <div>Team: ${player.team_code || 'N/A'}</div>
+                                <div>Points: ${player.points || 0}</div>
+                                <div>Battles: ${player.battles_played || 0}/${player.total_battles || 0}</div>
+                                <div>Pick %: ${player.pick_percentage || 0}%</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6);">No data found for this match day</p>';
+                }
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                container.innerHTML = '<p style="color: #ef4444;">Error loading data</p>';
+            }
+        }
+
+        async function calculatePickPercentages() {
+            try {
+                const response = await fetch('https://fantasytanks-production.up.railway.app/api/admin/calculate-picks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tournamentId: 'na-15v15-summer-series'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to calculate pick percentages');
+                }
+                
+                showMessage('Pick percentages recalculated successfully', 'success');
+                
+            } catch (error) {
+                console.error('Error calculating pick percentages:', error);
+                showMessage(error.message, 'error');
+            }
+        }
+
+        async function resetTournament() {
+            if (!confirm('Are you sure you want to reset ALL scores? This cannot be undone!')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://fantasytanks-production.up.railway.app/api/admin/reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tournamentId: 'na-15v15-summer-series'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to reset tournament');
+                }
+                
+                showMessage('Tournament reset successfully', 'success');
+                
+            } catch (error) {
+                console.error('Error resetting tournament:', error);
+                showMessage(error.message, 'error');
+            }
+        }
+
+        async function exportData() {
+            try {
+                const response = await fetch('https://fantasytanks-production.up.railway.app/api/admin/export/na-15v15-summer-series');
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to export data');
+                }
+                
+                // Download as JSON file
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tournament-data.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showMessage('Data exported successfully', 'success');
+                
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                showMessage(error.message, 'error');
+            }
         }
 
         document.getElementById('scoresForm').addEventListener('submit', async (e) => {
@@ -278,14 +616,29 @@
             try {
                 const tournamentId = document.getElementById('tournamentId').value;
                 const matchDay = parseInt(document.getElementById('matchDay').value);
+                const updateMode = document.getElementById('updateMode').value;
                 const scoresText = document.getElementById('playerScores').value;
                 
                 // Validate JSON
-                let playerScores;
+                let playerData;
                 try {
-                    playerScores = JSON.parse(scoresText);
+                    playerData = JSON.parse(scoresText);
                 } catch (error) {
-                    throw new Error('Invalid JSON format. Please check your player scores data.');
+                    throw new Error('Invalid JSON format. Please check your player data.');
+                }
+                
+                // Prepare request body based on update mode
+                let requestBody = {
+                    tournamentId,
+                    matchDay
+                };
+                
+                if (updateMode === 'full') {
+                    // Full data mode: expect objects with points, battlesPlayed, totalBattles
+                    requestBody.playerData = playerData;
+                } else {
+                    // Scores only mode: expect simple number values
+                    requestBody.playerScores = playerData;
                 }
                 
                 // Make API request
@@ -294,11 +647,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        tournamentId,
-                        matchDay,
-                        playerScores
-                    })
+                    body: JSON.stringify(requestBody)
                 });
                 
                 const data = await response.json();
@@ -307,7 +656,10 @@
                     throw new Error(data.error || 'Failed to update scores');
                 }
                 
-                showMessage(`Successfully updated scores for Match Day ${matchDay}`, 'success');
+                showMessage(`Successfully updated ${updateMode === 'full' ? 'player data' : 'scores'} for Match Day ${matchDay}`, 'success');
+                
+                // Clear form after successful update
+                document.getElementById('playerScores').value = '';
                 
             } catch (error) {
                 console.error('Error updating scores:', error);
@@ -317,6 +669,12 @@
                 submitBtn.textContent = 'Update Player Scores';
             }
         });
+        
+        // Load initial data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Admin panel loaded');
+        });
     </script>
 </body>
 </html>
+                    
