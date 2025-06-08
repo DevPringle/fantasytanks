@@ -109,6 +109,18 @@ class FantasyAPI {
         }
         return await this.request(endpoint);
     }
+
+    async getPlayers(tournamentId) {
+    return await this.request(`/tournaments/${tournamentId}/players`);
+    }
+    
+    async getTeams(tournamentId) {
+        return await this.request(`/tournaments/${tournamentId}/teams`);
+    }
+    
+    async getTournament(tournamentId) {
+        return await this.request(`/tournaments/${tournamentId}`);
+    }
 }
 
 // Create global instance
