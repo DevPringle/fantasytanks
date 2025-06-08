@@ -1948,6 +1948,7 @@
             try {
                 console.log('Getting real players from database...');
                 const response = await api.getPlayers('na-15v15-summer-series');
+                console.log('API response:', response); // Debug log
                 
                 if (response && response.players && response.players.length > 0) {
                     // Put the real players in our box
@@ -1959,17 +1960,20 @@
                         avg: player.average_points || 0,
                         picked: player.picked_percentage || '0%'
                     }));
-                    console.log('Got real players!', playersData.length, 'players loaded');
+                    console.log('✅ SUCCESS: Got', playersData.length, 'real players from database!');
+                    console.log('First few players:', playersData.slice(0, 3)); // Debug log
                 } else {
-                    console.log('No real players found, using backup fake data');
+                    console.log('❌ No real players found in database, using backup fake data');
                     playersData = getFallbackPlayers(); // Backup fake data
                 }
             } catch (error) {
-                console.log('Could not get real players, using backup fake data');
+                console.error('❌ ERROR loading real players:', error);
+                console.log('Using backup fake data instead');
                 playersData = getFallbackPlayers(); // Backup fake data
             }
             
             // Show the players on the website
+            console.log('Populating table with', playersData.length, 'players');
             populatePlayersTable();
         }
         
@@ -1978,13 +1982,15 @@
             try {
                 console.log('Getting real teams from database...');
                 const response = await api.getTeams('na-15v15-summer-series');
+                console.log('Teams API response:', response); // Debug log
                 
                 if (response && response.teams && response.teams.length > 0) {
                     teamsData = response.teams;
                     updateTeamFilter(); // Update the team dropdown
-                    console.log('Got real teams!', teamsData.length, 'teams loaded');
+                    console.log('✅ SUCCESS: Got', teamsData.length, 'real teams from database!');
+                    console.log('Teams:', teamsData.map(t => t.team_code)); // Debug log
                 } else {
-                    console.log('No real teams found, using backup teams');
+                    console.log('❌ No real teams found in database, using backup teams');
                     // Use backup fake teams
                     teamsData = [
                         { team_code: 'LHG', team_name: 'LHG' },
@@ -1996,7 +2002,8 @@
                     updateTeamFilter();
                 }
             } catch (error) {
-                console.log('Could not get real teams, using backup teams');
+                console.error('❌ ERROR loading real teams:', error);
+                console.log('Using backup teams instead');
                 // Use backup fake teams
                 teamsData = [
                     { team_code: 'LHG', team_name: 'LHG' },
@@ -2265,6 +2272,20 @@
             if (!tbody) return;
             
             tbody.innerHTML = '';
+            
+            // Show message if no players loaded
+            if (playersData.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">
+                        <div style="font-size: 1.2rem; margin-bottom: 1rem;">🚫 No Players Found</div>
+                        <div>Either the database is empty or there's a connection issue.</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem;">Check the browser console for details.</div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                return;
+            }
 
             // Filter players by team if selected
             const teamFilter = document.getElementById('teamFilter');
@@ -2272,6 +2293,17 @@
             const filteredPlayers = selectedTeam ? 
                   playersData.filter(p => p.team === selectedTeam) : 
                   playersData;
+
+            if (filteredPlayers.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="7" style="text-align: center; padding: 2rem; color: rgba(255, 255, 255, 0.6);">
+                        <div>No players found for team: ${selectedTeam}</div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                return;
+            }
 
             filteredPlayers.forEach(player => {
                 const row = document.createElement('tr');
@@ -2530,12 +2562,11 @@
             // Check roster lock status and start timer
             checkRosterLockStatus();
             
-            // Load data first
+            // Load data first - this will populate the table when done
             await loadTeamsData();    // Get real teams first
-            await loadPlayersData();  // Then get real players
+            await loadPlayersData();  // Then get real players - this calls populatePlayersTable()
             
-            // Then populate table and roster
-            populatePlayersTable();
+            // Update roster display after data is loaded
             updateRosterDisplay();
             
             // Load standings
