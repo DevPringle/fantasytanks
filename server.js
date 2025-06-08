@@ -81,6 +81,52 @@ async function initializeTables() {
       )
     `);
 
+    // Tournaments table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS tournaments (
+        tournament_id VARCHAR(100) PRIMARY KEY,
+        tournament_name VARCHAR(255) NOT NULL,
+        region VARCHAR(50) NOT NULL,
+        start_date DATE,
+        end_date DATE,
+        status VARCHAR(20) DEFAULT 'upcoming',
+        max_roster_size INTEGER DEFAULT 10,
+        total_fantasy_teams INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Teams table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS teams (
+        team_id SERIAL PRIMARY KEY,
+        tournament_id VARCHAR(100) NOT NULL,
+        team_name VARCHAR(100) NOT NULL,
+        team_code VARCHAR(10) NOT NULL,
+        region VARCHAR(50),
+        FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id),
+        UNIQUE(tournament_id, team_code)
+      )
+    `);
+
+    // Players table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS players (
+        player_id SERIAL PRIMARY KEY,
+        tournament_id VARCHAR(100) NOT NULL,
+        team_id INTEGER NOT NULL,
+        player_name VARCHAR(100) NOT NULL,
+        battles_played VARCHAR(10) DEFAULT '0%',
+        total_points DECIMAL(10,2) DEFAULT 0.00,
+        average_points DECIMAL(10,2) DEFAULT 0.00,
+        picked_percentage VARCHAR(10) DEFAULT '0%',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id),
+        FOREIGN KEY (team_id) REFERENCES teams(team_id),
+        UNIQUE(tournament_id, player_name)
+      )
+    `);
+
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing database tables:', error);
@@ -92,6 +138,11 @@ async function initializeTables() {
 // Serve main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Fantasy Tanks API is running' });
 });
 
 // Registration endpoint
@@ -199,6 +250,84 @@ app.post('/api/auth/login', async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get all tournaments
+app.get('/api/tournaments', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM tournaments ORDER BY created_at DESC'
+    );
+    
+    res.json({ tournaments: result.rows });
+  } catch (error) {
+    console.error('Get tournaments error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get tournament details
+app.get('/api/tournaments/:tournamentId', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    
+    const result = await pool.query(
+      'SELECT * FROM tournaments WHERE tournament_id = $1',
+      [tournamentId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Tournament not found' });
+    }
+    
+    res.json({ tournament: result.rows[0] });
+  } catch (error) {
+    console.error('Get tournament error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get players for a tournament
+app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT 
+        p.player_name,
+        t.team_code,
+        p.battles_played,
+        p.total_points,
+        p.average_points,
+        p.picked_percentage
+      FROM players p
+      JOIN teams t ON p.team_id = t.team_id
+      WHERE p.tournament_id = $1
+      ORDER BY p.total_points DESC
+    `, [tournamentId]);
+    
+    res.json({ players: result.rows });
+  } catch (error) {
+    console.error('Get players error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get teams for a tournament
+app.get('/api/tournaments/:tournamentId/teams', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    
+    const result = await pool.query(
+      'SELECT team_id, team_name, team_code, region FROM teams WHERE tournament_id = $1 ORDER BY team_name',
+      [tournamentId]
+    );
+    
+    res.json({ teams: result.rows });
+  } catch (error) {
+    console.error('Get teams error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
