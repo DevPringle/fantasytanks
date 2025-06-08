@@ -1877,15 +1877,26 @@
             }
 
             async getLeaderboard(tournamentId, matchDay = null) {
-                const params = matchDay ? `?matchDay=${matchDay}` : '';
-                return await this.request(`/leaderboard/${tournamentId}${params}`);
+                let endpoint = `/leaderboard/${tournamentId}`;
+                if (matchDay) {
+                    endpoint += `?matchDay=${matchDay}`;
+                }
+                return await this.request(endpoint);
+            }
+
+            async getPlayers(tournamentId) {
+                return await this.request(`/tournaments/${tournamentId}/players`);
+            }
+            
+            async getTeams(tournamentId) {
+                return await this.request(`/tournaments/${tournamentId}/teams`);
             }
 
             getCurrentUser() {
                 if (!this.token) return null;
                 try {
                     const payload = JSON.parse(atob(this.token.split('.')[1]));
-                    return { username: payload.username, id: payload.id };
+                    return { username: payload.username, id: payload.userId };
                 } catch (error) {
                     return null;
                 }
@@ -1908,13 +1919,37 @@
         let playersData = [];  // Empty box for real players
         let teamsData = [];    // Empty box for real teams
         
-        // ✅ ADD THIS (magic function to get real players):
+        // Fallback sample data if database is empty
+        function getFallbackPlayers() {
+            return [
+                { name: 'muscles1', team: 'LHG', battles: '100%', points: 5714.7, avg: 53.9, picked: '50.04%' },
+                { name: 'notch123', team: '25%', battles: '99%', points: 5550.5, avg: 48.7, picked: '57.61%' },
+                { name: 'TheLoveHitman', team: 'TT6', battles: '100%', points: 5298.5, avg: 49.5, picked: '55.14%' },
+                { name: 'JxMAN20', team: '25%', battles: '91%', points: 4868.7, avg: 46.4, picked: '11.85%' },
+                { name: 'Vyraall', team: 'TT6', battles: '97%', points: 4781.3, avg: 45.8, picked: '29.86%' },
+                { name: 'CommanderHalesBrother', team: '25%', battles: '90%', points: 4567.0, avg: 43.9, picked: '17.93%' },
+                { name: 'Major_Kenway', team: '25%', battles: '80%', points: 4513.9, avg: 49.1, picked: '10.58%' },
+                { name: '_BlitzWolf', team: 'TT6', battles: '79%', points: 4492.0, avg: 52.8, picked: '7.50%' },
+                { name: 'Accretia', team: 'WAR', battles: '100%', points: 4461.1, avg: 44.6, picked: '33.53%' },
+                { name: '_bloop', team: 'SB', battles: '96%', points: 4395.0, avg: 48.3, picked: '63.84%' },
+                { name: 'SgtRumsey', team: 'LHG', battles: '75%', points: 4339.6, avg: 49.1, picked: '25.67%' },
+                { name: 'iWrangleEmus', team: 'TT6', battles: '92%', points: 4268.6, avg: 47.8, picked: '18.42%' },
+                { name: 'ShiraiKan_ExcalibuR', team: 'WAR', battles: '91%', points: 4036.9, avg: 44.2, picked: '22.15%' },
+                { name: 'Mlopesz', team: 'WAR', battles: '100%', points: 4029.7, avg: 40.3, picked: '15.78%' },
+                { name: 'SlyGuy_2', team: 'SB', battles: '99%', points: 3998.4, avg: 45.7, picked: '31.25%' },
+                { name: 'Captian_Jack9', team: 'SB', battles: '81%', points: 3967.1, avg: 48.9, picked: '28.94%' },
+                { name: 'Starick', team: 'WAR', battles: '83%', points: 3895.5, avg: 46.9, picked: '19.73%' },
+                { name: 'RM_xD', team: 'SB', battles: '100%', points: 3659.2, avg: 36.6, picked: '8.55%' }
+            ];
+        }
+        
+        // Function to get real players from database
         async function loadPlayersData() {
             try {
                 console.log('Getting real players from database...');
                 const response = await api.getPlayers('na-15v15-summer-series');
                 
-                if (response && response.players) {
+                if (response && response.players && response.players.length > 0) {
                     // Put the real players in our box
                     playersData = response.players.map(player => ({
                         name: player.player_name,
@@ -1938,30 +1973,43 @@
             populatePlayersTable();
         }
         
-        // ✅ ADD THIS (magic function to get real teams):
+        // Function to get real teams from database
         async function loadTeamsData() {
             try {
                 console.log('Getting real teams from database...');
                 const response = await api.getTeams('na-15v15-summer-series');
                 
-                if (response && response.teams) {
+                if (response && response.teams && response.teams.length > 0) {
                     teamsData = response.teams;
                     updateTeamFilter(); // Update the team dropdown
                     console.log('Got real teams!', teamsData.length, 'teams loaded');
+                } else {
+                    console.log('No real teams found, using backup teams');
+                    // Use backup fake teams
+                    teamsData = [
+                        { team_code: 'LHG', team_name: 'LHG' },
+                        { team_code: '25%', team_name: '25%' },
+                        { team_code: 'TT6', team_name: 'TT6' },
+                        { team_code: 'WAR', team_name: 'WAR' },
+                        { team_code: 'SB', team_name: 'SB' }
+                    ];
+                    updateTeamFilter();
                 }
             } catch (error) {
                 console.log('Could not get real teams, using backup teams');
                 // Use backup fake teams
                 teamsData = [
-                    { team_code: 'N/A', team_name: 'N/A' },
-                    { team_code: 'N/A', team_name: 'N/A' }
+                    { team_code: 'LHG', team_name: 'LHG' },
+                    { team_code: '25%', team_name: '25%' },
+                    { team_code: 'TT6', team_name: 'TT6' },
+                    { team_code: 'WAR', team_name: 'WAR' },
+                    { team_code: 'SB', team_name: 'SB' }
                 ];
                 updateTeamFilter();
             }
         }
         
-        
-        // ✅ ADD THIS (function to update the team dropdown):
+        // Function to update the team dropdown
         function updateTeamFilter() {
             const teamFilter = document.getElementById('teamFilter');
             if (!teamFilter || !teamsData) return;
@@ -2470,7 +2518,7 @@
         }
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log('Tournament page loaded successfully!');
             
             // Initialize tab navigation first
@@ -2482,16 +2530,16 @@
             // Check roster lock status and start timer
             checkRosterLockStatus();
             
+            // Load data first
+            await loadTeamsData();    // Get real teams first
+            await loadPlayersData();  // Then get real players
+            
             // Then populate table and roster
             populatePlayersTable();
             updateRosterDisplay();
             
             // Load standings
             loadStandings();
-
-            // ✅ ADD THESE LINES:
-            await loadTeamsData();    // Get real teams first
-            await loadPlayersData();  // Then get real players
             
             // Add table sorting
             document.querySelectorAll('.sortable').forEach(th => {
@@ -2608,8 +2656,6 @@
                 });
             });
         }
-
-        // Button actions - removed duplicate code since it's now in DOMContentLoaded
         
         // Add animations
         const style = document.createElement('style');
@@ -2623,4 +2669,3 @@
     </script>
 </body>
 </html>
-                                

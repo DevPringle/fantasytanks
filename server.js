@@ -388,9 +388,10 @@ app.post('/api/roster', authenticateToken, async (req, res) => {
 });
 
 // Get leaderboard for a tournament
-app.get('/api/leaderboard', async (req, res) => {
+app.get('/api/leaderboard/:tournamentId', async (req, res) => {
   try {
-    const { tournamentId, matchDay } = req.query;
+    const { tournamentId } = req.params;
+    const { matchDay } = req.query;
 
     if (!tournamentId) {
       return res.status(400).json({ error: 'Tournament ID is required' });
