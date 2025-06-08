@@ -1905,27 +1905,78 @@
         // Initialize API
         const api = new FantasyAPI();
 
-        // Sample player data
-        const samplePlayers = [
-            { name: 'muscles1', team: 'LHG', battles: '100%', points: 5714.7, avg: 53.9, picked: '50.04%' },
-            { name: 'notch123', team: '25%', battles: '99%', points: 5550.5, avg: 48.7, picked: '57.61%' },
-            { name: 'TheLoveHitman', team: 'TT6', battles: '100%', points: 5298.5, avg: 49.5, picked: '55.14%' },
-            { name: 'JxMAN20', team: '25%', battles: '91%', points: 4868.7, avg: 46.4, picked: '11.85%' },
-            { name: 'Vyraall', team: 'TT6', battles: '97%', points: 4781.3, avg: 45.8, picked: '29.86%' },
-            { name: 'CommanderHalesBrother', team: '25%', battles: '90%', points: 4567.0, avg: 43.9, picked: '17.93%' },
-            { name: 'Major_Kenway', team: '25%', battles: '80%', points: 4513.9, avg: 49.1, picked: '10.58%' },
-            { name: '_BlitzWolf', team: 'TT6', battles: '79%', points: 4492.0, avg: 52.8, picked: '7.50%' },
-            { name: 'Accretia', team: 'WAR', battles: '100%', points: 4461.1, avg: 44.6, picked: '33.53%' },
-            { name: '_bloop', team: 'SB', battles: '96%', points: 4395.0, avg: 48.3, picked: '63.84%' },
-            { name: 'SgtRumsey', team: 'LHG', battles: '75%', points: 4339.6, avg: 49.1, picked: '25.67%' },
-            { name: 'iWrangleEmus', team: 'TT6', battles: '92%', points: 4268.6, avg: 47.8, picked: '18.42%' },
-            { name: 'ShiraiKan_ExcalibuR', team: 'WAR', battles: '91%', points: 4036.9, avg: 44.2, picked: '22.15%' },
-            { name: 'Mlopesz', team: 'WAR', battles: '100%', points: 4029.7, avg: 40.3, picked: '15.78%' },
-            { name: 'SlyGuy_2', team: 'SB', battles: '99%', points: 3998.4, avg: 45.7, picked: '31.25%' },
-            { name: 'Captian_Jack9', team: 'SB', battles: '81%', points: 3967.1, avg: 48.9, picked: '28.94%' },
-            { name: 'Starick', team: 'WAR', battles: '83%', points: 3895.5, avg: 46.9, picked: '19.73%' },
-            { name: 'RM_xD', team: 'SB', battles: '100%', points: 3659.2, avg: 36.6, picked: '8.55%' }
-        ];
+        let playersData = [];  // Empty box for real players
+        let teamsData = [];    // Empty box for real teams
+        
+        // ✅ ADD THIS (magic function to get real players):
+        async function loadPlayersData() {
+            try {
+                console.log('Getting real players from database...');
+                const response = await api.getPlayers('na-15v15-summer-series');
+                
+                if (response && response.players) {
+                    // Put the real players in our box
+                    playersData = response.players.map(player => ({
+                        name: player.player_name,
+                        team: player.team_code,
+                        battles: player.battles_played || '0%',
+                        points: player.total_points || 0,
+                        avg: player.average_points || 0,
+                        picked: player.picked_percentage || '0%'
+                    }));
+                    console.log('Got real players!', playersData.length, 'players loaded');
+                } else {
+                    console.log('No real players found, using backup fake data');
+                    playersData = getFallbackPlayers(); // Backup fake data
+                }
+            } catch (error) {
+                console.log('Could not get real players, using backup fake data');
+                playersData = getFallbackPlayers(); // Backup fake data
+            }
+            
+            // Show the players on the website
+            populatePlayersTable();
+        }
+        
+        // ✅ ADD THIS (magic function to get real teams):
+        async function loadTeamsData() {
+            try {
+                console.log('Getting real teams from database...');
+                const response = await api.getTeams('na-15v15-summer-series');
+                
+                if (response && response.teams) {
+                    teamsData = response.teams;
+                    updateTeamFilter(); // Update the team dropdown
+                    console.log('Got real teams!', teamsData.length, 'teams loaded');
+                }
+            } catch (error) {
+                console.log('Could not get real teams, using backup teams');
+                // Use backup fake teams
+                teamsData = [
+                    { team_code: 'N/A', team_name: 'N/A' },
+                    { team_code: 'N/A', team_name: 'N/A' }
+                ];
+                updateTeamFilter();
+            }
+        }
+        
+        
+        // ✅ ADD THIS (function to update the team dropdown):
+        function updateTeamFilter() {
+            const teamFilter = document.getElementById('teamFilter');
+            if (!teamFilter || !teamsData) return;
+            
+            // Clear old options
+            teamFilter.innerHTML = '<option value="">All Teams</option>';
+            
+            // Add real teams to dropdown
+            teamsData.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.team_code;
+                option.textContent = team.team_name || team.team_code;
+                teamFilter.appendChild(option);
+            });
+        }
 
         let currentRoster = [];
         let maxRosterSize = 10;
@@ -2171,8 +2222,8 @@
             const teamFilter = document.getElementById('teamFilter');
             const selectedTeam = teamFilter ? teamFilter.value : '';
             const filteredPlayers = selectedTeam ? 
-                samplePlayers.filter(p => p.team === selectedTeam) : 
-                samplePlayers;
+                  playersData.filter(p => p.team === selectedTeam) : 
+                  playersData;
 
             filteredPlayers.forEach(player => {
                 const row = document.createElement('tr');
@@ -2359,7 +2410,7 @@
 
         // Sort table functionality
         function sortTable(column, direction) {
-            samplePlayers.sort((a, b) => {
+            playersData.sort((a, b) => {
                 let aVal = a[column];
                 let bVal = b[column];
                 
@@ -2437,6 +2488,10 @@
             
             // Load standings
             loadStandings();
+
+            // ✅ ADD THESE LINES:
+            await loadTeamsData();    // Get real teams first
+            await loadPlayersData();  // Then get real players
             
             // Add table sorting
             document.querySelectorAll('.sortable').forEach(th => {
