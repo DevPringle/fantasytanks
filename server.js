@@ -99,10 +99,9 @@ async function initializeTables() {
     // Teams table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS teams (
-        team_id SERIAL PRIMARY KEY,
-        tournament_id VARCHAR(100) NOT NULL,
         team_name VARCHAR(100) NOT NULL,
         team_code VARCHAR(10) NOT NULL,
+        tournament_id VARCHAR(100) NOT NULL,
         region VARCHAR(50),
         FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id),
         UNIQUE(tournament_id, team_code)
@@ -112,17 +111,15 @@ async function initializeTables() {
     // Players table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS players (
-        player_id SERIAL PRIMARY KEY,
-        tournament_id VARCHAR(100) NOT NULL,
-        team_id INTEGER NOT NULL,
         player_name VARCHAR(100) NOT NULL,
+        tournament_id VARCHAR(100) NOT NULL,
+        team_code VARCHAR(10) NOT NULL,
         battles_played VARCHAR(10) DEFAULT '0%',
         total_points DECIMAL(10,2) DEFAULT 0.00,
         average_points DECIMAL(10,2) DEFAULT 0.00,
         picked_percentage VARCHAR(10) DEFAULT '0%',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id),
-        FOREIGN KEY (team_id) REFERENCES teams(team_id),
         UNIQUE(tournament_id, player_name)
       )
     `);
@@ -297,13 +294,12 @@ app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
     const result = await pool.query(`
       SELECT 
         p.player_name,
-        t.team_code,
+        p.team_code,
         p.battles_played,
         p.total_points,
         p.average_points,
         p.picked_percentage
       FROM players p
-      JOIN teams t ON p.team_id = t.team_id
       WHERE p.tournament_id = $1
       ORDER BY p.total_points DESC
     `, [tournamentId]);
@@ -321,7 +317,7 @@ app.get('/api/tournaments/:tournamentId/teams', async (req, res) => {
     const { tournamentId } = req.params;
     
     const result = await pool.query(
-      'SELECT team_id, team_name, team_code, region FROM teams WHERE tournament_id = $1 ORDER BY team_name',
+      'SELECT team_name, team_code, region FROM teams WHERE tournament_id = $1 ORDER BY team_name',
       [tournamentId]
     );
     
