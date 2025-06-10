@@ -171,6 +171,78 @@
             align-items: center;
         }
 
+        .user-menu {
+            position: relative;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: rgba(15, 20, 25, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.5rem;
+            min-width: 200px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-dropdown.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0.5rem 0;
+        }
+
         .sign-in-btn {
             padding: 0.8rem 2rem;
             background: linear-gradient(135deg, #00d4ff, #00b8e6);
@@ -906,7 +978,29 @@
             </div>
 
             <div class="auth-section">
-                <button class="sign-in-btn" aria-label="Sign in to your account">Sign In</button>
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <button class="user-btn" onclick="toggleUserDropdown()">
+                        <span class="material-icons">person</span>
+                        <span id="username"></span>
+                        <span class="material-icons">expand_more</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#profile" class="dropdown-item">
+                            <span class="material-icons">person</span>
+                            Profile
+                        </a>
+                        <a href="#settings" class="dropdown-item">
+                            <span class="material-icons">settings</span>
+                            Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#logout" class="dropdown-item" onclick="handleLogout()">
+                            <span class="material-icons">logout</span>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+                <button class="sign-in-btn" id="signInBtn" aria-label="Sign in to your account" onclick="redirectToLogin()">Sign In</button>
                 <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle mobile menu">
                     <span class="material-icons">menu</span>
                 </button>
@@ -984,8 +1078,8 @@
                         </div>
                         <p class="tournament-description">The premier North American league featuring the continent's best pro players in intense 15v15 battles. Draft your lineup from the top players and compete for the largest prize pool of the summer. Live scoring updates daily.</p>
                         <div class="tournament-actions">
-                            <button class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">sports_esports</span>Set Rosters</button>
-                            <button class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">leaderboard</span>Live Scoring</button>
+                            <a href="na-15v15-summer-series.html" class="btn"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">sports_esports</span>Set Rosters</a>
+                            <a href="na-15v15-summer-series.html#standings" class="btn btn-secondary"><span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem; vertical-align: middle;">leaderboard</span>Live Scoring</a>
                         </div>
                     </div>
                     
@@ -1211,6 +1305,120 @@
     </footer>
 
     <script>
+        // API client for connecting to your Railway backend
+        class FantasyAPI {
+            constructor() {
+                this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
+                this.token = localStorage.getItem('authToken');
+            }
+
+            async request(endpoint, options = {}) {
+                const url = `${this.baseURL}${endpoint}`;
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                };
+
+                if (this.token) {
+                    config.headers.Authorization = `Bearer ${this.token}`;
+                }
+
+                try {
+                    const response = await fetch(url, config);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'API request failed');
+                    }
+
+                    return data;
+                } catch (error) {
+                    console.error('API request error:', error);
+                    throw error;
+                }
+            }
+
+            async login(username, password) {
+                return await this.request('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+            }
+
+            async register(username, email, password) {
+                return await this.request('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, email, password })
+                });
+            }
+
+            getCurrentUser() {
+                if (!this.token) return null;
+                try {
+                    const payload = JSON.parse(atob(this.token.split('.')[1]));
+                    return { username: payload.username, id: payload.userId };
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            logout() {
+                localStorage.removeItem('authToken');
+                this.token = null;
+                window.location.reload();
+            }
+
+            isAuthenticated() {
+                return !!this.token;
+            }
+        }
+
+        // Initialize API
+        const api = new FantasyAPI();
+
+        // Authentication functions
+        function redirectToLogin() {
+            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
+        }
+
+        function handleLogout() {
+            api.logout();
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userMenu');
+            if (userMenu && !userMenu.contains(e.target)) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+
+        function updateAuthUI() {
+            const signInBtn = document.getElementById('signInBtn');
+            const userMenu = document.getElementById('userMenu');
+            
+            if (api.isAuthenticated()) {
+                const user = api.getCurrentUser();
+                
+                // Hide sign in button, show user menu
+                signInBtn.style.display = 'none';
+                userMenu.style.display = 'block';
+                document.getElementById('username').textContent = user.username;
+            } else {
+                // Show sign in button, hide user menu
+                signInBtn.style.display = 'block';
+                userMenu.style.display = 'none';
+            }
+        }
+
         // Header scroll effect
         window.addEventListener('scroll', () => {
             const header = document.getElementById('header');
@@ -1299,19 +1507,6 @@
                 navMenu.classList.remove('active');
                 mobileToggle.querySelector('.material-icons').textContent = 'menu';
             });
-        });
-
-        // Sign in functionality
-        document.querySelector('.sign-in-btn').addEventListener('click', () => {
-            // Add loading state
-            const btn = document.querySelector('.sign-in-btn');
-            const originalText = btn.textContent;
-            btn.innerHTML = '<span class="loading"></span>';
-            
-            setTimeout(() => {
-                btn.textContent = originalText;
-                alert('Sign in functionality would be implemented here');
-            }, 1000);
         });
 
         // Animated counter for statistics
@@ -1429,6 +1624,9 @@
                 // Close mobile menu on escape
                 navMenu.classList.remove('active');
                 mobileToggle.querySelector('.material-icons').textContent = 'menu';
+                
+                // Close user dropdown on escape
+                document.getElementById('userDropdown').classList.remove('show');
             }
         });
 
@@ -1446,6 +1644,9 @@
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Fantasy Tanks website loaded successfully!');
+            
+            // Update authentication UI first
+            updateAuthUI();
             
             // Initialize hero slideshow
             initHeroSlideshow();
