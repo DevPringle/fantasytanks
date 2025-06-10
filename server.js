@@ -469,6 +469,16 @@ app.post('/api/admin/scores', async (req, res) => {
   }
 });
 
+// Serve login page
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+// Serve main pages
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Admin middleware - check if user is admin
 const authenticateAdmin = async (req, res, next) => {
   try {

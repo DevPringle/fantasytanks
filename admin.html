@@ -407,8 +407,8 @@
         const token = localStorage.getItem('authToken');
         
         if (!token) {
-            alert('Please log in first');
-            window.location.href = '/login.html';
+            // Redirect to login page with return URL
+            window.location.href = '/login.html?return=' + encodeURIComponent(window.location.pathname);
         }
 
         // API helper with authentication
