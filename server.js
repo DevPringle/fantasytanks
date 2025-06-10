@@ -503,11 +503,16 @@ const authenticateAdmin = async (req, res, next) => {
 
     const user = result.rows[0];
     
-    // For now, make the first user admin, or you can add an is_admin column
-    if (user.id !== 1 && user.username !== 'admin') {
-      return res.status(403).json({ error: 'Admin access required' });
+    // 🔒 SECURE ADMIN CHECK - Only specific users can be admin
+    const adminUserIds = [1]; // Add your user ID here
+    const adminUsernames = ['DevPringle']; // Add your username here
+    
+    if (!adminUserIds.includes(user.id) && !adminUsernames.includes(user.username)) {
+      console.log(`🚫 Admin access denied for user: ${user.username} (ID: ${user.id})`);
+      return res.status(403).json({ error: 'Admin access denied - insufficient privileges' });
     }
 
+    console.log(`✅ Admin access granted to: ${user.username} (ID: ${user.id})`);
     req.user = user;
     next();
   } catch (error) {
