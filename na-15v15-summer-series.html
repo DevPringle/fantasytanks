@@ -1560,6 +1560,7 @@
                                 <span class="material-icons">schedule</span>
                                 <span id="timeRemaining">--:--:--</span>
                             </div>
+                        </div>
 
                         <div class="roster-actions">
                             <button class="action-btn">
@@ -2130,6 +2131,129 @@
             }
         };
 
+        // Global variables for header timer
+        let headerTimerInterval = null;
+
+        // Get the next match day that isn't locked yet
+        function getNextUnlockedMatchDay() {
+            const totalDays = Object.keys(tournamentConfig.rosterCutoffs).length;
+            const now = new Date();
+            
+            for (let i = 1; i <= totalDays; i++) {
+                const cutoff = tournamentConfig.rosterCutoffs[i];
+                if (cutoff && now < cutoff) {
+                    return i;
+                }
+            }
+            return null; // All match days are locked
+        }
+
+        // Check roster lock status and start header timer
+        function checkRosterLockStatus() {
+            const nextUnlockedMatchDay = getNextUnlockedMatchDay();
+            
+            if (nextUnlockedMatchDay) {
+                const cutoff = tournamentConfig.rosterCutoffs[nextUnlockedMatchDay];
+                updateRosterStatusUI('open', cutoff, `Match Day ${nextUnlockedMatchDay}`);
+                startHeaderCountdownTimer(cutoff, `Match Day ${nextUnlockedMatchDay}`);
+            } else {
+                updateRosterStatusUI('locked');
+                stopHeaderTimer();
+            }
+        }
+
+        // Update the header roster status UI
+        function updateRosterStatusUI(status, cutoffTime = null, matchDayName = null) {
+            const statusBadge = document.getElementById('rosterStatus');
+            const cutoffTimer = document.getElementById('cutoffTimer');
+            
+            if (!statusBadge || !cutoffTimer) return;
+            
+            if (status === 'locked') {
+                statusBadge.textContent = 'All Rosters Locked';
+                statusBadge.classList.add('locked');
+                cutoffTimer.style.display = 'none';
+            } else {
+                statusBadge.textContent = 'Rosters Open';
+                statusBadge.classList.remove('locked');
+                if (cutoffTime && matchDayName) {
+                    cutoffTimer.style.display = 'flex';
+                    // Update the timer text to show which match day
+                    const timerLabel = cutoffTimer.querySelector('.timer-label');
+                    if (timerLabel) {
+                        timerLabel.textContent = `${matchDayName} deadline:`;
+                    } else {
+                        // Create timer label if it doesn't exist
+                        const labelSpan = document.createElement('span');
+                        labelSpan.className = 'timer-label';
+                        labelSpan.textContent = `${matchDayName} deadline:`;
+                        labelSpan.style.marginRight = '0.5rem';
+                        cutoffTimer.insertBefore(labelSpan, cutoffTimer.firstChild);
+                    }
+                }
+            }
+        }
+
+        // Start the header countdown timer
+        function startHeaderCountdownTimer(cutoffTime, matchDayName) {
+            const timeDisplay = document.getElementById('timeRemaining');
+            if (!timeDisplay) return;
+            
+            // Clear any existing timer
+            stopHeaderTimer();
+            
+            function updateHeaderTimer() {
+                const now = new Date();
+                const timeLeft = cutoffTime - now;
+                
+                if (timeLeft <= 0) {
+                    // This deadline passed, check for next one
+                    checkRosterLockStatus();
+                    return;
+                }
+                
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                timeDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            updateHeaderTimer();
+            headerTimerInterval = setInterval(updateHeaderTimer, 1000);
+        }
+
+        // Stop the header timer
+        function stopHeaderTimer() {
+            if (headerTimerInterval) {
+                clearInterval(headerTimerInterval);
+                headerTimerInterval = null;
+            }
+        }
+
+        // Enhanced tournament header status section
+        function initializeHeaderTimer() {
+            const statusHeader = document.querySelector('.tournament-status-header');
+            if (!statusHeader) return;
+            
+            // Make sure the cutoff timer has the right structure
+            let cutoffTimer = document.getElementById('cutoffTimer');
+            if (!cutoffTimer) {
+                cutoffTimer = document.createElement('div');
+                cutoffTimer.id = 'cutoffTimer';
+                cutoffTimer.className = 'cutoff-timer';
+                cutoffTimer.style.display = 'none';
+                cutoffTimer.innerHTML = `
+                    <span class="material-icons">schedule</span>
+                    <span id="timeRemaining">--:--:--</span>
+                `;
+                statusHeader.appendChild(cutoffTimer);
+            }
+            
+            // Start the timer
+            checkRosterLockStatus();
+        }
+        
         // Check if rosters are locked for a specific match day
         function isMatchDayLocked(matchDay) {
             const now = new Date();
@@ -2927,6 +3051,9 @@
             // Update match day UI
             updateMatchDayUI();
             
+            // Initialize the header timer (add this line)
+            initializeHeaderTimer();
+            
             // Load data
             await loadTeamsData();
             await loadPlayersData();
@@ -2990,8 +3117,11 @@
                 });
             });
 
-            // Update deadline info periodically
-            setInterval(updateDeadlineInfo, 60000); // Update every minute
+            // Update deadline info periodically for both header and match day selector
+            setInterval(() => {
+                updateDeadlineInfo(); // Existing function for match day selector
+                checkRosterLockStatus(); // New function for header timer
+            }, 60000); // Update every minute
         });
         
         // Add animations
