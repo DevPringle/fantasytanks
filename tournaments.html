@@ -1,721 +1,4 @@
-            .stat-number {
-                color: #00d4ff;
-                background: none;
-                -webkit-text-fill-color: #00d4ff;
-            }
-        }
-    </style>
-</head>
-<body>
-    <header class="header" id="header">
-        <nav class="nav container">
-            <a href="index.html" class="logo">
-                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo">
-            </a>
-            
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="tournaments.html" class="nav-link active">Tournaments</a></li>
-                <li><a href="index.html#groups" class="nav-link">Groups</a></li>
-                <li><a href="index.html#guide" class="nav-link">Guide</a></li>
-                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
-            </ul>
-
-            <div class="region-selector">
-                <button class="region-btn active" data-region="na" aria-label="North America region">NA</button>
-                <button class="region-btn" data-region="eu" aria-label="Europe region">EU</button>
-                <button class="region-btn" data-region="ru" aria-label="Russia region">RU</button>
-                <button class="region-btn" data-region="asia" aria-label="Asia region">ASIA</button>
-            </div>
-
-            <div class="auth-section">
-                <button class="sign-in-btn" aria-label="Sign in to your account">Sign In</button>
-                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle mobile menu">
-                    <span class="material-icons">menu</span>
-                </button>
-            </div>
-        </nav>
-    </header>
-
-    <main>
-        <section class="page-header">
-            <div class="container">
-                <h1 class="page-title">Fantasy Tournaments</h1>
-                <p class="page-subtitle">Pick fantasy teams from pro players, analyze player performances, and compete in leagues based on real World of Tanks tournaments</p>
-            </div>
-        </section>
-
-        <section class="filters-section">
-            <div class="container">
-                <div class="filters-container">
-                    <div class="filter-group">
-                        <span class="filter-label">Status:</span>
-                        <div class="status-filters">
-                            <button class="status-filter active" data-status="all">All</button>
-                            <button class="status-filter" data-status="live">Live</button>
-                            <button class="status-filter" data-status="upcoming">Upcoming</button>
-                            <button class="status-filter" data-status="registration">Open</button>
-                            <button class="status-filter" data-status="completed">Completed</button>
-                        </div>
-                    </div>
-
-                    <div class="filter-group">
-                        <span class="filter-label">Format:</span>
-                        <select class="filter-select" id="formatFilter">
-                            <option value="all">All Formats</option>
-                            <option value="7v7">Pick 7 Players</option>
-                            <option value="5v5">Pick 5 Players</option>
-                            <option value="3v3">Pick 3 Players</option>
-                            <option value="1v1">Pick 1 Player</option>
-                        </select>
-
-                        <span class="filter-label">Teams:</span>
-                        <select class="filter-select" id="teamsFilter">
-                            <option value="all">All Sizes</option>
-                            <option value="100+">100+ Teams</option>
-                            <option value="50+">50+ Teams</option>
-                            <option value="25+">25+ Teams</option>
-                            <option value="small">Under 25</option>
-                        </select>
-                    </div>
-
-                    <div class="search-container">
-                        <span class="material-icons search-icon">search</span>
-                        <input type="text" class="search-input" placeholder="Search fantasy tournaments..." id="searchInput">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="tournament-sections container">
-            <!-- Quick Stats -->
-            <div class="quick-stats">
-                <div class="stat-card">
-                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">live_tv</span>
-                    <span class="stat-number">2</span>
-                    <span class="stat-label">Live Fantasy Tournaments</span>
-                </div>
-                <div class="stat-card">
-                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">event</span>
-                    <span class="stat-number">8</span>
-                    <span class="stat-label">Upcoming</span>
-                </div>
-                <div class="stat-card">
-                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">people</span>
-                    <span class="stat-number">376</span>
-                    <span class="stat-label">Fantasy Teams</span>
-                </div>
-            </div>
-
-            <!-- Live Tournaments -->
-            <div class="section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span class="material-icons" style="color: #22c55e; margin-right: 0.5rem; animation: pulse 2s infinite;">radio_button_checked</span>
-                        Live Fantasy Tournaments
-                        <span class="section-count">2</span>
-                    </h2>
-                    <div class="view-toggle">
-                        <button class="view-btn active" data-view="grid">
-                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">grid_view</span>Grid
-                        </button>
-                        <button class="view-btn" data-view="list">
-                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">view_list</span>List
-                        </button>
-                    </div>
-                </div>
-
-                <div class="tournament-grid active" id="liveGrid">
-                    <div class="tournament-card" data-tournament="na-15v15-summer-series">
-                        <div class="tournament-header">
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">emoji_events</span>
-                                    <h3 class="tournament-title" style="margin: 0;">NA 15v15 Summer Series</h3>
-                                </div>
-                            </div>
-                            <span class="tournament-status status-live">Live Scoring</span>
-                        </div>
-                        <div class="tournament-meta">
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">public</span>
-                                North America
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">groups</span>
-                                Pick 10 Players
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">sports_esports</span>
-                                93 Fantasy Teams
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">schedule</span>
-                                Qualifiers
-                            </div>
-                        </div>
-                        <p class="tournament-description">Fantasy tournament based on the premier North American league featuring the continent's best pro players in intense 15v15 battles. Currently in the qualifiers with pro teams competing for advancement.</p>
-                        <div class="tournament-progress">
-                            <div class="progress-label">
-                                <span>Pro Tournament Progress</span>
-                                <span>10%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 10%;"></div>
-                            </div>
-                        </div>
-                        <div class="tournament-footer">
-                            <span class="fantasy-teams">93 Fantasy Teams</span>
-                            <a href="na-15v15-summer-series.html" class="action-btn">
-                                <span class="material-icons" style="font-size: 1rem;">visibility</span>
-                                View Tournament
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="tournament-card" data-tournament="joust-summer-league">
-                        <div class="tournament-header">
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">workspace_premium</span>
-                                    <h3 class="tournament-title" style="margin: 0;">Joust Summer League</h3>
-                                </div>
-                            </div>
-                            <span class="tournament-status status-live">Live Scoring</span>
-                        </div>
-                        <div class="tournament-meta">
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">public</span>
-                                Europe
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">groups</span>
-                                Pick 10 Players
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">sports_esports</span>
-                                283 Fantasy Teams
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">schedule</span>
-                                Groups
-                            </div>
-                        </div>
-                        <p class="tournament-description">Fantasy tournament based on the premier European league featuring the continent's best pro players in intense 15v15 battles. Currently in the groups stage with pro teams competing for bracket advancement.</p>
-                        <div class="tournament-progress">
-                            <div class="progress-label">
-                                <span>Pro Tournament Progress</span>
-                                <span>20%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 20%;"></div>
-                            </div>
-                        </div>
-                        <div class="tournament-footer">
-                            <span class="fantasy-teams">283 Fantasy Teams</span>
-                            <a href="joust-summer-league.html" class="action-btn">
-                                <span class="material-icons" style="font-size: 1rem;">visibility</span>
-                                View Tournament
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tournament-list" id="liveList">
-                    <div class="list-item" data-tournament="na-15v15-summer-series">
-                        <div class="list-header">
-                            <h3 class="list-title">NA 15v15 Summer Series</h3>
-                            <span class="tournament-status status-live">Live Scoring</span>
-                        </div>
-                        <div class="list-meta">
-                            <span>North America • Pick 10 Players • Qualifiers • 93 Fantasy Teams</span>
-                        </div>
-                    </div>
-                    <div class="list-item" data-tournament="joust-summer-league">
-                        <div class="list-header">
-                            <h3 class="list-title">Joust Summer League</h3>
-                            <span class="tournament-status status-live">Live Scoring</span>
-                        </div>
-                        <div class="list-meta">
-                            <span>Europe • Pick 10 Players • Groups • 283 Fantasy Teams</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Upcoming Tournaments -->
-            <div class="section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span class="material-icons" style="color: #00d4ff; margin-right: 0.5rem;">event</span>
-                        Upcoming Fantasy Tournaments
-                        <span class="section-count">8</span>
-                    </h2>
-                    <div class="view-toggle">
-                        <button class="view-btn active" data-view="grid">
-                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">grid_view</span>Grid
-                        </button>
-                        <button class="view-btn" data-view="list">
-                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">view_list</span>List
-                        </button>
-                    </div>
-                </div>
-
-                <div class="tournament-grid active">
-                    <div class="tournament-card" data-tournament="summer-championship-2025">
-                        <div class="tournament-header">
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">military_tech</span>
-                                    <h3 class="tournament-title" style="margin: 0;">Summer Fantasy Championship 2025</h3>
-                                </div>
-                            </div>
-                            <span class="tournament-status status-upcoming">July 15</span>
-                        </div>
-                        <div class="tournament-meta">
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">public</span>
-                                North America
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">groups</span>
-                                Pick 7 Players
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">schedule</span>
-                                July 15, 2025
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">people</span>
-                                24/32 Pro Teams
-                            </div>
-                        </div>
-                        <p class="tournament-description">Fantasy tournament based on the biggest pro tournament of the summer season. Excellent opportunity for fantasy teams to analyze top-tier pro talent and pick competitive lineups for maximum points.</p>
-                        <div class="tournament-progress">
-                            <div class="progress-label">
-                                <span>Pro Team Confirmations</span>
-                                <span>75%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 75%;"></div>
-                            </div>
-                        </div>
-                        <div class="tournament-footer">
-                            <span class="fantasy-teams">0 Fantasy Teams</span>
-                            <button class="action-btn">
-                                <span class="material-icons" style="font-size: 1rem;">preview</span>
-                                View Player Pool
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="tournament-card" data-tournament="russian-federation-cup-2025">
-                        <div class="tournament-header">
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">flag</span>
-                                    <h3 class="tournament-title" style="margin: 0;">Russian Fantasy Federation Cup</h3>
-                                </div>
-                            </div>
-                            <span class="tournament-status status-upcoming">June 20</span>
-                        </div>
-                        <div class="tournament-meta">
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">public</span>
-                                Russia
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">groups</span>
-                                Pick 5 Players
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">schedule</span>
-                                June 20, 2025
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">people</span>
-                                12/24 Pro Teams
-                            </div>
-                        </div>
-                        <p class="tournament-description">Fantasy tournament based on the premier Russian pro competition featuring the nation's top competitive pro players. Rich player performance data available for fantasy lineup analysis and strategic picks.</p>
-                        <div class="tournament-progress">
-                            <div class="progress-label">
-                                <span>Pro Team Confirmations</span>
-                                <span>50%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 50%;"></div>
-                            </div>
-                        </div>
-                        <div class="tournament-footer">
-                            <span class="fantasy-teams">0 Fantasy Teams</span>
-                            <button class="action-btn">
-                                <span class="material-icons" style="font-size: 1rem;">preview</span>
-                                View Player Pool
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="tournament-card" data-tournament="world-championship-qualifier-2025">
-                        <div class="tournament-header">
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">star</span>
-                                    <h3 class="tournament-title" style="margin: 0;">World Fantasy Championship Qualifier</h3>
-                                </div>
-                            </div>
-                            <span class="tournament-status status-upcoming">August 5</span>
-                        </div>
-                        <div class="tournament-meta">
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">public</span>
-                                Global
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">groups</span>
-                                Pick 7 Players
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">schedule</span>
-                                August 5, 2025
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">people</span>
-                                8/64 Pro Teams
-                            </div>
-                        </div>
-                        <p class="tournament-description">Fantasy tournament based on the ultimate pro qualifier for the World Championship. Access to the highest caliber of global pro talent for fantasy team building and elite competition.</p>
-                        <div class="tournament-progress">
-                            <div class="progress-label">
-                                <span>Pro Team Confirmations</span>
-                                <span>12%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 12%;"></div>
-                            </div>
-                        </div>
-                        <div class="tournament-footer">
-                            <span class="fantasy-teams">0 Fantasy Teams</span>
-                            <button class="action-btn">
-                                <span class="material-icons" style="font-size: 1rem;">preview</span>
-                                View Player Pool
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <ul class="footer-links">
-                    <li><a href="#">Resources</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                </ul>
-                <div class="footer-credits">
-                    <p class="footer-note">
-                        Original concept by <strong>Hypnotik</strong><br>
-                        Created by <strong>Joshua Neuenhoff</strong>, aka Unknown0ne
-                    </p>
-                    <p class="footer-disclaimer">
-                        This website is not affiliated with Wargaming.net or World of Tanks
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // Header scroll effect
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('header');
-            if (window.scrollY > 100) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        // Mobile menu toggle
-        const mobileToggle = document.getElementById('mobileToggle');
-        const navMenu = document.getElementById('navMenu');
-
-        mobileToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            const icon = mobileToggle.querySelector('.material-icons');
-            icon.textContent = navMenu.classList.contains('active') ? 'close' : 'menu';
-        });
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!mobileToggle.contains(e.target) && !navMenu.contains(e.target)) {
-                navMenu.classList.remove('active');
-                mobileToggle.querySelector('.material-icons').textContent = 'menu';
-            }
-        });
-
-        // Region selector
-        document.querySelectorAll('.region-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                const region = btn.dataset.region.toUpperCase();
-                console.log(`Switched to ${region} region`);
-                filterTournamentsByRegion(region);
-
-                // Add brief loading effect
-                btn.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    btn.style.transform = '';
-                }, 150);
-            });
-        });
-
-        // Status filters
-        document.querySelectorAll('.status-filter').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.status-filter').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                const status = btn.dataset.status;
-                filterTournamentsByStatus(status);
-            });
-        });
-
-        // View toggle (grid/list)
-        document.querySelectorAll('.view-toggle').forEach(toggle => {
-            toggle.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const section = btn.closest('.section');
-                    const view = btn.dataset.view;
-                    
-                    // Update button states
-                    toggle.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    
-                    // Toggle view
-                    const grid = section.querySelector('.tournament-grid');
-                    const list = section.querySelector('.tournament-list');
-                    
-                    if (view === 'grid') {
-                        if (grid) grid.classList.add('active');
-                        if (list) list.classList.remove('active');
-                    } else {
-                        if (grid) grid.classList.remove('active');
-                        if (list) list.classList.add('active');
-                    }
-                });
-            });
-        });
-
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            filterTournamentsBySearch(searchTerm);
-        });
-
-        // Filter functions
-        function filterTournamentsByRegion(region) {
-            console.log(`Filtering fantasy tournaments by region: ${region}`);
-            // Implementation would filter tournaments based on region
-        }
-
-        function filterTournamentsByStatus(status) {
-            const sections = document.querySelectorAll('.section');
-            
-            if (status === 'all') {
-                sections.forEach(section => section.style.display = 'block');
-                return;
-            }
-
-            sections.forEach(section => {
-                const title = section.querySelector('.section-title').textContent.toLowerCase();
-                
-                if (
-                    (status === 'live' && title.includes('live')) ||
-                    (status === 'upcoming' && title.includes('upcoming')) ||
-                    (status === 'registration' && title.includes('registration')) ||
-                    (status === 'completed' && title.includes('completed'))
-                ) {
-                    section.style.display = 'block';
-                } else {
-                    section.style.display = 'none';
-                }
-            });
-        }
-
-        function filterTournamentsBySearch(searchTerm) {
-            const cards = document.querySelectorAll('.tournament-card');
-            
-            cards.forEach(card => {
-                const title = card.querySelector('.tournament-title').textContent.toLowerCase();
-                const description = card.querySelector('.tournament-description').textContent.toLowerCase();
-                
-                if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = searchTerm === '' ? 'block' : 'none';
-                }
-            });
-        }
-
-        // Tournament Navigation Function
-        function navigateToTournament(tournamentId) {
-            // Map tournament IDs to their detail pages
-            const tournamentPages = {
-                'na-15v15-summer-series': 'na-15v15-summer-series.html',
-                'joust-summer-league': 'joust-summer-league.html',
-                'summer-championship-2025': 'summer-championship-2025.html',
-                'european-masters-2025': 'european-masters-2025.html',
-                'asia-pacific-cup-2025': 'asia-pacific-cup-2025.html',
-                'russian-federation-cup-2025': 'russian-federation-cup-2025.html',
-                'world-championship-qualifier-2025': 'world-championship-qualifier-2025.html'
-            };
-            
-            const targetPage = tournamentPages[tournamentId];
-            if (targetPage) {
-                window.location.href = targetPage;
-            } else {
-                console.log(`Tournament page not found for: ${tournamentId}`);
-                alert(`Tournament page for ${tournamentId} is coming soon!`);
-            }
-        }
-
-        // Make tournament cards clickable
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add click handlers to tournament cards
-            document.querySelectorAll('.tournament-card').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    // Don't navigate if clicking on action buttons or links
-                    if (e.target.closest('.action-btn') || e.target.closest('a')) {
-                        return;
-                    }
-                    
-                    // Get tournament ID from data attribute
-                    const tournamentId = card.dataset.tournament;
-                    if (tournamentId) {
-                        navigateToTournament(tournamentId);
-                    }
-                });
-            });
-
-            // Add click handlers to list items
-            document.querySelectorAll('.list-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    // Don't navigate if clicking on action buttons or links
-                    if (e.target.closest('.action-btn') || e.target.closest('a')) {
-                        return;
-                    }
-                    
-                    // Get tournament ID from data attribute
-                    const tournamentId = item.dataset.tournament;
-                    if (tournamentId) {
-                        navigateToTournament(tournamentId);
-                    }
-                });
-            });
-        });
-
-        // Enhanced button click effects
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation(); // Prevent card click
-                
-                // Create ripple effect
-                const ripple = document.createElement('span');
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = e.clientX - rect.left - size / 2;
-                const y = e.clientY - rect.top - size / 2;
-                
-                ripple.style.cssText = `
-                    position: absolute;
-                    width: ${size}px;
-                    height: ${size}px;
-                    left: ${x}px;
-                    top: ${y}px;
-                    background: rgba(255, 255, 255, 0.3);
-                    border-radius: 50%;
-                    transform: scale(0);
-                    animation: ripple 0.6s linear;
-                    pointer-events: none;
-                `;
-                
-                this.style.position = 'relative';
-                this.style.overflow = 'hidden';
-                this.appendChild(ripple);
-                
-                setTimeout(() => {
-                    ripple.remove();
-                }, 600);
-            });
-        });
-
-        // Add ripple animation CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Keyboard navigation improvements
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                // Close mobile menu on escape
-                navMenu.classList.remove('active');
-                mobileToggle.querySelector('.material-icons').textContent = 'menu';
-            }
-        });
-
-        // Smooth scrolling for better UX
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    const headerHeight = document.querySelector('.header').offsetHeight;
-                    const targetPosition = target.offsetTop - headerHeight - 20;
-                    
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-                }
-                
-                // Close mobile menu after navigation
-                navMenu.classList.remove('active');
-                mobileToggle.querySelector('.material-icons').textContent = 'menu';
-            });
-        });
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Fantasy Tournaments page loaded successfully!');
-            
-            // Animate progress bars on load
-            setTimeout(() => {
-                document.querySelectorAll('.progress-fill').forEach(bar => {
-                    const width = bar.style.width;
-                    bar.style.width = '0%';
-                    setTimeout(() => {
-                        bar.style.width = width;
-                    }, 100);
-                });
-            }, 500);
-        });
-    </script>
-</body>
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -888,6 +171,78 @@
             display: flex;
             gap: 1rem;
             align-items: center;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: rgba(15, 20, 25, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.5rem;
+            min-width: 200px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-dropdown.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0.5rem 0;
         }
 
         .sign-in-btn {
@@ -1654,3 +1009,863 @@
                 -webkit-text-fill-color: #ffffff;
             }
             
+            .stat-number {
+                color: #00d4ff;
+                background: none;
+                -webkit-text-fill-color: #00d4ff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="index.html" class="logo">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo">
+            </a>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="tournaments.html" class="nav-link active">Tournaments</a></li>
+                <li><a href="index.html#groups" class="nav-link">Groups</a></li>
+                <li><a href="index.html#guide" class="nav-link">Guide</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="region-selector">
+                <button class="region-btn active" data-region="na" aria-label="North America region">NA</button>
+                <button class="region-btn" data-region="eu" aria-label="Europe region">EU</button>
+                <button class="region-btn" data-region="ru" aria-label="Russia region">RU</button>
+                <button class="region-btn" data-region="asia" aria-label="Asia region">ASIA</button>
+            </div>
+
+            <div class="auth-section">
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <button class="user-btn" onclick="toggleUserDropdown()">
+                        <span class="material-icons">person</span>
+                        <span id="username"></span>
+                        <span class="material-icons">expand_more</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#profile" class="dropdown-item">
+                            <span class="material-icons">person</span>
+                            Profile
+                        </a>
+                        <a href="#settings" class="dropdown-item">
+                            <span class="material-icons">settings</span>
+                            Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#logout" class="dropdown-item" onclick="handleLogout()">
+                            <span class="material-icons">logout</span>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+                <button class="sign-in-btn" id="signInBtn" aria-label="Sign in to your account" onclick="redirectToLogin()">Sign In</button>
+                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle mobile menu">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">Fantasy Tournaments</h1>
+                <p class="page-subtitle">Pick fantasy teams from pro players, analyze player performances, and compete in leagues based on real World of Tanks tournaments</p>
+            </div>
+        </section>
+
+        <section class="filters-section">
+            <div class="container">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <span class="filter-label">Status:</span>
+                        <div class="status-filters">
+                            <button class="status-filter active" data-status="all">All</button>
+                            <button class="status-filter" data-status="live">Live</button>
+                            <button class="status-filter" data-status="upcoming">Upcoming</button>
+                            <button class="status-filter" data-status="registration">Open</button>
+                            <button class="status-filter" data-status="completed">Completed</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <span class="filter-label">Format:</span>
+                        <select class="filter-select" id="formatFilter">
+                            <option value="all">All Formats</option>
+                            <option value="7v7">Pick 7 Players</option>
+                            <option value="5v5">Pick 5 Players</option>
+                            <option value="3v3">Pick 3 Players</option>
+                            <option value="1v1">Pick 1 Player</option>
+                        </select>
+
+                        <span class="filter-label">Teams:</span>
+                        <select class="filter-select" id="teamsFilter">
+                            <option value="all">All Sizes</option>
+                            <option value="100+">100+ Teams</option>
+                            <option value="50+">50+ Teams</option>
+                            <option value="25+">25+ Teams</option>
+                            <option value="small">Under 25</option>
+                        </select>
+                    </div>
+
+                    <div class="search-container">
+                        <span class="material-icons search-icon">search</span>
+                        <input type="text" class="search-input" placeholder="Search fantasy tournaments..." id="searchInput">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tournament-sections container">
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">live_tv</span>
+                    <span class="stat-number">2</span>
+                    <span class="stat-label">Live Fantasy Tournaments</span>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">event</span>
+                    <span class="stat-number">8</span>
+                    <span class="stat-label">Upcoming</span>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons" style="color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem;">people</span>
+                    <span class="stat-number">376</span>
+                    <span class="stat-label">Fantasy Teams</span>
+                </div>
+            </div>
+
+            <!-- Live Tournaments -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-icons" style="color: #22c55e; margin-right: 0.5rem; animation: pulse 2s infinite;">radio_button_checked</span>
+                        Live Fantasy Tournaments
+                        <span class="section-count">2</span>
+                    </h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">grid_view</span>Grid
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">view_list</span>List
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tournament-grid active" id="liveGrid">
+                    <div class="tournament-card" data-tournament="na-15v15-summer-series">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">emoji_events</span>
+                                    <h3 class="tournament-title" style="margin: 0;">NA 15v15 Summer Series</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-live">Live Scoring</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                North America
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 10 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">sports_esports</span>
+                                93 Fantasy Teams
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                Qualifiers
+                            </div>
+                        </div>
+                        <p class="tournament-description">Fantasy tournament based on the premier North American league featuring the continent's best pro players in intense 15v15 battles. Currently in the qualifiers with pro teams competing for advancement.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Pro Tournament Progress</span>
+                                <span>10%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 10%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="fantasy-teams">93 Fantasy Teams</span>
+                            <a href="na-15v15-summer-series.html" class="action-btn">
+                                <span class="material-icons" style="font-size: 1rem;">visibility</span>
+                                View Tournament
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card" data-tournament="joust-summer-league">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">workspace_premium</span>
+                                    <h3 class="tournament-title" style="margin: 0;">Joust Summer League</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-live">Live Scoring</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                Europe
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 10 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">sports_esports</span>
+                                283 Fantasy Teams
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                Groups
+                            </div>
+                        </div>
+                        <p class="tournament-description">Fantasy tournament based on the premier European league featuring the continent's best pro players in intense 15v15 battles. Currently in the groups stage with pro teams competing for bracket advancement.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Pro Tournament Progress</span>
+                                <span>20%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 20%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="fantasy-teams">283 Fantasy Teams</span>
+                            <a href="joust-summer-league.html" class="action-btn">
+                                <span class="material-icons" style="font-size: 1rem;">visibility</span>
+                                View Tournament
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tournament-list" id="liveList">
+                    <div class="list-item" data-tournament="na-15v15-summer-series">
+                        <div class="list-header">
+                            <h3 class="list-title">NA 15v15 Summer Series</h3>
+                            <span class="tournament-status status-live">Live Scoring</span>
+                        </div>
+                        <div class="list-meta">
+                            <span>North America • Pick 10 Players • Qualifiers • 93 Fantasy Teams</span>
+                        </div>
+                    </div>
+                    <div class="list-item" data-tournament="joust-summer-league">
+                        <div class="list-header">
+                            <h3 class="list-title">Joust Summer League</h3>
+                            <span class="tournament-status status-live">Live Scoring</span>
+                        </div>
+                        <div class="list-meta">
+                            <span>Europe • Pick 10 Players • Groups • 283 Fantasy Teams</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Tournaments -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-icons" style="color: #00d4ff; margin-right: 0.5rem;">event</span>
+                        Upcoming Fantasy Tournaments
+                        <span class="section-count">8</span>
+                    </h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">grid_view</span>Grid
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">view_list</span>List
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tournament-grid active">
+                    <div class="tournament-card" data-tournament="summer-championship-2025">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">military_tech</span>
+                                    <h3 class="tournament-title" style="margin: 0;">Summer Fantasy Championship 2025</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-upcoming">July 15</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                North America
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 7 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                July 15, 2025
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">people</span>
+                                24/32 Pro Teams
+                            </div>
+                        </div>
+                        <p class="tournament-description">Fantasy tournament based on the biggest pro tournament of the summer season. Excellent opportunity for fantasy teams to analyze top-tier pro talent and pick competitive lineups for maximum points.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Pro Team Confirmations</span>
+                                <span>75%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="fantasy-teams">0 Fantasy Teams</span>
+                            <button class="action-btn">
+                                <span class="material-icons" style="font-size: 1rem;">preview</span>
+                                View Player Pool
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card" data-tournament="russian-federation-cup-2025">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">flag</span>
+                                    <h3 class="tournament-title" style="margin: 0;">Russian Fantasy Federation Cup</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-upcoming">June 20</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                Russia
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 5 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                June 20, 2025
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">people</span>
+                                12/24 Pro Teams
+                            </div>
+                        </div>
+                        <p class="tournament-description">Fantasy tournament based on the premier Russian pro competition featuring the nation's top competitive pro players. Rich player performance data available for fantasy lineup analysis and strategic picks.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Pro Team Confirmations</span>
+                                <span>50%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 50%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="fantasy-teams">0 Fantasy Teams</span>
+                            <button class="action-btn">
+                                <span class="material-icons" style="font-size: 1rem;">preview</span>
+                                View Player Pool
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tournament-card" data-tournament="world-championship-qualifier-2025">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">star</span>
+                                    <h3 class="tournament-title" style="margin: 0;">World Fantasy Championship Qualifier</h3>
+                                </div>
+                            </div>
+                            <span class="tournament-status status-upcoming">August 5</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                Global
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 7 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                August 5, 2025
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">people</span>
+                                8/64 Pro Teams
+                            </div>
+                        </div>
+                        <p class="tournament-description">Fantasy tournament based on the ultimate pro qualifier for the World Championship. Access to the highest caliber of global pro talent for fantasy team building and elite competition.</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Pro Team Confirmations</span>
+                                <span>12%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 12%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="fantasy-teams">0 Fantasy Teams</span>
+                            <button class="action-btn">
+                                <span class="material-icons" style="font-size: 1rem;">preview</span>
+                                View Player Pool
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <ul class="footer-links">
+                    <li><a href="#">Resources</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+                <div class="footer-credits">
+                    <p class="footer-note">
+                        Original concept by <strong>Hypnotik</strong><br>
+                        Created by <strong>Joshua Neuenhoff</strong>, aka Unknown0ne
+                    </p>
+                    <p class="footer-disclaimer">
+                        This website is not affiliated with Wargaming.net or World of Tanks
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // API client for connecting to your Railway backend
+        class FantasyAPI {
+            constructor() {
+                this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
+                this.token = localStorage.getItem('authToken');
+            }
+
+            async request(endpoint, options = {}) {
+                const url = `${this.baseURL}${endpoint}`;
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                };
+
+                if (this.token) {
+                    config.headers.Authorization = `Bearer ${this.token}`;
+                }
+
+                try {
+                    const response = await fetch(url, config);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'API request failed');
+                    }
+
+                    return data;
+                } catch (error) {
+                    console.error('API request error:', error);
+                    throw error;
+                }
+            }
+
+            async login(username, password) {
+                return await this.request('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+            }
+
+            async register(username, email, password) {
+                return await this.request('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, email, password })
+                });
+            }
+
+            getCurrentUser() {
+                if (!this.token) return null;
+                try {
+                    const payload = JSON.parse(atob(this.token.split('.')[1]));
+                    return { username: payload.username, id: payload.userId };
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            logout() {
+                localStorage.removeItem('authToken');
+                this.token = null;
+                window.location.reload();
+            }
+
+            isAuthenticated() {
+                return !!this.token;
+            }
+        }
+
+        // Initialize API
+        const api = new FantasyAPI();
+
+        // Authentication functions
+        function redirectToLogin() {
+            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
+        }
+
+        function handleLogout() {
+            api.logout();
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userMenu');
+            if (userMenu && !userMenu.contains(e.target)) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+
+        function updateAuthUI() {
+            const signInBtn = document.getElementById('signInBtn');
+            const userMenu = document.getElementById('userMenu');
+            
+            if (api.isAuthenticated()) {
+                const user = api.getCurrentUser();
+                
+                // Hide sign in button, show user menu
+                signInBtn.style.display = 'none';
+                userMenu.style.display = 'block';
+                document.getElementById('username').textContent = user.username;
+            } else {
+                // Show sign in button, hide user menu
+                signInBtn.style.display = 'block';
+                userMenu.style.display = 'none';
+            }
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        mobileToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            const icon = mobileToggle.querySelector('.material-icons');
+            icon.textContent = navMenu.classList.contains('active') ? 'close' : 'menu';
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                mobileToggle.querySelector('.material-icons').textContent = 'menu';
+            }
+        });
+
+        // Region selector
+        document.querySelectorAll('.region-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const region = btn.dataset.region.toUpperCase();
+                console.log(`Switched to ${region} region`);
+                filterTournamentsByRegion(region);
+
+                // Add brief loading effect
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btn.style.transform = '';
+                }, 150);
+            });
+        });
+
+        // Status filters
+        document.querySelectorAll('.status-filter').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.status-filter').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const status = btn.dataset.status;
+                filterTournamentsByStatus(status);
+            });
+        });
+
+        // View toggle (grid/list)
+        document.querySelectorAll('.view-toggle').forEach(toggle => {
+            toggle.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const section = btn.closest('.section');
+                    const view = btn.dataset.view;
+                    
+                    // Update button states
+                    toggle.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Toggle view
+                    const grid = section.querySelector('.tournament-grid');
+                    const list = section.querySelector('.tournament-list');
+                    
+                    if (view === 'grid') {
+                        if (grid) grid.classList.add('active');
+                        if (list) list.classList.remove('active');
+                    } else {
+                        if (grid) grid.classList.remove('active');
+                        if (list) list.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filterTournamentsBySearch(searchTerm);
+        });
+
+        // Filter functions
+        function filterTournamentsByRegion(region) {
+            console.log(`Filtering fantasy tournaments by region: ${region}`);
+            // Implementation would filter tournaments based on region
+        }
+
+        function filterTournamentsByStatus(status) {
+            const sections = document.querySelectorAll('.section');
+            
+            if (status === 'all') {
+                sections.forEach(section => section.style.display = 'block');
+                return;
+            }
+
+            sections.forEach(section => {
+                const title = section.querySelector('.section-title').textContent.toLowerCase();
+                
+                if (
+                    (status === 'live' && title.includes('live')) ||
+                    (status === 'upcoming' && title.includes('upcoming')) ||
+                    (status === 'registration' && title.includes('registration')) ||
+                    (status === 'completed' && title.includes('completed'))
+                ) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        function filterTournamentsBySearch(searchTerm) {
+            const cards = document.querySelectorAll('.tournament-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.tournament-title').textContent.toLowerCase();
+                const description = card.querySelector('.tournament-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = searchTerm === '' ? 'block' : 'none';
+                }
+            });
+        }
+
+        // Tournament Navigation Function
+        function navigateToTournament(tournamentId) {
+            // Map tournament IDs to their detail pages
+            const tournamentPages = {
+                'na-15v15-summer-series': 'na-15v15-summer-series.html',
+                'joust-summer-league': 'joust-summer-league.html',
+                'summer-championship-2025': 'summer-championship-2025.html',
+                'european-masters-2025': 'european-masters-2025.html',
+                'asia-pacific-cup-2025': 'asia-pacific-cup-2025.html',
+                'russian-federation-cup-2025': 'russian-federation-cup-2025.html',
+                'world-championship-qualifier-2025': 'world-championship-qualifier-2025.html'
+            };
+            
+            const targetPage = tournamentPages[tournamentId];
+            if (targetPage) {
+                window.location.href = targetPage;
+            } else {
+                console.log(`Tournament page not found for: ${tournamentId}`);
+                alert(`Tournament page for ${tournamentId} is coming soon!`);
+            }
+        }
+
+        // Make tournament cards clickable
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update authentication UI first
+            updateAuthUI();
+            
+            // Add click handlers to tournament cards
+            document.querySelectorAll('.tournament-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Don't navigate if clicking on action buttons or links
+                    if (e.target.closest('.action-btn') || e.target.closest('a')) {
+                        return;
+                    }
+                    
+                    // Get tournament ID from data attribute
+                    const tournamentId = card.dataset.tournament;
+                    if (tournamentId) {
+                        navigateToTournament(tournamentId);
+                    }
+                });
+            });
+
+            // Add click handlers to list items
+            document.querySelectorAll('.list-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    // Don't navigate if clicking on action buttons or links
+                    if (e.target.closest('.action-btn') || e.target.closest('a')) {
+                        return;
+                    }
+                    
+                    // Get tournament ID from data attribute
+                    const tournamentId = item.dataset.tournament;
+                    if (tournamentId) {
+                        navigateToTournament(tournamentId);
+                    }
+                });
+            });
+        });
+
+        // Enhanced button click effects
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card click
+                
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add ripple animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Keyboard navigation improvements
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Close mobile menu on escape
+                navMenu.classList.remove('active');
+                mobileToggle.querySelector('.material-icons').textContent = 'menu';
+                
+                // Close user dropdown on escape
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+
+        // Smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerHeight = document.querySelector('.header').offsetHeight;
+                    const targetPosition = target.offsetTop - headerHeight - 20;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // Close mobile menu after navigation
+                navMenu.classList.remove('active');
+                mobileToggle.querySelector('.material-icons').textContent = 'menu';
+            });
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Fantasy Tournaments page loaded successfully!');
+            
+            // Animate progress bars on load
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html> 
