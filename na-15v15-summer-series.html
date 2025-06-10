@@ -121,40 +121,6 @@
             width: 100%;
         }
 
-        .region-selector {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 0.5rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .region-btn {
-            padding: 0.6rem 1.2rem;
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .region-btn:hover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: #00d4ff;
-            transform: translateY(-2px);
-        }
-
-        .region-btn.active {
-            background: linear-gradient(135deg, #00d4ff, #00b8e6);
-            border-color: #00d4ff;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-        }
-
         .auth-section {
             display: flex;
             gap: 1rem;
@@ -409,25 +375,8 @@
                 box-shadow: 0 0 25px rgba(255, 193, 7, 0.4);
             }
         }
-    
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .tournament-status-header {
-                justify-content: center;
-                text-align: center;
-            }
-        
-            .cutoff-timer {
-                font-size: 0.8rem;
-                padding: 0.5rem 1rem;
-            }
-        
-            .timer-label {
-                font-size: 0.75rem;
-            }
-        }        
 
-        /* Match Day Selector - NEW */
+        /* Match Day Selector */
         .match-day-selector {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -522,156 +471,6 @@
 
         .roster-status-dot.empty {
             background: #6b7280;
-        }
-
-        /* Standings Styles */
-        .standings-tabs {
-            display: flex;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 0.5rem;
-            margin-bottom: 2rem;
-            width: fit-content;
-        }
-
-        .standings-tab {
-            padding: 0.75rem 1.5rem;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 500;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .standings-tab.active {
-            background: linear-gradient(135deg, #00d4ff, #00b8e6);
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-        }
-
-        .standings-content {
-            display: none;
-        }
-
-        .standings-content.active {
-            display: block;
-        }
-
-        .standings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .standings-filters {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            min-width: 200px;
-        }
-
-        .filter-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .filter-input:focus {
-            outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
-        }
-
-        .standings-table-container {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
-
-        .standings-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .standings-table th {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 1rem;
-            text-align: left;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-        }
-
-        .standings-table th.sortable {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            user-select: none;
-        }
-
-        .standings-table th.sortable:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #00d4ff;
-        }
-
-        .standings-table td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.95rem;
-        }
-
-        .standings-table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .standings-rank {
-            font-weight: 700;
-            color: #00d4ff;
-            min-width: 3rem;
-        }
-
-        .standings-rank.top-3 {
-            color: #ffd700;
-        }
-
-        .standings-username {
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .standings-score {
-            font-weight: 600;
-            color: #00d4ff;
-        }
-
-        .standings-empty {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .standings-empty h3 {
-            margin-bottom: 1rem;
-            color: rgba(255, 255, 255, 0.8);
         }
 
         .fantasy-info {
@@ -1239,11 +1038,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .roster-message.auth-required {
-            filter: blur(2px);
-            pointer-events: none;
-        }
-
         .auth-overlay {
             position: absolute;
             top: 0;
@@ -1355,15 +1149,6 @@
             font-size: 0.9rem;
             text-align: center;
             max-width: 400px;
-        }
-
-        /* Focus states for accessibility */
-        .action-btn:focus,
-        .nav-tab:focus,
-        .region-btn:focus,
-        .player-action-btn:focus {
-            outline: 2px solid #00d4ff;
-            outline-offset: 2px;
         }
 
         /* Responsive Design */
@@ -1766,79 +1551,12 @@
             <div id="standings" class="tab-content">
                 <h2 class="section-title">
                     <span class="material-icons">leaderboard</span>
-                    Tournament Standings
+                    Fantasy Leaderboard
                 </h2>
-                
-                <!-- Standings Sub-tabs -->
-                <div class="standings-tabs">
-                    <button class="standings-tab active" onclick="switchStandingsTab('fantasy')">Fantasy Standings</button>
-                    <button class="standings-tab" onclick="switchStandingsTab('teams')">Team Standings</button>
-                </div>
-
-                <!-- Fantasy Standings -->
-                <div id="fantasy-standings" class="standings-content active">
-                    <div class="standings-header">
-                        <div class="standings-filters">
-                            <div class="filter-group">
-                                <label for="matchDayFilter">Match Day:</label>
-                                <select id="matchDayFilter" class="filter-select">
-                                    <option value="">All Match Days (Overall)</option>
-                                    <option value="1">June 10</option>
-                                    <option value="2">June 14</option>
-                                    <option value="3">June 17</option>
-                                    <option value="4">Junw 21</option>
-                                    <option value="5">June 24</option>
-                                    <option value="6">June 28</option>
-                                    <option value="7">June 29</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <input type="text" id="usernameSearch" class="filter-input" placeholder="Search by username...">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="standings-table-container">
-                        <table class="standings-table">
-                            <thead>
-                                <tr>
-                                    <th class="sortable" data-sort="rank">Rank</th>
-                                    <th class="sortable" data-sort="username">
-                                        Username
-                                        <span class="material-icons sort-icon">expand_more</span>
-                                    </th>
-                                    <th class="sortable" data-sort="score">
-                                        Score
-                                        <span class="material-icons sort-icon">expand_more</span>
-                                    </th>
-                                    <th class="sortable" data-sort="average">
-                                        Avg. Score
-                                    </th>
-                                    <th class="sortable" data-sort="matchDays" id="matchDaysHeader">
-                                        Match Days
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="standingsTableBody">
-                                <!-- Standings will be populated by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="standings-empty" id="standingsEmpty" style="display: none;">
-                        <span class="material-icons" style="font-size: 4rem; opacity: 0.4;">leaderboard</span>
-                        <h3>No Fantasy Standings Yet</h3>
-                        <p>Fantasy standings will appear here once match scoring begins.</p>
-                    </div>
-                </div>
-
-                <!-- Team Standings (Pro Teams) -->
-                <div id="team-standings" class="standings-content">
-                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                        <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
-                        <h3 style="margin-bottom: 1rem;">Pro Team Standings Coming Soon</h3>
-                        <p>Professional team standings from the actual tournament will be displayed here.</p>
-                    </div>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">leaderboard</span>
+                    <h3 style="margin-bottom: 1rem;">Fantasy Leaderboard Updating</h3>
+                    <p>Fantasy team rankings will be available once pro tournament scoring begins in the group stage.</p>
                 </div>
             </div>
 
@@ -2053,14 +1771,6 @@
                 });
             }
 
-            async getLeaderboard(tournamentId, matchDay = null) {
-                let endpoint = `/leaderboard/${tournamentId}`;
-                if (matchDay) {
-                    endpoint += `?matchDay=${matchDay}`;
-                }
-                return await this.request(endpoint);
-            }
-
             async getPlayers(tournamentId) {
                 return await this.request(`/tournaments/${tournamentId}/players`);
             }
@@ -2096,24 +1806,25 @@
         let playersData = [];  // Real players from database
         let teamsData = [];    // Real teams from database
         
-        // NEW: Multi-match-day roster system
+        // Multi-match-day roster system
         let userRosters = {
-            1: [], // June 10 roster
-            2: [], // June 14 roster
-            3: [], // June 17 roster
-            4: [], // June 21 roster
-            5: [], // June 24 roster
-            6: [], // June 28 roster
-            7: [], // June 29 roster
+            1: [], // Day 1 roster
+            2: [], // Day 2 roster
+            3: [], // Day 3 roster
+            4: [], // Day 4 roster
+            5: [], // Day 5 roster
+            6: [], // Day 6 roster
+            7: [], // Day 7 roster
         };
         
         let currentMatchDay = 1; // Track which match day we're editing
         let maxRosterSize = 10;
         let isAuthenticated = false;
+        let dataLoaded = false; // NEW: Track if initial data has been loaded
 
         // Tournament configuration
         const tournamentConfig = {
-            totalMatchDays: 8,
+            totalMatchDays: 7,
             rosterCutoffs: {
                 1: new Date('2025-06-11T00:00:00Z'), // June 10 cutoff
                 2: new Date('2025-06-15T00:00:00Z'), // June 14 cutoff  
@@ -2172,12 +1883,10 @@
                 statusBadge.classList.remove('locked');
                 if (cutoffTime && matchDayName) {
                     cutoffTimer.style.display = 'flex';
-                    // Update the timer text to show which match day
                     const timerLabel = cutoffTimer.querySelector('.timer-label');
                     if (timerLabel) {
                         timerLabel.textContent = `${matchDayName} deadline:`;
                     } else {
-                        // Create timer label if it doesn't exist
                         const labelSpan = document.createElement('span');
                         labelSpan.className = 'timer-label';
                         labelSpan.textContent = `${matchDayName} deadline:`;
@@ -2193,7 +1902,6 @@
             const timeDisplay = document.getElementById('timeRemaining');
             if (!timeDisplay) return;
             
-            // Clear any existing timer
             stopHeaderTimer();
             
             function updateHeaderTimer() {
@@ -2201,7 +1909,6 @@
                 const timeLeft = cutoffTime - now;
                 
                 if (timeLeft <= 0) {
-                    // This deadline passed, check for next one
                     checkRosterLockStatus();
                     return;
                 }
@@ -2230,7 +1937,6 @@
             const statusHeader = document.querySelector('.tournament-status-header');
             if (!statusHeader) return;
             
-            // Make sure the cutoff timer has the right structure
             let cutoffTimer = document.getElementById('cutoffTimer');
             if (!cutoffTimer) {
                 cutoffTimer = document.createElement('div');
@@ -2244,7 +1950,6 @@
                 statusHeader.appendChild(cutoffTimer);
             }
             
-            // Start the timer
             checkRosterLockStatus();
         }
         
@@ -2262,7 +1967,7 @@
                     return i;
                 }
             }
-            return 1; // Default to match June 10 if all are locked
+            return 1; // Default to match day 1 if all are locked
         }
 
         // Initialize match day tabs
@@ -2475,11 +2180,14 @@
                 } else {
                     console.log('❌ No real teams found in database, using backup teams');
                     teamsData = [
-                        { team_code: 'LHG', team_name: 'LHG' },
-                        { team_code: '25%', team_name: '25%' },
-                        { team_code: 'TT6', team_name: 'TT6' },
-                        { team_code: 'WAR', team_name: 'WAR' },
-                        { team_code: 'SB', team_name: 'SB' }
+                        { team_code: 'CRAKD', team_name: 'CRAKD' },
+                        { team_code: 'DOPAMINE', team_name: 'DOPAMINE' },
+                        { team_code: 'ARCANE', team_name: 'ARCANE' },
+                        { team_code: 'MVP', team_name: 'MVP' },
+                        { team_code: 'Dönerteller', team_name: 'Dönerteller' },
+                        { team_code: 'Employed', team_name: 'Employed' },
+                        { team_code: 'Cine Pa', team_name: 'Cine Pa' },
+                        { team_code: 'FUMES', team_name: 'FUMES' }
                     ];
                     updateTeamFilter();
                 }
@@ -2487,11 +2195,14 @@
                 console.error('❌ ERROR loading real teams:', error);
                 console.log('Using backup teams instead');
                 teamsData = [
-                    { team_code: 'LHG', team_name: 'LHG' },
-                    { team_code: '25%', team_name: '25%' },
-                    { team_code: 'TT6', team_name: 'TT6' },
-                    { team_code: 'WAR', team_name: 'WAR' },
-                    { team_code: 'SB', team_name: 'SB' }
+                    { team_code: 'CRAKD', team_name: 'CRAKD' },
+                    { team_code: 'DOPAMINE', team_name: 'DOPAMINE' },
+                    { team_code: 'ARCANE', team_name: 'ARCANE' },
+                    { team_code: 'MVP', team_name: 'MVP' },
+                    { team_code: 'Dönerteller', team_name: 'Dönerteller' },
+                    { team_code: 'Employed', team_name: 'Employed' },
+                    { team_code: 'Cine Pa', team_name: 'Cine Pa' },
+                    { team_code: 'FUMES', team_name: 'FUMES' }
                 ];
                 updateTeamFilter();
             }
@@ -2512,139 +2223,85 @@
             });
         }
 
-        // Load all user rosters from backend
+        // FIXED: Load all user rosters from backend with proper error handling
         async function loadAllUserRosters() {
-            if (!api.isAuthenticated()) return;
+            if (!api.isAuthenticated()) {
+                console.log('User not authenticated, loading from local storage');
+                loadRostersFromLocalStorage();
+                return;
+            }
             
             try {
+                console.log('Loading all user rosters from backend...');
                 const response = await api.getAllRosters('na-15v15-summer-series');
+                
                 if (response && response.rosters) {
+                    console.log('✅ Rosters loaded from backend:', response.rosters);
                     // Update userRosters with data from backend
                     for (const [matchDay, roster] of Object.entries(response.rosters)) {
-                        userRosters[parseInt(matchDay)] = roster || [];
+                        const dayNum = parseInt(matchDay);
+                        if (dayNum >= 1 && dayNum <= tournamentConfig.totalMatchDays) {
+                            userRosters[dayNum] = roster || [];
+                        }
                     }
-                    console.log('All user rosters loaded:', userRosters);
+                    console.log('✅ All user rosters loaded successfully:', userRosters);
+                } else {
+                    console.log('No rosters found in backend response, trying local storage');
+                    loadRostersFromLocalStorage();
                 }
             } catch (error) {
-                console.error('Error loading user rosters:', error);
-                // Fall back to local storage for demo
+                console.error('❌ Error loading user rosters from backend:', error);
+                console.log('Falling back to local storage');
                 loadRostersFromLocalStorage();
+            }
+            
+            // After loading rosters, update the UI
+            updateRosterDisplay();
+            updateRosterStatusIndicator();
+            
+            // If we're on the players tab, repopulate the table to show correct buttons
+            const playersTab = document.getElementById('players');
+            if (playersTab && playersTab.classList.contains('active')) {
+                populatePlayersTable();
             }
         }
 
         // Load rosters from local storage (fallback)
         function loadRostersFromLocalStorage() {
+            console.log('Loading rosters from local storage...');
             for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
                 const saved = localStorage.getItem(`roster_na-15v15-summer-series_md${i}_demo`);
                 if (saved) {
                     try {
                         userRosters[i] = JSON.parse(saved);
+                        console.log(`✅ Loaded Match Day ${i} roster from localStorage:`, userRosters[i]);
                     } catch (error) {
-                        console.error(`Error parsing saved roster for match day ${i}:`, error);
+                        console.error(`❌ Error parsing saved roster for match day ${i}:`, error);
+                        userRosters[i] = [];
                     }
                 }
             }
-            console.log('Rosters loaded from local storage:', userRosters);
+            console.log('Final rosters loaded from localStorage:', userRosters);
         }
 
         // Save current roster to backend
         async function saveCurrentRoster() {
-            if (!isAuthenticated) return;
+            if (!isAuthenticated) {
+                console.log('User not authenticated, skipping roster save');
+                return;
+            }
 
             const currentRoster = getCurrentRoster();
             
             try {
                 await api.saveRoster('na-15v15-summer-series', currentRoster, currentMatchDay);
-                console.log(`Roster saved for Match Day ${currentMatchDay}:`, currentRoster);
+                console.log(`✅ Roster saved to backend for Match Day ${currentMatchDay}:`, currentRoster);
             } catch (error) {
-                console.error('Error saving roster:', error);
+                console.error('❌ Error saving roster to backend:', error);
                 // Fall back to local storage
                 localStorage.setItem(`roster_na-15v15-summer-series_md${currentMatchDay}_demo`, JSON.stringify(currentRoster));
-                console.log(`Roster saved locally for Match Day ${currentMatchDay}:`, currentRoster);
+                console.log(`✅ Roster saved to localStorage for Match Day ${currentMatchDay}:`, currentRoster);
             }
-        }
-
-        // Standings functionality
-        let standingsData = [];
-        let filteredStandings = [];
-
-        function switchStandingsTab(tab) {
-            document.querySelectorAll('.standings-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.standings-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tab + '-standings').classList.add('active');
-        }
-
-        async function loadStandings() {
-            if (!api.isAuthenticated()) return;
-            
-            try {
-                const matchDay = document.getElementById('matchDayFilter').value;
-                const response = await api.getLeaderboard('na-15v15-summer-series', matchDay || null);
-                
-                if (response && response.leaderboard) {
-                    standingsData = response.leaderboard;
-                    filterAndDisplayStandings();
-                } else {
-                    displayEmptyStandings();
-                }
-            } catch (error) {
-                console.error('Error loading standings:', error);
-                displayEmptyStandings();
-            }
-        }
-
-        function filterAndDisplayStandings() {
-            const searchTerm = document.getElementById('usernameSearch').value.toLowerCase();
-            
-            filteredStandings = standingsData.filter(entry => 
-                entry.username.toLowerCase().includes(searchTerm)
-            );
-            
-            displayStandings();
-        }
-
-        function displayStandings() {
-            const tbody = document.getElementById('standingsTableBody');
-            const emptyState = document.getElementById('standingsEmpty');
-            
-            if (filteredStandings.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-            emptyState.style.display = 'none';
-            
-            const matchDayFilter = document.getElementById('matchDayFilter').value;
-            const matchDaysHeader = document.getElementById('matchDaysHeader');
-            
-            if (matchDayFilter) {
-                matchDaysHeader.textContent = 'Match Day';
-            } else {
-                matchDaysHeader.textContent = 'Match Days';
-            }
-            
-            tbody.innerHTML = filteredStandings.map((entry, index) => {
-                const rank = index + 1;
-                const rankClass = rank <= 3 ? 'top-3' : '';
-                
-                return `
-                    <tr>
-                        <td class="standings-rank ${rankClass}">${rank}</td>
-                        <td class="standings-username">${entry.username}</td>
-                        <td class="standings-score">${parseFloat(entry.total_points || 0).toLocaleString()}</td>
-                        <td>${parseFloat(entry.avg_points || 0).toFixed(1)}</td>
-                        <td>${matchDayFilter ? matchDayFilter : (entry.match_days_played || 0)}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function displayEmptyStandings() {
-            document.getElementById('standingsTableBody').innerHTML = '';
-            document.getElementById('standingsEmpty').style.display = 'block';
         }
 
         // Authentication functions
@@ -2684,7 +2341,7 @@
                 
                 authOverlay.style.display = 'none';
                 
-                // Load all user rosters
+                // Load all user rosters AFTER authentication is confirmed
                 loadAllUserRosters();
             } else {
                 isAuthenticated = false;
@@ -2693,6 +2350,10 @@
                 userMenu.style.display = 'none';
                 
                 authOverlay.style.display = 'flex';
+                
+                // Still load from localStorage for demo purposes
+                loadRostersFromLocalStorage();
+                updateRosterDisplay();
             }
         }
 
@@ -2933,41 +2594,6 @@
             populatePlayersTable();
         }
 
-        function sortStandings(column, direction) {
-            filteredStandings.sort((a, b) => {
-                let aVal, bVal;
-                
-                switch(column) {
-                    case 'username':
-                        aVal = a.username;
-                        bVal = b.username;
-                        break;
-                    case 'score':
-                        aVal = parseFloat(a.total_points || 0);
-                        bVal = parseFloat(b.total_points || 0);
-                        break;
-                    case 'average':
-                        aVal = parseFloat(a.avg_points || 0);
-                        bVal = parseFloat(b.avg_points || 0);
-                        break;
-                    case 'matchDays':
-                        aVal = parseInt(a.match_days_played || 0);
-                        bVal = parseInt(b.match_days_played || 0);
-                        break;
-                    default:
-                        return 0;
-                }
-                
-                if (direction === 'asc') {
-                    return aVal > bVal ? 1 : -1;
-                } else {
-                    return aVal < bVal ? 1 : -1;
-                }
-            });
-            
-            displayStandings();
-        }
-
         // Filter table functionality
         function filterTable() {
             populatePlayersTable();
@@ -3005,7 +2631,7 @@
             setTimeout(() => notification.remove(), 4000);
         }
 
-        // Tab navigation
+        // FIXED: Tab navigation with hash support
         function initializeTabNavigation() {
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
@@ -3020,6 +2646,14 @@
                     const targetContent = document.getElementById(targetTab);
                     if (targetContent) {
                         targetContent.classList.add('active');
+                        
+                        // IMPORTANT: When switching to players tab, ensure roster data is displayed correctly
+                        if (targetTab === 'players' && dataLoaded) {
+                            console.log('Switching to players tab - refreshing roster display');
+                            updateRosterDisplay();
+                            populatePlayersTable();
+                        }
+                        
                         console.log('Switched to tab:', targetTab);
                     } else {
                         console.error('Tab content not found:', targetTab);
@@ -3028,37 +2662,73 @@
             });
         }
 
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('Tournament page loaded successfully!');
+        // FIXED: Check for hash in URL and switch to appropriate tab
+        function handleUrlHash() {
+            const hash = window.location.hash.substring(1); // Remove the #
             
-            // Initialize UI components
+            if (hash) {
+                const targetTab = document.querySelector(`[data-tab="${hash}"]`);
+                const targetContent = document.getElementById(hash);
+                
+                if (targetTab && targetContent) {
+                    // Remove active from all tabs and content
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active to target
+                    targetTab.classList.add('active');
+                    targetContent.classList.add('active');
+                    
+                    console.log('Switched to tab from URL hash:', hash);
+                    
+                    // IMPORTANT: If switching to players tab, refresh the display
+                    if (hash === 'players' && dataLoaded) {
+                        console.log('Loading players tab from URL hash - refreshing display');
+                        setTimeout(() => {
+                            updateRosterDisplay();
+                            populatePlayersTable();
+                        }, 100); // Small delay to ensure everything is loaded
+                    }
+                }
+            }
+        }
+
+        // ENHANCED: Initialize page with proper data loading sequence
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Tournament page loading...');
+            
+            // Step 1: Initialize UI components
             initializeTabNavigation();
             initializeMatchDayTabs();
             
-            // Set initial match day to first unlocked day
+            // Step 2: Set initial match day to first unlocked day
             currentMatchDay = getActiveMatchDay();
             
-            // Update authentication UI
+            // Step 3: Update authentication UI and load rosters
             updateAuthUI();
             
-            // Update match day UI
+            // Step 4: Update match day UI
             updateMatchDayUI();
             
-            // Initialize the header timer (add this line)
+            // Step 5: Initialize the header timer
             initializeHeaderTimer();
             
-            // Load data
+            // Step 6: Load data from backend
+            console.log('📊 Loading tournament data...');
             await loadTeamsData();
             await loadPlayersData();
             
-            // Update roster display
+            // Step 7: Mark data as loaded
+            dataLoaded = true;
+            console.log('✅ Initial data loading complete');
+            
+            // Step 8: Handle URL hash (this might trigger roster display refresh)
+            handleUrlHash();
+            
+            // Step 9: Update roster display
             updateRosterDisplay();
             
-            // Load standings
-            loadStandings();
-            
-            // Add table sorting
+            // Step 10: Add table sorting
             document.querySelectorAll('.sortable').forEach(th => {
                 th.addEventListener('click', () => {
                     const column = th.dataset.sort;
@@ -3069,33 +2739,17 @@
                     });
                     
                     th.classList.add(currentDirection);
-                    
-                    if (th.closest('.standings-table')) {
-                        sortStandings(column, currentDirection);
-                    } else {
-                        sortTable(column, currentDirection);
-                    }
+                    sortTable(column, currentDirection);
                 });
             });
             
-            // Add filter functionality
+            // Step 11: Add filter functionality
             const teamFilter = document.getElementById('teamFilter');
             if (teamFilter) {
                 teamFilter.addEventListener('change', filterTable);
             }
-            
-            // Add standings filters
-            const matchDayFilter = document.getElementById('matchDayFilter');
-            if (matchDayFilter) {
-                matchDayFilter.addEventListener('change', loadStandings);
-            }
-            
-            const usernameSearch = document.getElementById('usernameSearch');
-            if (usernameSearch) {
-                usernameSearch.addEventListener('input', filterAndDisplayStandings);
-            }
 
-            // Button actions
+            // Step 12: Button actions
             document.querySelectorAll('.action-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     if (this.textContent.includes('Set My Roster')) {
@@ -3111,11 +2765,20 @@
                 });
             });
 
-            // Update deadline info periodically for both header and match day selector
+            // Step 13: Update deadline info periodically
             setInterval(() => {
-                updateDeadlineInfo(); // Existing function for match day selector
-                checkRosterLockStatus(); // New function for header timer
+                updateDeadlineInfo();
+                checkRosterLockStatus();
             }, 60000); // Update every minute
+            
+            console.log('🎉 Tournament page fully loaded and initialized!');
+        });
+
+        // Listen for hash changes (back/forward browser navigation)
+        window.addEventListener('hashchange', () => {
+            if (dataLoaded) {
+                handleUrlHash();
+            }
         });
         
         // Add animations
@@ -3130,4 +2793,3 @@
     </script>
 </body>
 </html>
-                
