@@ -1755,14 +1755,13 @@
                                 <label for="matchDayFilter">Match Day:</label>
                                 <select id="matchDayFilter" class="filter-select">
                                     <option value="">All Match Days (Overall)</option>
-                                    <option value="1">Match Day 1</option>
-                                    <option value="2">Match Day 2</option>
-                                    <option value="3">Match Day 3</option>
-                                    <option value="4">Match Day 4</option>
-                                    <option value="5">Match Day 5</option>
-                                    <option value="6">Match Day 6</option>
-                                    <option value="7">Match Day 7</option>
-                                    <option value="8">Match Day 8</option>
+                                    <option value="1">June 10</option>
+                                    <option value="2">June 14</option>
+                                    <option value="3">June 17</option>
+                                    <option value="4">Junw 21</option>
+                                    <option value="5">June 24</option>
+                                    <option value="6">June 28</option>
+                                    <option value="7">June 29</option>
                                 </select>
                             </div>
                             <div class="filter-group">
@@ -2068,14 +2067,13 @@
         
         // NEW: Multi-match-day roster system
         let userRosters = {
-            1: [], // Match Day 1 roster
-            2: [], // Match Day 2 roster
-            3: [], // Match Day 3 roster
-            4: [], // Match Day 4 roster
-            5: [], // Match Day 5 roster
-            6: [], // Match Day 6 roster
-            7: [], // Match Day 7 roster
-            8: [], // Match Day 8 roster
+            1: [], // June 10 roster
+            2: [], // June 14 roster
+            3: [], // June 17 roster
+            4: [], // June 21 roster
+            5: [], // June 24 roster
+            6: [], // June 28 roster
+            7: [], // June 29 roster
         };
         
         let currentMatchDay = 1; // Track which match day we're editing
@@ -2086,14 +2084,13 @@
         const tournamentConfig = {
             totalMatchDays: 8,
             rosterCutoffs: {
-                1: new Date('2025-01-15T18:00:00Z'), // Match Day 1 cutoff
-                2: new Date('2025-01-22T18:00:00Z'), // Match Day 2 cutoff  
-                3: new Date('2025-01-29T18:00:00Z'), // Match Day 3 cutoff
-                4: new Date('2025-02-05T18:00:00Z'), // Match Day 4 cutoff
-                5: new Date('2025-02-12T18:00:00Z'), // Match Day 5 cutoff
-                6: new Date('2025-02-19T18:00:00Z'), // Match Day 6 cutoff
-                7: new Date('2025-02-26T18:00:00Z'), // Match Day 7 cutoff
-                8: new Date('2025-03-05T18:00:00Z'), // Match Day 8 cutoff
+                1: new Date('2025-01-15T18:00:00Z'), // June 10 cutoff
+                2: new Date('2025-01-22T18:00:00Z'), // June 14 cutoff  
+                3: new Date('2025-01-29T18:00:00Z'), // June 17 cutoff
+                4: new Date('2025-02-05T18:00:00Z'), // June 21 cutoff
+                5: new Date('2025-02-12T18:00:00Z'), // June 24 cutoff
+                6: new Date('2025-02-19T18:00:00Z'), // June 28 cutoff
+                7: new Date('2025-02-26T18:00:00Z'), // June 29 cutoff
             }
         };
 
@@ -2111,7 +2108,7 @@
                     return i;
                 }
             }
-            return 1; // Default to match day 1 if all are locked
+            return 1; // Default to match June 10 if all are locked
         }
 
         // Initialize match day tabs
