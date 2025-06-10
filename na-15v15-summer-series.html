@@ -2270,7 +2270,22 @@
         function loadRostersFromLocalStorage() {
             console.log('Loading rosters from local storage...');
             for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
-                const saved = localStorage.getItem(`roster_na-15v15-summer-series_md${i}_demo`);
+                // Try new format first
+                let saved = localStorage.getItem(`roster_na-15v15-summer-series_md${i}_demo`);
+                
+                // If new format doesn't exist, try old format (backwards compatibility)
+                if (!saved && i === 1) {
+                    // Check for old roster format (without match day)
+                    saved = localStorage.getItem(`roster_na-15v15-summer-series_demo`);
+                    if (saved) {
+                        console.log(`🔄 Found old roster format, migrating to Match Day 1`);
+                        // Migrate old roster to new format
+                        localStorage.setItem(`roster_na-15v15-summer-series_md1_demo`, saved);
+                        // Optional: Remove old key to clean up
+                        // localStorage.removeItem(`roster_na-15v15-summer-series_demo`);
+                    }
+                }
+                
                 if (saved) {
                     try {
                         userRosters[i] = JSON.parse(saved);
@@ -2279,6 +2294,9 @@
                         console.error(`❌ Error parsing saved roster for match day ${i}:`, error);
                         userRosters[i] = [];
                     }
+                } else {
+                    // Ensure empty array for days with no roster
+                    userRosters[i] = [];
                 }
             }
             console.log('Final rosters loaded from localStorage:', userRosters);
