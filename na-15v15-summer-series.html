@@ -2223,7 +2223,7 @@
             });
         }
 
-        // FIXED: Load all user rosters from backend with proper error handling
+        // FIXED: Load all user rosters from backend with proper priority
         async function loadAllUserRosters() {
             if (!api.isAuthenticated()) {
                 console.log('User not authenticated, loading from local storage');
@@ -2235,8 +2235,14 @@
                 console.log('Loading all user rosters from backend...');
                 const response = await api.getAllRosters('na-15v15-summer-series');
                 
-                if (response && response.rosters) {
+                if (response && response.rosters && Object.keys(response.rosters).length > 0) {
                     console.log('✅ Rosters loaded from backend:', response.rosters);
+                    
+                    // IMPORTANT: Clear local rosters first, then load from backend
+                    for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
+                        userRosters[i] = []; // Clear first
+                    }
+                    
                     // Update userRosters with data from backend
                     for (const [matchDay, roster] of Object.entries(response.rosters)) {
                         const dayNum = parseInt(matchDay);
@@ -2244,7 +2250,11 @@
                             userRosters[dayNum] = roster || [];
                         }
                     }
-                    console.log('✅ All user rosters loaded successfully:', userRosters);
+                    console.log('✅ Backend rosters loaded successfully:', userRosters);
+                    
+                    // DON'T load from localStorage if backend had data
+                    console.log('✅ Skipping localStorage since backend had roster data');
+                    
                 } else {
                     console.log('No rosters found in backend response, trying local storage');
                     loadRostersFromLocalStorage();
@@ -2266,7 +2276,7 @@
             }
         }
 
-        // Load rosters from local storage (fallback)
+        // Load rosters from local storage (fallback) - FIXED: Backwards compatibility
         function loadRostersFromLocalStorage() {
             console.log('Loading rosters from local storage...');
             for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
