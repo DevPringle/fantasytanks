@@ -469,6 +469,194 @@ app.post('/api/admin/scores', async (req, res) => {
   }
 });
 
+// Admin middleware - check if user is admin
+const authenticateAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ error: 'Access token required' });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Check if user exists and is admin
+    const result = await pool.query(
+      'SELECT id, username, email FROM users WHERE id = $1',
+      [decoded.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(403).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+    
+    // For now, make the first user admin, or you can add an is_admin column
+    if (user.id !== 1 && user.username !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Admin authentication error:', error);
+    return res.status(403).json({ error: 'Invalid token' });
+  }
+};
+
+// Serve admin page (protected)
+app.get('/admin', authenticateAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// Admin API endpoints
+app.post('/api/admin/scores', authenticateAdmin, async (req, res) => {
+  try {
+    const { tournamentId, matchDay, playerScores, playerData } = req.body;
+
+    if (!tournamentId || !matchDay) {
+      return res.status(400).json({ error: 'Tournament ID and match day are required' });
+    }
+
+    if (playerData) {
+      // Full data mode: update both scores and battle info
+      for (const [playerName, data] of Object.entries(playerData)) {
+        // Update player_scores table
+        await pool.query(`
+          INSERT INTO player_scores (player_name, tournament_id, match_day, points)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (player_name, tournament_id, match_day)
+          DO UPDATE SET points = EXCLUDED.points
+        `, [playerName, tournamentId, matchDay, data.points]);
+
+        // Update players table with battle info
+        if (data.battlesPlayed !== undefined && data.totalBattles !== undefined) {
+          const battlePercentage = `${Math.round((data.battlesPlayed / data.totalBattles) * 100)}%`;
+          await pool.query(`
+            UPDATE players 
+            SET battles_played = $1 
+            WHERE player_name = $2 AND tournament_id = $3
+          `, [battlePercentage, playerName, tournamentId]);
+        }
+      }
+    } else if (playerScores) {
+      // Scores only mode
+      for (const [playerName, points] of Object.entries(playerScores)) {
+        await pool.query(`
+          INSERT INTO player_scores (player_name, tournament_id, match_day, points)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (player_name, tournament_id, match_day)
+          DO UPDATE SET points = EXCLUDED.points
+        `, [playerName, tournamentId, matchDay, points]);
+      }
+    } else {
+      return res.status(400).json({ error: 'Either playerScores or playerData is required' });
+    }
+
+    res.json({ message: 'Scores updated successfully' });
+
+  } catch (error) {
+    console.error('Update scores error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get current scores for admin view
+app.get('/api/admin/scores/:tournamentId/:matchDay', authenticateAdmin, async (req, res) => {
+  try {
+    const { tournamentId, matchDay } = req.params;
+    
+    const result = await pool.query(`
+      SELECT 
+        ps.player_name,
+        ps.points,
+        p.team_code,
+        p.battles_played,
+        p.picked_percentage
+      FROM player_scores ps
+      LEFT JOIN players p ON ps.player_name = p.player_name AND ps.tournament_id = p.tournament_id
+      WHERE ps.tournament_id = $1 AND ps.match_day = $2
+      ORDER BY ps.points DESC
+    `, [tournamentId, matchDay]);
+    
+    res.json({ players: result.rows });
+  } catch (error) {
+    console.error('Get admin scores error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Calculate pick percentages
+app.post('/api/admin/calculate-picks', authenticateAdmin, async (req, res) => {
+  try {
+    const { tournamentId } = req.body;
+    
+    // Get total number of rosters
+    const totalRosters = await pool.query(
+      'SELECT COUNT(DISTINCT user_id) as total FROM rosters WHERE tournament_id = $1',
+      [tournamentId]
+    );
+    
+    const total = totalRosters.rows[0].total || 1;
+    
+    // Get all players
+    const players = await pool.query(
+      'SELECT player_name FROM players WHERE tournament_id = $1',
+      [tournamentId]
+    );
+    
+    // Calculate pick percentage for each player
+    for (const player of players.rows) {
+      const pickCount = await pool.query(`
+        SELECT COUNT(*) as picks 
+        FROM rosters 
+        WHERE tournament_id = $1 
+        AND roster ? $2
+      `, [tournamentId, player.player_name]);
+      
+      const picks = pickCount.rows[0].picks || 0;
+      const percentage = ((picks / total) * 100).toFixed(2) + '%';
+      
+      await pool.query(`
+        UPDATE players 
+        SET picked_percentage = $1 
+        WHERE player_name = $2 AND tournament_id = $3
+      `, [percentage, player.player_name, tournamentId]);
+    }
+    
+    res.json({ message: 'Pick percentages calculated successfully' });
+    
+  } catch (error) {
+    console.error('Calculate picks error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Reset tournament scores
+app.post('/api/admin/reset', authenticateAdmin, async (req, res) => {
+  try {
+    const { tournamentId } = req.body;
+    
+    // Delete all player scores
+    await pool.query('DELETE FROM player_scores WHERE tournament_id = $1', [tournamentId]);
+    
+    // Reset player stats
+    await pool.query(`
+      UPDATE players 
+      SET total_points = 0, average_points = 0, battles_played = '0%'
+      WHERE tournament_id = $1
+    `, [tournamentId]);
+    
+    res.json({ message: 'Tournament reset successfully' });
+    
+  } catch (error) {
+    console.error('Reset tournament error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Start server
 app.listen(port, async () => {
   console.log(`Server running on port ${port}`);
