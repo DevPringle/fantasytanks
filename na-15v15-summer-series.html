@@ -2197,44 +2197,36 @@
         async function loadFantasyLeaderboard() {
             const loadingState = document.getElementById('standingsLoadingState');
             const standingsTable = document.getElementById('fantasyStandingsTable');
-
+        
             if (!loadingState) return;
-
+        
             loadingState.style.display = 'block';
             standingsTable.style.display = 'none';
-
-            // Simulate loading with sample data
-            setTimeout(() => {
+        
+            try {
+                // Actually call your API instead of fake data
+                const response = await api.request('/leaderboard/na-15v15-summer-series');
+                
                 loadingState.style.display = 'none';
                 standingsTable.style.display = 'table';
                 
                 const tbody = document.getElementById('fantasyStandingsTableBody');
-                if (tbody) {
-                    tbody.innerHTML = `
+                if (tbody && response.leaderboard) {
+                    tbody.innerHTML = response.leaderboard.map((entry, index) => `
                         <tr>
-                            <td class="rank-cell">1</td>
-                            <td class="username-cell">pringle</td>
-                            <td class="score-cell">2,847</td>
-                            <td>284.7</td>
-                            <td>7</td>
+                            <td class="rank-cell">${index + 1}</td>
+                            <td class="username-cell">${entry.username}</td>
+                            <td class="score-cell">${entry.total_points}</td>
+                            <td>${entry.avg_points || 0}</td>
+                            <td>${entry.match_days_played || 0}</td>
                         </tr>
-                        <tr>
-                            <td class="rank-cell">2</td>
-                            <td class="username-cell">Charan</td>
-                            <td class="score-cell">2,739</td>
-                            <td>273.9</td>
-                            <td>7</td>
-                        </tr>
-                        <tr>
-                            <td class="rank-cell">3</td>
-                            <td class="username-cell">Stored</td>
-                            <td class="score-cell">2,681</td>
-                            <td>268.1</td>
-                            <td>7</td>
-                        </tr>
-                    `;
+                    `).join('');
                 }
-            }, 1000);
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                loadingState.style.display = 'none';
+                // Show error or fallback
+            }
         }
 
         // Player table functions
