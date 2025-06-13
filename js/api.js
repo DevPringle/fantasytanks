@@ -1,4 +1,3 @@
-// API client for Fantasy Tanks
 class FantasyAPI {
     constructor() {
         this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
@@ -78,7 +77,6 @@ class FantasyAPI {
         this.token = null;
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
-        // Redirect to home page
         window.location.href = 'index.html';
     }
 
@@ -88,22 +86,48 @@ class FantasyAPI {
 
     getCurrentUser() {
         const userStr = localStorage.getItem('user');
-        return userStr ? JSON.parse(userStr) : null;
+        if (!userStr) return null;
+        try {
+            const user = JSON.parse(userStr);
+            if (this.token) {
+                const payload = JSON.parse(atob(this.token.split('.')[1]));
+                return { ...user, username: payload.username, id: payload.userId };
+            }
+            return user;
+        } catch (error) {
+            return null;
+        }
     }
 
-    async getRoster(tournamentId) {
-        return await this.request(`/roster?tournamentId=${tournamentId}`);
+    async getRoster(tournamentId, matchDay = 1) {
+        return await this.request(`/roster?tournamentId=${tournamentId}&matchDay=${matchDay}`);
     }
 
-    async saveRoster(tournamentId, roster) {
+    async getAllRosters(tournamentId) {
+        return await this.request(`/roster/all/${tournamentId}`);
+    }
+
+    async saveRoster(tournamentId, roster, matchDay = 1) {
         return await this.request('/roster', {
             method: 'POST',
-            body: JSON.stringify({ tournamentId, roster })
+            body: JSON.stringify({ tournamentId, roster, matchDay })
         });
     }
 
-    async getLeaderboard(tournamentId, matchDay = null) {
-        let endpoint = `/leaderboard/${tournamentId}`;
+    async getLeaderboard(tournamentId, matchDay = null, minRosterSize = 10) {
+        let endpoint = `/leaderboard/${tournamentId}?minRosterSize=${minRosterSize}`;
+        if (matchDay) {
+            endpoint += `&matchDay=${matchDay}`;
+        }
+        return await this.request(endpoint);
+    }
+
+    async getLeaderboardStats(tournamentId) {
+        return await this.request(`/leaderboard/${tournamentId}/stats`);
+    }
+
+    async getUserRanking(tournamentId, userId, matchDay = null) {
+        let endpoint = `/leaderboard/${tournamentId}/user/${userId}`;
         if (matchDay) {
             endpoint += `?matchDay=${matchDay}`;
         }
@@ -121,7 +145,217 @@ class FantasyAPI {
     async getTournament(tournamentId) {
         return await this.request(`/tournaments/${tournamentId}`);
     }
+
+    async getTournaments() {
+        return await this.request('/tournaments');
+    }
+
+    // Admin endpoints
+    async updatePlayerScores(tournamentId, matchDay, playerScores, playerData = null) {
+        const body = { tournamentId, matchDay };
+        if (playerData) {
+            body.playerData = playerData;
+        } else {
+            body.playerScores = playerScores;
+        }
+        
+        return await this.request('/admin/scores', {
+            method: 'POST',
+            body: JSON.stringify(body)
+        });
+    }
+
+    async getAdminScores(tournamentId, matchDay) {
+        return await this.request(`/admin/scores/${tournamentId}/${matchDay}`);
+    }
+
+    async calculatePickPercentages(tournamentId) {
+        return await this.request('/admin/calculate-picks', {
+            method: 'POST',
+            body: JSON.stringify({ tournamentId })
+        });
+    }
+
+    async resetTournament(tournamentId) {
+        return await this.request('/admin/reset', {
+            method: 'POST',
+            body: JSON.stringify({ tournamentId })
+        });
+    }
+
+    // Utility methods for fantasy standings
+    async getCurrentUserStanding(tournamentId, matchDay = null) {
+        if (!this.isAuthenticated()) return null;
+        
+        try {
+            const user = this.getCurrentUser();
+            if (!user) return null;
+            
+            return await this.getUserRanking(tournamentId, user.id, matchDay);
+        } catch (error) {
+            console.error('Error getting current user standing:', error);
+            return null;
+        }
+    }
+
+    // Enhanced leaderboard with filtering options
+    async getFilteredLeaderboard(tournamentId, options = {}) {
+        const {
+            matchDay = null,
+            minRosterSize = 10,
+            limit = null,
+            offset = 0
+        } = options;
+
+        let endpoint = `/leaderboard/${tournamentId}?minRosterSize=${minRosterSize}&offset=${offset}`;
+        
+        if (matchDay) {
+            endpoint += `&matchDay=${matchDay}`;
+        }
+        
+        if (limit) {
+            endpoint += `&limit=${limit}`;
+        }
+
+        return await this.request(endpoint);
+    }
+
+    // Batch operations for admin
+    async batchUpdateScores(tournamentId, matchDay, playersData) {
+        const promises = [];
+        const batchSize = 50; // Process in batches to avoid overwhelming the server
+        
+        for (let i = 0; i < playersData.length; i += batchSize) {
+            const batch = playersData.slice(i, i + batchSize);
+            const batchData = {};
+            
+            batch.forEach(player => {
+                batchData[player.name] = {
+                    points: player.points,
+                    battlesPlayed: player.battlesPlayed,
+                    totalBattles: player.totalBattles
+                };
+            });
+            
+            promises.push(this.updatePlayerScores(tournamentId, matchDay, null, batchData));
+        }
+        
+        return await Promise.all(promises);
+    }
+
+    // Health check
+    async healthCheck() {
+        try {
+            return await this.request('/health');
+        } catch (error) {
+            console.error('Health check failed:', error);
+            return { status: 'ERROR', message: error.message };
+        }
+    }
+
+    // Get API status and user info
+    getStatus() {
+        return {
+            authenticated: this.isAuthenticated(),
+            user: this.getCurrentUser(),
+            baseURL: this.baseURL,
+            hasToken: !!this.token
+        };
+    }
+
+    // Clear all local data (useful for debugging)
+    clearLocalData() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        
+        // Clear roster data
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+            if (key.startsWith('roster_')) {
+                localStorage.removeItem(key);
+            }
+        });
+        
+        this.token = null;
+    }
+
+    // Validate roster before submission
+    validateRoster(roster, maxSize = 10) {
+        if (!Array.isArray(roster)) {
+            return { valid: false, error: 'Roster must be an array' };
+        }
+        
+        if (roster.length === 0) {
+            return { valid: false, error: 'Roster cannot be empty' };
+        }
+        
+        if (roster.length > maxSize) {
+            return { valid: false, error: `Roster cannot exceed ${maxSize} players` };
+        }
+        
+        // Check for duplicates
+        const uniquePlayers = [...new Set(roster)];
+        if (uniquePlayers.length !== roster.length) {
+            return { valid: false, error: 'Roster cannot contain duplicate players' };
+        }
+        
+        // Check for empty or invalid player names
+        for (const player of roster) {
+            if (!player || typeof player !== 'string' || player.trim().length === 0) {
+                return { valid: false, error: 'All players must have valid names' };
+            }
+        }
+        
+        return { valid: true };
+    }
+
+    // Get roster completion status
+    async getRosterCompletionStatus(tournamentId, totalMatchDays = 7) {
+        if (!this.isAuthenticated()) {
+            return { authenticated: false };
+        }
+
+        try {
+            const response = await this.getAllRosters(tournamentId);
+            const rosters = response.rosters || {};
+            
+            const status = {
+                authenticated: true,
+                totalMatchDays,
+                completedDays: 0,
+                incompleteDays: 0,
+                emptyDays: 0,
+                details: {}
+            };
+
+            for (let day = 1; day <= totalMatchDays; day++) {
+                const roster = rosters[day] || [];
+                const rosterSize = roster.length;
+                
+                if (rosterSize === 0) {
+                    status.emptyDays++;
+                    status.details[day] = { status: 'empty', size: 0 };
+                } else if (rosterSize < 10) {
+                    status.incompleteDays++;
+                    status.details[day] = { status: 'incomplete', size: rosterSize };
+                } else {
+                    status.completedDays++;
+                    status.details[day] = { status: 'complete', size: rosterSize };
+                }
+            }
+
+            return status;
+        } catch (error) {
+            console.error('Error getting roster completion status:', error);
+            return { authenticated: true, error: error.message };
+        }
+    }
 }
 
-// Create global instance
+// Create a global instance
 const api = new FantasyAPI();
+
+// Export for use in other files
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = FantasyAPI;
+}
