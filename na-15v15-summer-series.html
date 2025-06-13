@@ -6,8 +6,6 @@
     <title>NA 15v15 Summer Series - WoT Fantasy</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <style>
         /* Material Icons fallback */
         .material-icons {
@@ -325,7 +323,7 @@
             flex-wrap: wrap;
             margin-bottom: 1rem;
         }
-        
+
         .status-badge {
             padding: 0.6rem 1.2rem;
             border-radius: 25px;
@@ -339,14 +337,14 @@
             box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
             transition: all 0.3s ease;
         }
-        
+
         .status-badge.locked {
             background: rgba(239, 68, 68, 0.2);
             color: #ef4444;
             border-color: rgba(239, 68, 68, 0.4);
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
         }
-        
+
         .cutoff-timer {
             display: flex;
             align-items: center;
@@ -366,7 +364,7 @@
             font-size: 0.85rem;
             opacity: 0.9;
         }
-    
+
         @keyframes pulse {
             0%, 100% { 
                 box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
@@ -374,103 +372,6 @@
             50% { 
                 box-shadow: 0 0 25px rgba(255, 193, 7, 0.4);
             }
-        }
-
-        /* Match Day Selector */
-        .match-day-selector {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .match-day-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .match-day-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .match-day-tabs {
-            display: flex;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 0.5rem;
-            border-radius: 10px;
-            flex-wrap: wrap;
-        }
-
-        .match-day-tab {
-            padding: 0.6rem 1rem;
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.7);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            font-weight: 500;
-            min-width: 80px;
-            text-align: center;
-        }
-
-        .match-day-tab:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-        }
-
-        .match-day-tab.active {
-            background: linear-gradient(135deg, #00d4ff, #00b8e6);
-            border-color: #00d4ff;
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-        }
-
-        .match-day-tab.locked {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: rgba(239, 68, 68, 0.4);
-            color: #ef4444;
-            cursor: not-allowed;
-        }
-
-        .match-day-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .roster-status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .roster-status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #22c55e;
-        }
-
-        .roster-status-dot.incomplete {
-            background: #ffc107;
-        }
-
-        .roster-status-dot.empty {
-            background: #6b7280;
         }
 
         .fantasy-info {
@@ -801,6 +702,103 @@
         .activity-time {
             color: rgba(255, 255, 255, 0.5);
             font-size: 0.8rem;
+        }
+
+        /* Match Day Selector */
+        .match-day-selector {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .match-day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .match-day-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .match-day-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .match-day-tab {
+            padding: 0.6rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .match-day-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .match-day-tab.active {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border-color: #00d4ff;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .match-day-tab.locked {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+            cursor: not-allowed;
+        }
+
+        .match-day-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .roster-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .roster-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .roster-status-dot.incomplete {
+            background: #ffc107;
+        }
+
+        .roster-status-dot.empty {
+            background: #6b7280;
         }
 
         /* Players Tab Styles */
@@ -1135,23 +1133,9 @@
             position: relative;
         }
 
-        .standings-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 49%, rgba(0, 212, 255, 0.02) 50%, transparent 51%);
-            pointer-events: none;
-            z-index: 1;
-        }
-
         .standings-table {
             width: 100%;
             border-collapse: collapse;
-            position: relative;
-            z-index: 2;
         }
 
         .standings-table th {
@@ -1164,76 +1148,18 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-        }
-
-        .standings-table th.sortable {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            user-select: none;
-        }
-
-        .standings-table th.sortable:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #00d4ff;
-        }
-
-        .standings-table th.rank-column {
-            width: 60px;
-            text-align: center;
-        }
-
-        .standings-table th.name-column {
-            min-width: 200px;
-        }
-
-        .standings-table th.score-column {
-            width: 120px;
-            text-align: right;
-        }
-
-        .standings-table th.avg-column {
-            width: 120px;
-            text-align: right;
-        }
-
-        .standings-table th.days-column {
-            width: 100px;
-            text-align: center;
         }
 
         .standings-table td {
             padding: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             color: rgba(255, 255, 255, 0.9);
-            font-size: 0.95rem;
-        }
-
-        .standings-table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
         }
 
         .rank-cell {
             text-align: center;
             font-weight: 700;
             color: #00d4ff;
-            font-size: 1.1rem;
-        }
-
-        .rank-cell.top3 {
-            position: relative;
-        }
-
-        .rank-cell.rank-1 {
-            color: #ffd700;
-        }
-
-        .rank-cell.rank-2 {
-            color: #c0c0c0;
-        }
-
-        .rank-cell.rank-3 {
-            color: #cd7f32;
         }
 
         .username-cell {
@@ -1247,43 +1173,10 @@
             color: #00d4ff;
         }
 
-        .avg-cell {
-            text-align: right;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .days-cell {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .standings-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.02);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .total-participants {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .standings-last-updated {
-            font-style: italic;
-        }
-
         .loading-state {
             text-align: center;
             padding: 3rem 2rem;
             color: rgba(255, 255, 255, 0.7);
-            position: relative;
-            min-height: 200px;
         }
 
         .loading-spinner {
@@ -1299,84 +1192,6 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-
-        .error-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #ef4444;
-            position: relative;
-            min-height: 200px;
-        }
-
-        .error-state .material-icons {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: rgba(255, 255, 255, 0.6);
-            position: relative;
-            min-height: 300px;
-        }
-
-        .empty-state .material-icons {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.4;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .current-user-row {
-            background: rgba(0, 212, 255, 0.1) !important;
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            animation: userPulse 2s infinite;
-        }
-
-        .current-user-row:hover {
-            background: rgba(0, 212, 255, 0.15) !important;
-        }
-
-        .current-user-indicator {
-            font-size: 0.8rem;
-            margin-left: 0.5rem;
-        }
-
-        .you-label {
-            font-size: 0.8rem;
-            color: #00d4ff;
-            font-weight: 500;
-            margin-left: 0.5rem;
-        }
-
-        @keyframes userPulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.1);
-            }
-        }
-
-        @keyframes slideInFromTop {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .standings-table tbody tr {
-            animation: slideInFromTop 0.3s ease-out;
         }
 
         /* Footer */
@@ -1522,37 +1337,11 @@
                 font-size: 0.8rem;
                 min-width: 60px;
             }
+        }
 
-            .standings-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .standings-filters {
-                justify-content: space-between;
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
-
-            .standings-container {
-                overflow-x: auto;
-            }
-
-            .standings-table {
-                min-width: 600px;
-            }
-
-            .standings-table th,
-            .standings-table td {
-                padding: 0.75rem 0.5rem;
-                font-size: 0.85rem;
-            }
-
-            .you-label {
-                display: block;
-                margin-left: 0;
-                margin-top: 0.2rem;
-            }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
     </style>
 </head>
@@ -1565,9 +1354,9 @@
             
             <ul class="nav-menu" id="navMenu">
                 <li><a href="tournaments.html" class="nav-link">Tournaments</a></li>
-                <li><a href="index.html#groups" class="nav-link">Groups**</a></li>
-                <li><a href="index.html#guide" class="nav-link">Guide**</a></li>
-                <li><a href="index.html#contact" class="nav-link">Contact**</a></li>
+                <li><a href="index.html#groups" class="nav-link">Groups</a></li>
+                <li><a href="index.html#guide" class="nav-link">Guide</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
             </ul>
 
             <div class="auth-section">
@@ -1740,7 +1529,7 @@
                                 <span class="quick-stat-label">Available Players</span>
                             </div>
                             <div class="quick-stat">
-                                <span class="quick-stat-number">1</span>
+                                <span class="quick-stat-number">93</span>
                                 <span class="quick-stat-label">Fantasy Teams</span>
                             </div>
                             <div class="quick-stat">
@@ -1876,7 +1665,7 @@
                                 <option value="7">Match Day 7</option>
                             </select>
                         </div>
-                        <button class="action-btn secondary" onclick="loadFantasyLeaderboard()">
+                        <button class="action-btn secondary">
                             <span class="material-icons">refresh</span>
                             Refresh
                         </button>
@@ -1884,51 +1673,19 @@
                 </div>
 
                 <div class="standings-container">
-                    <div class="standings-info">
-                        <div class="total-participants">
-                            <span class="material-icons">people</span>
-                            <span id="standingsTotalParticipants">Loading...</span>
-                        </div>
-                        <div class="standings-last-updated" id="standingsLastUpdated">
-                            Last updated: Loading...
-                        </div>
-                    </div>
-
                     <div id="standingsLoadingState" class="loading-state">
                         <div class="loading-spinner"></div>
                         <div>Loading fantasy standings...</div>
-                    </div>
-
-                    <div id="standingsErrorState" class="error-state" style="display: none;">
-                        <span class="material-icons">error</span>
-                        <h3>Failed to Load Standings</h3>
-                        <p>There was an error loading the leaderboard. Please try again.</p>
-                    </div>
-
-                    <div id="standingsEmptyState" class="empty-state" style="display: none;">
-                        <span class="material-icons">emoji_events</span>
-                        <h3>No Fantasy Teams Yet</h3>
-                        <p>Be the first to submit a complete roster and appear on the leaderboard!</p>
                     </div>
 
                     <table class="standings-table" id="fantasyStandingsTable" style="display: none;">
                         <thead>
                             <tr>
                                 <th class="rank-column">Rank</th>
-                                <th class="name-column sortable" data-sort="username">
-                                    Name
-                                    <span class="material-icons sort-icon">expand_more</span>
-                                </th>
-                                <th class="score-column sortable" data-sort="total_points">
-                                    Score
-                                    <span class="material-icons sort-icon">expand_more</span>
-                                </th>
-                                <th class="avg-column sortable" data-sort="avg_points">
-                                    Avg. Score
-                                </th>
-                                <th class="days-column sortable" data-sort="match_days_played">
-                                    Days
-                                </th>
+                                <th class="name-column">Name</th>
+                                <th class="score-column">Score</th>
+                                <th class="avg-column">Avg. Score</th>
+                                <th class="days-column">Days</th>
                             </tr>
                         </thead>
                         <tbody id="fantasyStandingsTableBody">
@@ -1954,7 +1711,13 @@
                     </div>
                     
                     <div class="match-day-tabs" id="matchDayTabs">
-                        <!-- Match day tabs will be populated by JavaScript -->
+                        <button class="match-day-tab active" data-match-day="1">Day 1</button>
+                        <button class="match-day-tab" data-match-day="2">Day 2</button>
+                        <button class="match-day-tab" data-match-day="3">Day 3</button>
+                        <button class="match-day-tab" data-match-day="4">Day 4</button>
+                        <button class="match-day-tab" data-match-day="5">Day 5</button>
+                        <button class="match-day-tab" data-match-day="6">Day 6</button>
+                        <button class="match-day-tab" data-match-day="7">Day 7</button>
                     </div>
                     
                     <div class="match-day-info">
@@ -1968,7 +1731,7 @@
                         <span class="material-icons">people</span>
                         Fantasy Player Pool
                         <span id="currentMatchDayDisplay" style="color: #00d4ff; font-size: 1rem; margin-left: 1rem;">
-                            <!-- Current match day will be shown here -->
+                            (Match Day 1)
                         </span>
                     </h2>
                     <div class="players-filters">
@@ -2084,10 +1847,10 @@
         <div class="container">
             <div class="footer-content">
                 <ul class="footer-links">
-                    <li><a href="#resources">Resources**</a></li>
-                    <li><a href="#terms">Terms of Service**</a></li>
-                    <li><a href="#contact">Contact**</a></li>
-                    <li><a href="#privacy">Privacy Policy**</a></li>
+                    <li><a href="#resources">Resources</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
                 </ul>
                 <div class="footer-note">
                     <p>Original concept by Hypnotik • Created by pringle</p>
@@ -2098,7 +1861,7 @@
     </footer>
 
     <script>
-        // API client for connecting to your Railway backend
+        // Fantasy API client for connecting to backend
         class FantasyAPI {
             constructor() {
                 this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
@@ -2138,23 +1901,11 @@
                 return await this.request(`/roster?tournamentId=${tournamentId}&matchDay=${matchDay}`);
             }
 
-            async getAllRosters(tournamentId) {
-                return await this.request(`/roster/all/${tournamentId}`);
-            }
-
             async saveRoster(tournamentId, roster, matchDay = 1) {
                 return await this.request('/roster', {
                     method: 'POST',
                     body: JSON.stringify({ tournamentId, roster, matchDay })
                 });
-            }
-
-            async getLeaderboard(tournamentId, matchDay = null) {
-                let endpoint = `/leaderboard/${tournamentId}`;
-                if (matchDay) {
-                    endpoint += `?matchDay=${matchDay}`;
-                }
-                return await this.request(endpoint);
             }
 
             async getPlayers(tournamentId) {
@@ -2189,227 +1940,151 @@
         // Initialize API
         const api = new FantasyAPI();
 
-        let playersData = [];  // Real players from database
-        let teamsData = [];    // Real teams from database
-        
-        // Multi-match-day roster system
-        let userRosters = {
-            1: [], // Day 1 roster
-            2: [], // Day 2 roster
-            3: [], // Day 3 roster
-            4: [], // Day 4 roster
-            5: [], // Day 5 roster
-            6: [], // Day 6 roster
-            7: [], // Day 7 roster
-        };
-        
-        let currentMatchDay = 1; // Track which match day we're editing
+        // Global variables
+        let playersData = [];
+        let teamsData = [];
+        let userRosters = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
+        let currentMatchDay = 1;
         let maxRosterSize = 10;
         let isAuthenticated = false;
-        let dataLoaded = false; // Track if initial data has been loaded
+        let dataLoaded = false;
 
         // Tournament configuration
         const tournamentConfig = {
             totalMatchDays: 7,
             rosterCutoffs: {
-                1: new Date('2025-06-11T00:00:00Z'), // June 10 cutoff
-                2: new Date('2025-06-15T00:00:00Z'), // June 14 cutoff  
-                3: new Date('2025-06-18T00:00:00Z'), // June 17 cutoff
-                4: new Date('2025-06-22T00:00:00Z'), // June 21 cutoff
-                5: new Date('2025-06-25T00:00:00Z'), // June 24 cutoff
-                6: new Date('2025-06-29T00:00:00Z'), // June 28 cutoff
-                7: new Date('2025-06-30T00:00:00Z'), // June 29 cutoff
+                1: new Date('2025-06-11T00:00:00Z'),
+                2: new Date('2025-06-15T00:00:00Z'),
+                3: new Date('2025-06-18T00:00:00Z'),
+                4: new Date('2025-06-22T00:00:00Z'),
+                5: new Date('2025-06-25T00:00:00Z'),
+                6: new Date('2025-06-29T00:00:00Z'),
+                7: new Date('2025-06-30T00:00:00Z')
             }
         };
 
-        // Global variables for header timer
-        let headerTimerInterval = null;
-        let standingsRefreshInterval = null;
-
-        // Get the next match day that isn't locked yet
-        function getNextUnlockedMatchDay() {
-            const totalDays = Object.keys(tournamentConfig.rosterCutoffs).length;
-            const now = new Date();
+        // Tab Navigation System
+        function initializeTabNavigation() {
+            const navTabs = document.querySelectorAll('.nav-tab');
             
-            for (let i = 1; i <= totalDays; i++) {
-                const cutoff = tournamentConfig.rosterCutoffs[i];
-                if (cutoff && now < cutoff) {
-                    return i;
-                }
-            }
-            return null; // All match days are locked
-        }
-
-        // Check roster lock status and start header timer
-        function checkRosterLockStatus() {
-            const nextUnlockedMatchDay = getNextUnlockedMatchDay();
-            
-            if (nextUnlockedMatchDay) {
-                const cutoff = tournamentConfig.rosterCutoffs[nextUnlockedMatchDay];
-                updateRosterStatusUI('open', cutoff, `Match Day ${nextUnlockedMatchDay}`);
-                startHeaderCountdownTimer(cutoff, `Match Day ${nextUnlockedMatchDay}`);
-            } else {
-                updateRosterStatusUI('locked');
-                stopHeaderTimer();
-            }
-        }
-
-        // Update the header roster status UI
-        function updateRosterStatusUI(status, cutoffTime = null, matchDayName = null) {
-            const statusBadge = document.getElementById('rosterStatus');
-            const cutoffTimer = document.getElementById('cutoffTimer');
-            
-            if (!statusBadge || !cutoffTimer) return;
-            
-            if (status === 'locked') {
-                statusBadge.textContent = 'All Rosters Locked';
-                statusBadge.classList.add('locked');
-                cutoffTimer.style.display = 'none';
-            } else {
-                statusBadge.textContent = 'Rosters Open';
-                statusBadge.classList.remove('locked');
-                if (cutoffTime && matchDayName) {
-                    cutoffTimer.style.display = 'flex';
-                    const timerLabel = cutoffTimer.querySelector('.timer-label');
-                    if (timerLabel) {
-                        timerLabel.textContent = `${matchDayName} deadline:`;
-                    } else {
-                        const labelSpan = document.createElement('span');
-                        labelSpan.className = 'timer-label';
-                        labelSpan.textContent = `${matchDayName} deadline:`;
-                        labelSpan.style.marginRight = '0.5rem';
-                        cutoffTimer.insertBefore(labelSpan, cutoffTimer.firstChild);
+            navTabs.forEach((tab) => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetTab = this.dataset.tab;
+                    
+                    // Remove active from all tabs and contents
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active to current tab and content
+                    this.classList.add('active');
+                    
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                        handleTabSpecificLogic(targetTab);
                     }
-                }
+                });
+            });
+        }
+
+        function handleTabSpecificLogic(targetTab) {
+            switch(targetTab) {
+                case 'standings':
+                    loadFantasyLeaderboard();
+                    break;
+                case 'players':
+                    if (dataLoaded) {
+                        updateRosterDisplay();
+                        populatePlayersTable();
+                    }
+                    break;
             }
         }
 
-        // Start the header countdown timer
-        function startHeaderCountdownTimer(cutoffTime, matchDayName) {
-            const timeDisplay = document.getElementById('timeRemaining');
-            if (!timeDisplay) return;
-            
-            stopHeaderTimer();
-            
-            function updateHeaderTimer() {
-                const now = new Date();
-                const timeLeft = cutoffTime - now;
-                
-                if (timeLeft <= 0) {
-                    checkRosterLockStatus();
-                    return;
-                }
-                
-                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                
-                timeDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            
-            updateHeaderTimer();
-            headerTimerInterval = setInterval(updateHeaderTimer, 1000);
+        // Auth functions
+        function redirectToLogin() {
+            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
         }
 
-        // Stop the header timer
-        function stopHeaderTimer() {
-            if (headerTimerInterval) {
-                clearInterval(headerTimerInterval);
-                headerTimerInterval = null;
+        function handleLogout() {
+            api.logout();
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function updateAuthUI() {
+            const signInBtn = document.getElementById('signInBtn');
+            const userMenu = document.getElementById('userMenu');
+            const authOverlay = document.getElementById('authOverlay');
+            
+            if (api.isAuthenticated()) {
+                isAuthenticated = true;
+                const user = api.getCurrentUser();
+                
+                signInBtn.style.display = 'none';
+                userMenu.style.display = 'block';
+                document.getElementById('username').textContent = user.username;
+                if (authOverlay) authOverlay.style.display = 'none';
+                
+                loadAllUserRosters();
+            } else {
+                isAuthenticated = false;
+                signInBtn.style.display = 'block';
+                userMenu.style.display = 'none';
+                if (authOverlay) authOverlay.style.display = 'flex';
+                
+                loadRostersFromLocalStorage();
+                updateRosterDisplay();
             }
         }
 
-        // Enhanced tournament header status section
-        function initializeHeaderTimer() {
-            const statusHeader = document.querySelector('.tournament-status-header');
-            if (!statusHeader) return;
-            
-            let cutoffTimer = document.getElementById('cutoffTimer');
-            if (!cutoffTimer) {
-                cutoffTimer = document.createElement('div');
-                cutoffTimer.id = 'cutoffTimer';
-                cutoffTimer.className = 'cutoff-timer';
-                cutoffTimer.style.display = 'none';
-                cutoffTimer.innerHTML = `
-                    <span class="material-icons">schedule</span>
-                    <span id="timeRemaining">--:--:--</span>
-                `;
-                statusHeader.appendChild(cutoffTimer);
-            }
-            
-            checkRosterLockStatus();
-        }
-        
-        // Check if rosters are locked for a specific match day
+        // Match day functions
         function isMatchDayLocked(matchDay) {
             const now = new Date();
             const cutoff = tournamentConfig.rosterCutoffs[matchDay];
             return cutoff && now >= cutoff;
         }
 
-        // Get the next active match day (unlocked)
         function getActiveMatchDay() {
             for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
-                if (!isMatchDayLocked(i)) {
-                    return i;
-                }
+                if (!isMatchDayLocked(i)) return i;
             }
-            return 1; // Default to match day 1 if all are locked
+            return 1;
         }
 
-        // Initialize match day tabs
         function initializeMatchDayTabs() {
-            const tabsContainer = document.getElementById('matchDayTabs');
-            if (!tabsContainer) return;
-
-            tabsContainer.innerHTML = '';
-
-            for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
-                const tab = document.createElement('button');
-                tab.className = 'match-day-tab';
-                tab.textContent = `Day ${i}`;
-                tab.dataset.matchDay = i;
-
-                if (isMatchDayLocked(i)) {
+            const tabs = document.querySelectorAll('.match-day-tab');
+            
+            tabs.forEach(tab => {
+                const matchDay = parseInt(tab.dataset.matchDay);
+                
+                if (isMatchDayLocked(matchDay)) {
                     tab.classList.add('locked');
                     tab.title = 'Roster deadline has passed';
                 } else {
-                    tab.addEventListener('click', () => switchMatchDay(i));
+                    tab.addEventListener('click', () => switchMatchDay(matchDay));
                 }
-
-                if (i === currentMatchDay) {
-                    tab.classList.add('active');
-                }
-
-                tabsContainer.appendChild(tab);
-            }
+            });
         }
 
-        // Switch to a different match day
         function switchMatchDay(matchDay) {
             if (isMatchDayLocked(matchDay)) {
                 showNotification(`Match Day ${matchDay} roster deadline has passed`, 'error');
                 return;
             }
 
-            // Save current roster before switching
-            if (isAuthenticated) {
-                saveCurrentRoster();
-            }
-
             currentMatchDay = matchDay;
-            
-            // Update UI
             updateMatchDayUI();
             updateRosterDisplay();
             populatePlayersTable();
-            
-            console.log(`Switched to Match Day ${matchDay}`);
         }
 
-        // Update match day related UI elements
         function updateMatchDayUI() {
-            // Update active tab
             document.querySelectorAll('.match-day-tab').forEach(tab => {
                 tab.classList.remove('active');
                 if (parseInt(tab.dataset.matchDay) === currentMatchDay) {
@@ -2417,18 +2092,11 @@
                 }
             });
 
-            // Update displays
             document.getElementById('currentMatchDayDisplay').textContent = `(Match Day ${currentMatchDay})`;
             document.getElementById('sidebarMatchDay').textContent = currentMatchDay;
-
-            // Update roster status indicator
             updateRosterStatusIndicator();
-
-            // Update deadline info
-            updateDeadlineInfo();
         }
 
-        // Update roster status indicator
         function updateRosterStatusIndicator() {
             const currentRoster = getCurrentRoster();
             const statusDot = document.getElementById('currentRosterStatusDot');
@@ -2448,73 +2116,141 @@
             }
         }
 
-        // Update deadline information
-        function updateDeadlineInfo() {
-            const deadlineInfo = document.getElementById('rosterDeadlineInfo');
-            if (!deadlineInfo) return;
-
-            const cutoff = tournamentConfig.rosterCutoffs[currentMatchDay];
-            if (!cutoff) {
-                deadlineInfo.textContent = '';
-                return;
-            }
-
-            const now = new Date();
-            if (now >= cutoff) {
-                deadlineInfo.innerHTML = '<span style="color: #ef4444;">⚠️ Roster deadline has passed</span>';
-            } else {
-                const timeUntil = formatTimeUntil(cutoff);
-                deadlineInfo.innerHTML = `<span style="color: #ffc107;">Roster deadline: ${timeUntil}</span>`;
-            }
-        }
-
-        // Format time until deadline
-        function formatTimeUntil(date) {
-            const now = new Date();
-            const diff = date - now;
-            
-            if (diff <= 0) return 'Passed';
-            
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            
-            if (days > 0) {
-                return `${days}d ${hours}h ${minutes}m`;
-            } else if (hours > 0) {
-                return `${hours}h ${minutes}m`;
-            } else {
-                return `${minutes}m`;
-            }
-        }
-
-        // Get current roster for active match day
+        // Roster functions
         function getCurrentRoster() {
             return userRosters[currentMatchDay] || [];
         }
 
-        // Set current roster for active match day
         function setCurrentRoster(roster) {
             userRosters[currentMatchDay] = [...roster];
         }
 
-        // Fallback sample data if database is empty
+        async function loadAllUserRosters() {
+            if (!api.isAuthenticated()) {
+                loadRostersFromLocalStorage();
+                return;
+            }
+            
+            try {
+                for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
+                    userRosters[i] = [];
+                }
+                
+                for (let matchDay = 1; matchDay <= tournamentConfig.totalMatchDays; matchDay++) {
+                    try {
+                        const response = await api.getRoster('na-15v15-summer-series', matchDay);
+                        if (response && response.roster && response.roster.length > 0) {
+                            userRosters[matchDay] = response.roster;
+                        }
+                    } catch (error) {
+                        console.log(`Error loading Match Day ${matchDay} roster:`, error.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user rosters:', error);
+                loadRostersFromLocalStorage();
+            }
+            
+            updateRosterDisplay();
+            updateRosterStatusIndicator();
+        }
+
+        function loadRostersFromLocalStorage() {
+            for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
+                let saved = localStorage.getItem(`roster_na-15v15-summer-series_md${i}_demo`);
+                
+                if (!saved && i === 1) {
+                    saved = localStorage.getItem(`roster_na-15v15-summer-series_demo`);
+                    if (saved) {
+                        localStorage.setItem(`roster_na-15v15-summer-series_md1_demo`, saved);
+                    }
+                }
+                
+                if (saved) {
+                    try {
+                        userRosters[i] = JSON.parse(saved);
+                    } catch (error) {
+                        console.error(`Error parsing saved roster for match day ${i}:`, error);
+                        userRosters[i] = [];
+                    }
+                } else {
+                    userRosters[i] = [];
+                }
+            }
+        }
+
+        async function saveCurrentRoster() {
+            if (!isAuthenticated) return;
+
+            const currentRoster = getCurrentRoster();
+            
+            try {
+                await api.saveRoster('na-15v15-summer-series', currentRoster, currentMatchDay);
+            } catch (error) {
+                console.error('Error saving roster:', error);
+                const localKey = `roster_na-15v15-summer-series_md${currentMatchDay}_demo`;
+                localStorage.setItem(localKey, JSON.stringify(currentRoster));
+            }
+        }
+
+        // Fantasy Leaderboard Functions
+        async function loadFantasyLeaderboard() {
+            const loadingState = document.getElementById('standingsLoadingState');
+            const standingsTable = document.getElementById('fantasyStandingsTable');
+
+            if (!loadingState) return;
+
+            loadingState.style.display = 'block';
+            standingsTable.style.display = 'none';
+
+            // Simulate loading with sample data
+            setTimeout(() => {
+                loadingState.style.display = 'none';
+                standingsTable.style.display = 'table';
+                
+                const tbody = document.getElementById('fantasyStandingsTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td class="rank-cell">1</td>
+                            <td class="username-cell">pringle</td>
+                            <td class="score-cell">2,847</td>
+                            <td>284.7</td>
+                            <td>7</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">2</td>
+                            <td class="username-cell">Charan</td>
+                            <td class="score-cell">2,739</td>
+                            <td>273.9</td>
+                            <td>7</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">3</td>
+                            <td class="username-cell">Stored</td>
+                            <td class="score-cell">2,681</td>
+                            <td>268.1</td>
+                            <td>7</td>
+                        </tr>
+                    `;
+                }
+            }, 1000);
+        }
+
+        // Player table functions
         function getFallbackPlayers() {
             return [
-                { name: 'muscles1', team: 'LHG', battles: '100%', points: 5714.7, avg: 53.9, picked: '50.04%' },
-                { name: 'notch123', team: '25%', battles: '99%', points: 5550.5, avg: 48.7, picked: '57.61%' },
-                { name: 'TheLoveHitman', team: 'TT6', battles: '100%', points: 5298.5, avg: 49.5, picked: '55.14%' },
-                { name: 'JxMAN20', team: '25%', battles: '91%', points: 4868.7, avg: 46.4, picked: '11.85%' },
-                { name: 'Vyraall', team: 'TT6', battles: '97%', points: 4781.3, avg: 45.8, picked: '29.86%' }
+                { name: 'bigtanker13', team: 'CRAKD', battles: '100%', points: 5714.7, avg: 53.9, picked: '50.04%' },
+                { name: 'Ferret', team: 'DOPAMINE', battles: '99%', points: 5550.5, avg: 48.7, picked: '57.61%' },
+                { name: 'Poi', team: 'ARCANE', battles: '100%', points: 5298.5, avg: 49.5, picked: '55.14%' },
+                { name: 'Sadge', team: 'MVP', battles: '91%', points: 4868.7, avg: 46.4, picked: '11.85%' },
+                { name: 'will', team: 'Employed', battles: '97%', points: 4781.3, avg: 45.8, picked: '29.86%' }
             ];
         }
-        
-        // Function to get real players from database
+
         async function loadPlayersData() {
             try {
-                console.log('Getting real players from database...');
                 const response = await api.getPlayers('na-15v15-summer-series');
-                console.log('API response:', response);
                 
                 if (response && response.players && response.players.length > 0) {
                     playersData = response.players.map(player => ({
@@ -2525,62 +2261,345 @@
                         avg: player.average_points || 0,
                         picked: player.picked_percentage || '0%'
                     }));
-                    console.log('✅ SUCCESS: Got', playersData.length, 'real players from database!');
                 } else {
-                    console.log('❌ No real players found in database, using backup fake data');
                     playersData = getFallbackPlayers();
                 }
             } catch (error) {
-                console.error('❌ ERROR loading real players:', error);
-                console.log('Using backup fake data instead');
+                console.error('Error loading players:', error);
                 playersData = getFallbackPlayers();
             }
             
-            console.log('Populating table with', playersData.length, 'players');
             populatePlayersTable();
         }
-        
-        // Function to get real teams from database
-        async function loadTeamsData() {
-            try {
-                console.log('Getting real teams from database...');
-                const response = await api.getTeams('na-15v15-summer-series');
-                console.log('Teams API response:', response);
+
+        function populatePlayersTable() {
+            const tbody = document.getElementById('playersTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if (playersData.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">
+                        <div style="font-size: 1.2rem; margin-bottom: 1rem;">🚫 No Players Found</div>
+                        <div>Either the database is empty or there's a connection issue.</div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                return;
+            }
+
+            const teamFilter = document.getElementById('teamFilter');
+            const selectedTeam = teamFilter ? teamFilter.value : '';
+            const filteredPlayers = selectedTeam ? 
+                  playersData.filter(p => p.team === selectedTeam) : 
+                  playersData;
+
+            const currentRoster = getCurrentRoster();
+
+            filteredPlayers.forEach(player => {
+                const row = document.createElement('tr');
                 
-                if (response && response.teams && response.teams.length > 0) {
-                    teamsData = response.teams;
-                    updateTeamFilter();
-                    console.log('✅ SUCCESS: Got', teamsData.length, 'real teams from database!');
+                let actionIcon = 'lock';
+                let actionClass = '';
+                let actionTitle = 'Rosters are locked';
+                
+                if (!isAuthenticated) {
+                    actionIcon = 'lock';
+                    actionClass = '';
+                    actionTitle = 'Please sign in to add players';
+                } else if (!isMatchDayLocked(currentMatchDay)) {
+                    if (currentRoster.includes(player.name)) {
+                        actionIcon = 'remove';
+                        actionClass = 'remove';
+                        actionTitle = 'Remove from roster';
+                    } else if (currentRoster.length < maxRosterSize) {
+                        actionIcon = 'add';
+                        actionClass = 'add';
+                        actionTitle = 'Add to roster';
+                    } else {
+                        actionIcon = 'lock';
+                        actionClass = '';
+                        actionTitle = 'Roster is full';
+                    }
                 } else {
-                    console.log('❌ No real teams found in database, using backup teams');
-                    teamsData = [
-                        { team_code: 'CRAKD', team_name: 'CRAKD' },
-                        { team_code: 'DOPAMINE', team_name: 'DOPAMINE' },
-                        { team_code: 'ARCANE', team_name: 'ARCANE' },
-                        { team_code: 'MVP', team_name: 'MVP' }
-                    ];
-                    updateTeamFilter();
+                    actionIcon = 'lock';
+                    actionClass = '';
+                    actionTitle = `Match Day ${currentMatchDay} deadline has passed`;
                 }
-            } catch (error) {
-                console.error('❌ ERROR loading real teams:', error);
-                teamsData = [
-                    { team_code: 'CRAKD', team_name: 'CRAKD' },
-                    { team_code: 'DOPAMINE', team_name: 'DOPAMINE' },
-                    { team_code: 'ARCANE', team_name: 'ARCANE' },
-                    { team_code: 'MVP', team_name: 'MVP' }
-                ];
-                updateTeamFilter();
+
+                row.innerHTML = `
+                    <td class="action-column">
+                        <button class="player-action-btn ${actionClass}" 
+                                data-player="${player.name}" 
+                                title="${actionTitle}">
+                            <span class="material-icons">${actionIcon}</span>
+                        </button>
+                    </td>
+                    <td class="player-name">${player.name}</td>
+                    <td class="player-team">${player.team}</td>
+                    <td class="player-battles">${player.battles}</td>
+                    <td class="player-points">${parseFloat(player.points).toLocaleString()}</td>
+                    <td class="player-avg">${player.avg}</td>
+                    <td class="player-picked">${player.picked}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+
+            document.querySelectorAll('.player-action-btn').forEach(btn => {
+                btn.addEventListener('click', handlePlayerAction);
+            });
+        }
+
+        function handlePlayerAction(e) {
+            const playerName = e.currentTarget.dataset.player;
+            const button = e.currentTarget;
+            
+            if (!isAuthenticated) {
+                showNotification('Please sign in to manage your roster', 'error');
+                return;
+            }
+            
+            if (isMatchDayLocked(currentMatchDay)) {
+                showNotification(`Match Day ${currentMatchDay} roster deadline has passed`, 'error');
+                return;
+            }
+            
+            if (button.classList.contains('add')) {
+                addPlayerToRoster(playerName);
+            } else if (button.classList.contains('remove')) {
+                removePlayerFromRoster(playerName);
             }
         }
-        
-        // Function to update the team dropdown
-        function updateTeamFilter() {
-            const teamFilter = document.getElementById('teamFilter');
-            if (!teamFilter || !teamsData) return;
+
+        function addPlayerToRoster(playerName) {
+            if (!isAuthenticated) {
+                showNotification('Please sign in to add players to your roster', 'error');
+                return;
+            }
+
+            const currentRoster = getCurrentRoster();
+
+            if (currentRoster.length >= maxRosterSize) {
+                showNotification(`Roster is full (${maxRosterSize} players maximum)`, 'error');
+                return;
+            }
             
-            teamFilter.innerHTML = '<option value="">All Teams</option>';
+            if (currentRoster.includes(playerName)) {
+                showNotification('Player is already in your roster', 'error');
+                return;
+            }
             
-            teamsData.forEach(team => {
-                const option = document.createElement('option');
-                option.value = team.team_code;
-                option
+            currentRoster.push(playerName);
+            setCurrentRoster(currentRoster);
+            updateRosterDisplay();
+            populatePlayersTable();
+            saveCurrentRoster();
+            
+            showNotification(`${playerName} added to Match Day ${currentMatchDay} roster`, 'success');
+        }
+
+        function removePlayerFromRoster(playerName) {
+            if (!isAuthenticated) {
+                showNotification('Please sign in to manage your roster', 'error');
+                return;
+            }
+
+            const currentRoster = getCurrentRoster();
+            const index = currentRoster.indexOf(playerName);
+            
+            if (index > -1) {
+                currentRoster.splice(index, 1);
+                setCurrentRoster(currentRoster);
+                updateRosterDisplay();
+                populatePlayersTable();
+                saveCurrentRoster();
+                
+                showNotification(`${playerName} removed from Match Day ${currentMatchDay} roster`, 'success');
+            }
+        }
+
+        function updateRosterDisplay() {
+            const rosterCount = document.getElementById('rosterCount');
+            const rosterList = document.getElementById('rosterList');
+            const rosterMessage = document.getElementById('rosterMessage');
+            
+            if (!rosterCount) return;
+            
+            const currentRoster = getCurrentRoster();
+            rosterCount.textContent = currentRoster.length;
+            
+            if (isAuthenticated && !isMatchDayLocked(currentMatchDay) && currentRoster.length > 0) {
+                if (rosterMessage) rosterMessage.style.display = 'none';
+                if (rosterList) {
+                    rosterList.style.display = 'block';
+                    rosterList.innerHTML = currentRoster.map(playerName => `
+                        <div class="roster-player">
+                            <span class="roster-player-name">${playerName}</span>
+                            <button class="roster-player-remove" 
+                                    onclick="removePlayerFromRoster('${playerName}')"
+                                    title="Remove player">
+                                <span class="material-icons" style="font-size: 1rem;">close</span>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                if (rosterMessage) {
+                    rosterMessage.style.display = 'block';
+                    if (!isAuthenticated) {
+                        rosterMessage.innerHTML = `Your roster is empty. Add players from the table above to build your fantasy team for Match Day ${currentMatchDay}.`;
+                    } else if (isMatchDayLocked(currentMatchDay)) {
+                        rosterMessage.innerHTML = `
+                            Match Day ${currentMatchDay} roster deadline has passed.
+                            <br><br>
+                            You can still set rosters for future match days using the tabs above.
+                        `;
+                    } else {
+                        rosterMessage.innerHTML = `Your roster is empty. Add players from the table above to build your fantasy team for Match Day ${currentMatchDay}.`;
+                    }
+                }
+                if (rosterList) rosterList.style.display = 'none';
+            }
+
+            updateRosterStatusIndicator();
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">
+                    <span class="material-icons">close</span>
+                </button>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: ${type === 'success' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)'};
+                color: white;
+                padding: 1rem;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                z-index: 10000;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(10px);
+                animation: slideInRight 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 4000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Tournament page loading...');
+            
+            try {
+                // Initialize basic components
+                currentMatchDay = getActiveMatchDay();
+                updateAuthUI();
+                initializeTabNavigation();
+                initializeMatchDayTabs();
+                updateMatchDayUI();
+                
+                // Load data from backend
+                await loadPlayersData();
+                dataLoaded = true;
+                
+                // Update displays
+                updateRosterDisplay();
+                
+                // Add table sorting
+                document.querySelectorAll('.players-table .sortable').forEach(th => {
+                    th.addEventListener('click', () => {
+                        const column = th.dataset.sort;
+                        const currentDirection = th.classList.contains('asc') ? 'desc' : 'asc';
+                        
+                        document.querySelectorAll('.players-table .sortable').forEach(header => {
+                            header.classList.remove('asc', 'desc');
+                        });
+                        
+                        th.classList.add(currentDirection);
+                        sortTable(column, currentDirection);
+                    });
+                });
+                
+                // Add filter functionality
+                const teamFilter = document.getElementById('teamFilter');
+                if (teamFilter) {
+                    teamFilter.addEventListener('change', () => {
+                        populatePlayersTable();
+                    });
+                }
+
+                // Button actions
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (this.textContent.includes('Set My Roster')) {
+                            if (!isAuthenticated) {
+                                showNotification('Please sign in to set your roster', 'error');
+                                return;
+                            }
+                            const playersTab = document.querySelector('[data-tab="players"]');
+                            if (playersTab) {
+                                playersTab.click();
+                            }
+                        }
+                    });
+                });
+
+                // Close dropdown listener
+                document.addEventListener('click', (e) => {
+                    const userMenu = document.getElementById('userMenu');
+                    if (userMenu && !userMenu.contains(e.target)) {
+                        document.getElementById('userDropdown').classList.remove('show');
+                    }
+                });
+                
+                console.log('Tournament page fully loaded!');
+                
+            } catch (error) {
+                console.error('Error during page initialization:', error);
+            }
+        });
+
+        function sortTable(column, direction) {
+            playersData.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+                
+                if (column === 'points' || column === 'avg') {
+                    aVal = parseFloat(aVal);
+                    bVal = parseFloat(bVal);
+                } else if (column === 'picked' || column === 'battles') {
+                    aVal = parseFloat(aVal.replace('%', ''));
+                    bVal = parseFloat(bVal.replace('%', ''));
+                }
+                
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+            
+            populatePlayersTable();
+        }
+
+        // Make functions globally accessible
+        window.loadFantasyLeaderboard = loadFantasyLeaderboard;
+        window.removePlayerFromRoster = removePlayerFromRoster;
+        window.toggleUserDropdown = toggleUserDropdown;
+        window.handleLogout = handleLogout;
+        window.redirectToLogin = redirectToLogin;
+    </script>
+</body>
+</html>
