@@ -432,7 +432,7 @@ async function updatePickStats(tournamentId, matchDay) {
   }
 }
 
-// Enhanced Leaderboard API Endpoint
+// Leaderboard API Endpoint
 app.get('/api/leaderboard/:tournamentId', async (req, res) => {
   try {
     const { tournamentId } = req.params;
@@ -445,7 +445,7 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
     let query, params;
 
     if (matchDay) {
-      // Single match day leaderboard
+      // Single match day leaderboard - using player_performances table
       query = `
         WITH roster_stats AS (
           SELECT 
@@ -465,12 +465,12 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
             rs.match_day,
             rs.roster,
             rs.roster_size,
-            COALESCE(SUM(ps.points), 0) as total_points,
-            COALESCE(AVG(ps.points), 0) as avg_points
+            COALESCE(SUM(pp.match_points), 0) as total_points,
+            COALESCE(AVG(pp.match_points), 0) as avg_points
           FROM roster_stats rs
-          LEFT JOIN player_scores ps ON ps.tournament_id = $1 
-            AND ps.match_day = $2
-            AND ps.player_name = ANY(SELECT jsonb_array_elements_text(rs.roster))
+          LEFT JOIN player_performances pp ON pp.tournament_id = $1 
+            AND pp.match_day = $2
+            AND pp.player_name = ANY(SELECT jsonb_array_elements_text(rs.roster))
           WHERE rs.roster_size >= $3
           GROUP BY rs.user_id, rs.username, rs.match_day, rs.roster, rs.roster_size
         )
@@ -487,7 +487,7 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
       `;
       params = [tournamentId, matchDay, minRosterSize];
     } else {
-      // Overall tournament leaderboard
+      // Overall tournament leaderboard - using player_performances table
       query = `
         WITH roster_stats AS (
           SELECT 
@@ -511,11 +511,11 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
             vr.username,
             vr.match_day,
             vr.roster,
-            COALESCE(SUM(ps.points), 0) as match_day_points
+            COALESCE(SUM(pp.match_points), 0) as match_day_points
           FROM valid_rosters vr
-          LEFT JOIN player_scores ps ON ps.tournament_id = $1 
-            AND ps.match_day = vr.match_day
-            AND ps.player_name = ANY(SELECT jsonb_array_elements_text(vr.roster))
+          LEFT JOIN player_performances pp ON pp.tournament_id = $1 
+            AND pp.match_day = vr.match_day
+            AND pp.player_name = ANY(SELECT jsonb_array_elements_text(vr.roster))
           GROUP BY vr.user_id, vr.username, vr.match_day, vr.roster
         ),
         user_totals AS (
