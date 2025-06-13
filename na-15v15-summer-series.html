@@ -2204,28 +2204,39 @@
             standingsTable.style.display = 'none';
         
             try {
-                // Actually call your API instead of fake data
-                const response = await api.request('/leaderboard/na-15v15-summer-series');
+                const matchDayFilter = document.getElementById('standingsMatchDayFilter')?.value || '';
+                const endpoint = matchDayFilter 
+                    ? `/leaderboard/na-15v15-summer-series?matchDay=${matchDayFilter}`
+                    : `/leaderboard/na-15v15-summer-series`;
                 
+                const response = await api.request(endpoint);
+        
                 loadingState.style.display = 'none';
                 standingsTable.style.display = 'table';
                 
                 const tbody = document.getElementById('fantasyStandingsTableBody');
                 if (tbody && response.leaderboard) {
-                    tbody.innerHTML = response.leaderboard.map((entry, index) => `
+                    tbody.innerHTML = response.leaderboard.map(entry => `
                         <tr>
-                            <td class="rank-cell">${index + 1}</td>
+                            <td class="rank-cell">${entry.rank}</td>
                             <td class="username-cell">${entry.username}</td>
                             <td class="score-cell">${entry.total_points}</td>
-                            <td>${entry.avg_points || 0}</td>
-                            <td>${entry.match_days_played || 0}</td>
+                            <td>${entry.avg_points}</td>
+                            <td>${entry.match_days_played}</td>
                         </tr>
                     `).join('');
                 }
+        
+                // Update metadata if elements exist
+                const participantsElement = document.getElementById('standingsTotalParticipants');
+                if (participantsElement) {
+                    participantsElement.textContent = `${response.metadata.complete_rosters} qualified fantasy teams`;
+                }
+                
             } catch (error) {
                 console.error('Error loading leaderboard:', error);
                 loadingState.style.display = 'none';
-                // Show error or fallback
+                // Show error state
             }
         }
 
