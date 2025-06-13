@@ -468,7 +468,7 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
             COALESCE(SUM(pp.match_points), 0) as total_points,
             COALESCE(AVG(pp.match_points), 0) as avg_points
           FROM roster_stats rs
-          LEFT JOIN player_performances pp ON pp.tournament_id = $1 
+          LEFT JOIN player_match_performance pp ON pp.tournament_id = $1
             AND pp.match_day = $2
             AND pp.player_name = ANY(SELECT jsonb_array_elements_text(rs.roster))
           WHERE rs.roster_size >= $3
