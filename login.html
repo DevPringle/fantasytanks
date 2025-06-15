@@ -380,18 +380,18 @@
     <script>
         // Tab switching
         function switchTab(tab) {
-            // Update tab buttons
+            // Updates tab buttons
             document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
-            // Update forms
+            // Updates forms
             document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
             document.getElementById(tab + 'Form').classList.add('active');
 
-            // Clear messages
+            // Clears messages
             clearMessages();
 
-            // Update title and subtitle
+            // Updates title and subtitle
             const title = document.querySelector('.auth-title');
             const subtitle = document.querySelector('.auth-subtitle');
             
@@ -418,7 +418,7 @@
             }
         }
 
-        // Clear all error/success messages
+        // Clears all error/success messages
         function clearMessages() {
             document.querySelectorAll('.error-message, .success-message').forEach(msg => {
                 msg.style.display = 'none';
