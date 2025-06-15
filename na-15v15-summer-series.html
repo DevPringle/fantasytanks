@@ -1689,7 +1689,7 @@
                             </tr>
                         </thead>
                         <tbody id="fantasyStandingsTableBody">
-                            <!-- Standings will be populated here -->
+                            <!-- Standings populate here -->
                         </tbody>
                     </table>
                 </div>
@@ -1783,7 +1783,7 @@
                             </tr>
                         </thead>
                         <tbody id="playersTableBody">
-                            <!-- Players will be populated by JavaScript -->
+                            <!-- Players populated by js -->
                         </tbody>
                     </table>
                 </div>
@@ -1803,7 +1803,7 @@
                             Your roster is empty. Add players from the table above to build your fantasy team.
                         </div>
                         <div class="roster-list" id="rosterList">
-                            <!-- Selected players will appear here -->
+                            <!-- Selected players appear here -->
                         </div>
                         <div class="auth-overlay" id="authOverlay" style="display: none;">
                             <div class="auth-message">
@@ -1973,11 +1973,11 @@
                     
                     const targetTab = this.dataset.tab;
                     
-                    // Remove active from all tabs and contents
+                    // Removes active from all tabs and contents
                     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                     
-                    // Add active to current tab and content
+                    // Adds active to current tab and content
                     this.classList.add('active');
                     
                     const targetContent = document.getElementById(targetTab);
@@ -2227,7 +2227,7 @@
                     `).join('');
                 }
         
-                // Update metadata if elements exist
+                // Updates metadata (if elements exist)
                 const participantsElement = document.getElementById('standingsTotalParticipants');
                 if (participantsElement) {
                     participantsElement.textContent = `${response.metadata.complete_rosters} qualified fantasy teams`;
@@ -2236,7 +2236,7 @@
             } catch (error) {
                 console.error('Error loading leaderboard:', error);
                 loadingState.style.display = 'none';
-                // Show error state
+                // Shows error state
             }
         }
 
@@ -2513,14 +2513,14 @@
                 initializeMatchDayTabs();
                 updateMatchDayUI();
                 
-                // Load data from backend
+                // Loads data from backend
                 await loadPlayersData();
                 dataLoaded = true;
                 
-                // Update displays
+                // Updates displays
                 updateRosterDisplay();
                 
-                // Add table sorting
+                // Adds table sorting
                 document.querySelectorAll('.players-table .sortable').forEach(th => {
                     th.addEventListener('click', () => {
                         const column = th.dataset.sort;
@@ -2535,7 +2535,7 @@
                     });
                 });
                 
-                // Add filter functionality
+                // Adds filter functionality
                 const teamFilter = document.getElementById('teamFilter');
                 if (teamFilter) {
                     teamFilter.addEventListener('change', () => {
