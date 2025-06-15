@@ -1455,7 +1455,7 @@
     </footer>
 
     <script>
-        // API client for connecting to your Railway backend
+        // API client for connecting to my Railway backend
         class FantasyAPI {
             constructor() {
                 this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
@@ -1607,7 +1607,7 @@
                 console.log(`Switched to ${region} region`);
                 filterTournamentsByRegion(region);
 
-                // Add brief loading effect
+                // Brief loading effect
                 btn.style.transform = 'scale(0.95)';
                 setTimeout(() => {
                     btn.style.transform = '';
@@ -1633,7 +1633,7 @@
                     const section = btn.closest('.section');
                     const view = btn.dataset.view;
                     
-                    // Update button states
+                    // button states
                     toggle.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     
@@ -1662,7 +1662,7 @@
         // Filter functions
         function filterTournamentsByRegion(region) {
             console.log(`Filtering fantasy tournaments by region: ${region}`);
-            // Implementation would filter tournaments based on region
+            // Implementation filters tournaments based on region
         }
 
         function filterTournamentsByStatus(status) {
@@ -1706,7 +1706,7 @@
 
         // Tournament Navigation Function
         function navigateToTournament(tournamentId) {
-            // Map tournament IDs to their detail pages
+            // Maps tournament IDs to their detail pages
             const tournamentPages = {
                 'na-15v15-summer-series': 'na-15v15-summer-series.html',
                 'joust-summer-league': 'joust-summer-league.html',
@@ -1726,12 +1726,12 @@
             }
         }
 
-        // Make tournament cards clickable
+    
         document.addEventListener('DOMContentLoaded', () => {
-            // Update authentication UI first
+            // updates auth UI
             updateAuthUI();
             
-            // Add click handlers to tournament cards
+            // click handlers for tournament cards
             document.querySelectorAll('.tournament-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     // Don't navigate if clicking on action buttons or links
@@ -1739,7 +1739,7 @@
                         return;
                     }
                     
-                    // Get tournament ID from data attribute
+                    // Gets tournament ID from data attribute
                     const tournamentId = card.dataset.tournament;
                     if (tournamentId) {
                         navigateToTournament(tournamentId);
@@ -1747,7 +1747,7 @@
                 });
             });
 
-            // Add click handlers to list items
+            // click handlers to list items
             document.querySelectorAll('.list-item').forEach(item => {
                 item.addEventListener('click', (e) => {
                     // Don't navigate if clicking on action buttons or links
@@ -1764,12 +1764,12 @@
             });
         });
 
-        // Enhanced button click effects
+        // button click effects
         document.querySelectorAll('.action-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation(); // Prevent card click
                 
-                // Create ripple effect
+                // ripple effect
                 const ripple = document.createElement('span');
                 const rect = this.getBoundingClientRect();
                 const size = Math.max(rect.width, rect.height);
@@ -1799,7 +1799,7 @@
             });
         });
 
-        // Add ripple animation CSS
+        // ripple animation CSS
         const style = document.createElement('style');
         style.textContent = `
             @keyframes ripple {
@@ -1811,7 +1811,7 @@
         `;
         document.head.appendChild(style);
 
-        // Keyboard navigation improvements
+        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 // Close mobile menu on escape
@@ -1848,7 +1848,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Fantasy Tournaments page loaded successfully!');
             
-            // Animate progress bars on load
+            // Animated progress bars on load
             setTimeout(() => {
                 document.querySelectorAll('.progress-fill').forEach(bar => {
                     const width = bar.style.width;
