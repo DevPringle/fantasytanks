@@ -1,511 +1,885 @@
-// backend/server.js
 const express = require('express');
-const bcrypt = require('bcryptjs');
+const cors = require('cors');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
-const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
-// Database connection
-const pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'fantasy_tanks',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'password',
-});
-
-// Middleware
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true
-}));
+app.use(cors());
 app.use(express.json());
+app.use(express.static('.'));
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
-app.use('/api/', limiter);
 
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
-// Authentication middleware
-const authenticateToken = async (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-    if (!token) {
-        return res.status(401).json({ error: 'Access token required' });
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid token' });
     }
-
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        
-        // Verify session exists and hasn't expired
-        const sessionResult = await pool.query(
-            'SELECT user_id FROM user_sessions WHERE session_token = $1 AND expires_at > NOW()',
-            [token]
-        );
-
-        if (sessionResult.rows.length === 0) {
-            return res.status(401).json({ error: 'Invalid or expired session' });
-        }
-
-        req.user = { id: decoded.userId };
-        next();
-    } catch (error) {
-        return res.status(403).json({ error: 'Invalid token' });
-    }
+    req.user = user;
+    next();
+  });
 };
 
-// === AUTHENTICATION ROUTES ===
+async function initializeTables() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
-// Register new user
-app.post('/api/auth/register', async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS rosters (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        tournament_id VARCHAR(100) NOT NULL,
+        roster JSONB NOT NULL,
+        match_day INTEGER DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, tournament_id, match_day)
+      )
+    `);
 
-        if (!username || !email || !password) {
-            return res.status(400).json({ error: 'Username, email, and password are required' });
-        }
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS player_scores (
+        id SERIAL PRIMARY KEY,
+        player_name VARCHAR(100) NOT NULL,
+        tournament_id VARCHAR(100) NOT NULL,
+        match_day INTEGER NOT NULL,
+        points DECIMAL(10,2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(player_name, tournament_id, match_day)
+      )
+    `);
 
-        if (password.length < 6) {
-            return res.status(400).json({ error: 'Password must be at least 6 characters' });
-        }
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS tournaments (
+        tournament_id VARCHAR(100) PRIMARY KEY,
+        tournament_name VARCHAR(255) NOT NULL,
+        region VARCHAR(50) NOT NULL,
+        start_date DATE,
+        end_date DATE,
+        status VARCHAR(20) DEFAULT 'upcoming',
+        max_roster_size INTEGER DEFAULT 10,
+        total_fantasy_teams INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
-        // Check if user already exists
-        const existingUser = await pool.query(
-            'SELECT id FROM users WHERE username = $1 OR email = $2',
-            [username, email]
-        );
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS teams (
+        team_name VARCHAR(100) NOT NULL,
+        team_code VARCHAR(10) NOT NULL,
+        tournament_id VARCHAR(100) NOT NULL,
+        region VARCHAR(50),
+        FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id),
+        UNIQUE(tournament_id, team_code)
+      )
+    `);
 
-        if (existingUser.rows.length > 0) {
-            return res.status(409).json({ error: 'Username or email already exists' });
-        }
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS players (
+        player_name VARCHAR(100) NOT NULL,
+        tournament_id VARCHAR(100) NOT NULL,
+        team_code VARCHAR(10) NOT NULL,
+        battles_played VARCHAR(10) DEFAULT '0%',
+        total_points DECIMAL(10,2) DEFAULT 0.00,
+        average_points DECIMAL(10,2) DEFAULT 0.00,
+        picked_percentage VARCHAR(10) DEFAULT '0%',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id),
+        UNIQUE(tournament_id, player_name)
+      )
+    `);
 
-        // Hash password
-        const saltRounds = 12;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS player_pick_stats (
+        id SERIAL PRIMARY KEY,
+        tournament_id VARCHAR(100) NOT NULL,
+        match_day INTEGER NOT NULL,
+        player_name VARCHAR(100) NOT NULL,
+        times_picked INTEGER DEFAULT 0,
+        total_rosters INTEGER DEFAULT 0,
+        pick_percentage DECIMAL(5,2) DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(tournament_id, match_day, player_name)
+      )
+    `);
 
-        // Create user
-        const result = await pool.query(
-            'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email',
-            [username, email, hashedPassword]
-        );
+    console.log('Database tables initialized successfully');
+  } catch (error) {
+    console.error('Error initializing database tables:', error);
+  }
+}
 
-        const user = result.rows[0];
-
-        // Create session
-        const sessionToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-
-        await pool.query(
-            'INSERT INTO user_sessions (user_id, session_token, expires_at) VALUES ($1, $2, $3)',
-            [user.id, sessionToken, expiresAt]
-        );
-
-        res.status(201).json({
-            user: { id: user.id, username: user.username, email: user.email },
-            token: sessionToken
-        });
-    } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Login user
-app.post('/api/auth/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-
-        if (!username || !password) {
-            return res.status(400).json({ error: 'Username and password are required' });
-        }
-
-        // Find user
-        const userResult = await pool.query(
-            'SELECT id, username, email, password_hash FROM users WHERE username = $1 OR email = $1',
-            [username]
-        );
-
-        if (userResult.rows.length === 0) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        const user = userResult.rows[0];
-
-        // Verify password
-        const validPassword = await bcrypt.compare(password, user.password_hash);
-        if (!validPassword) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        // Create session
-        const sessionToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-
-        await pool.query(
-            'INSERT INTO user_sessions (user_id, session_token, expires_at) VALUES ($1, $2, $3)',
-            [user.id, sessionToken, expiresAt]
-        );
-
-        res.json({
-            user: { id: user.id, username: user.username, email: user.email },
-            token: sessionToken
-        });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// Logout user
-app.post('/api/auth/logout', authenticateToken, async (req, res) => {
-    try {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
-
-        // Delete session
-        await pool.query('DELETE FROM user_sessions WHERE session_token = $1', [token]);
-
-        res.json({ message: 'Logged out successfully' });
-    } catch (error) {
-        console.error('Logout error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// Get current user
-app.get('/api/auth/me', authenticateToken, async (req, res) => {
-    try {
-        const result = await pool.query(
-            'SELECT id, username, email FROM users WHERE id = $1',
-            [req.user.id]
-        );
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        res.json({ user: result.rows[0] });
-    } catch (error) {
-        console.error('Get user error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// === TOURNAMENT ROUTES ===
-
-// Get all tournaments
-app.get('/api/tournaments', async (req, res) => {
-    try {
-        const result = await pool.query(`
-            SELECT t.*, 
-                   COUNT(DISTINCT ur.user_id) as fantasy_teams_count,
-                   COUNT(DISTINCT p.id) as players_count,
-                   COUNT(DISTINCT teams.id) as teams_count
-            FROM tournaments t
-            LEFT JOIN user_rosters ur ON t.id = ur.tournament_id
-            LEFT JOIN players p ON t.id = p.tournament_id
-            LEFT JOIN teams ON t.id = teams.tournament_id
-            GROUP BY t.id
-            ORDER BY t.start_date DESC
-        `);
-
-        res.json({ tournaments: result.rows });
-    } catch (error) {
-        console.error('Get tournaments error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// Get tournament details
-app.get('/api/tournaments/:tournamentId', async (req, res) => {
-    try {
-        const { tournamentId } = req.params;
-
-        const result = await pool.query(`
-            SELECT t.*, 
-                   COUNT(DISTINCT ur.user_id) as fantasy_teams_count,
-                   COUNT(DISTINCT p.id) as players_count,
-                   COUNT(DISTINCT teams.id) as teams_count
-            FROM tournaments t
-            LEFT JOIN user_rosters ur ON t.id = ur.tournament_id
-            LEFT JOIN players p ON t.id = p.tournament_id
-            LEFT JOIN teams ON t.id = teams.tournament_id
-            WHERE t.id = $1
-            GROUP BY t.id
-        `, [tournamentId]);
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Tournament not found' });
-        }
-
-        res.json({ tournament: result.rows[0] });
-    } catch (error) {
-        console.error('Get tournament error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// Get tournament players
-app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
-    try {
-        const { tournamentId } = req.params;
-        const { team } = req.query;
-
-        let query = `
-            SELECT p.*, teams.name as team_name, teams.abbreviation as team_abbreviation,
-                   ROUND((p.battles_played::decimal / NULLIF(p.total_battles, 0) * 100), 0) as battles_percentage,
-                   ROUND((p.times_picked::decimal / NULLIF((SELECT COUNT(DISTINCT user_id) FROM user_rosters WHERE tournament_id = $1), 0) * 100), 2) as picked_percentage
-            FROM players p
-            JOIN teams ON p.team_id = teams.id
-            WHERE p.tournament_id = $1
-        `;
-
-        const params = [tournamentId];
-
-        if (team) {
-            query += ' AND teams.abbreviation = $2';
-            params.push(team);
-        }
-
-        query += ' ORDER BY p.fantasy_points DESC';
-
-        const result = await pool.query(query, params);
-
-        res.json({ players: result.rows });
-    } catch (error) {
-        console.error('Get players error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// Get tournament teams
-app.get('/api/tournaments/:tournamentId/teams', async (req, res) => {
-    try {
-        const { tournamentId } = req.params;
-
-        const result = await pool.query(`
-            SELECT teams.*, COUNT(p.id) as player_count,
-                   AVG(p.fantasy_points) as avg_team_points
-            FROM teams
-            LEFT JOIN players p ON teams.id = p.team_id
-            WHERE teams.tournament_id = $1
-            GROUP BY teams.id
-            ORDER BY teams.name
-        `, [tournamentId]);
-
-        res.json({ teams: result.rows });
-    } catch (error) {
-        console.error('Get teams error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// === ROSTER ROUTES ===
-
-// Get user's roster for a tournament
-app.get('/api/roster', authenticateToken, async (req, res) => {
-    try {
-        const { tournamentId } = req.query;
-
-        if (!tournamentId) {
-            return res.status(400).json({ error: 'Tournament ID is required' });
-        }
-
-        const result = await pool.query(`
-            SELECT ur.position, p.name, p.fantasy_points, p.average_points,
-                   teams.abbreviation as team_abbreviation
-            FROM user_rosters ur
-            JOIN players p ON ur.player_id = p.id
-            JOIN teams ON p.team_id = teams.id
-            WHERE ur.user_id = $1 AND ur.tournament_id = $2
-            ORDER BY ur.position
-        `, [req.user.id, tournamentId]);
-
-        res.json({ roster: result.rows });
-    } catch (error) {
-        console.error('Get roster error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// Save user's roster
-app.post('/api/roster', authenticateToken, async (req, res) => {
-    const client = await pool.connect();
-    
-    try {
-        const { tournamentId, roster } = req.body;
-
-        if (!tournamentId || !Array.isArray(roster)) {
-            return res.status(400).json({ error: 'Tournament ID and roster array are required' });
-        }
-
-        // Check if rosters are open for this tournament
-        const tournamentResult = await client.query(
-            'SELECT rosters_open, max_roster_size FROM tournaments WHERE id = $1',
-            [tournamentId]
-        );
-
-        if (tournamentResult.rows.length === 0) {
-            return res.status(404).json({ error: 'Tournament not found' });
-        }
-
-        const tournament = tournamentResult.rows[0];
-        if (!tournament.rosters_open) {
-            return res.status(403).json({ error: 'Rosters are closed for this tournament' });
-        }
-
-        if (roster.length > tournament.max_roster_size) {
-            return res.status(400).json({ 
-                error: `Roster cannot exceed ${tournament.max_roster_size} players` 
-            });
-        }
-
-        await client.query('BEGIN');
-
-        // Remove existing roster
-        await client.query(
-            'DELETE FROM user_rosters WHERE user_id = $1 AND tournament_id = $2',
-            [req.user.id, tournamentId]
-        );
-
-        // Add new roster
-        for (let i = 0; i < roster.length; i++) {
-            const playerName = roster[i];
-            
-            // Get player ID
-            const playerResult = await client.query(
-                'SELECT id FROM players WHERE tournament_id = $1 AND name = $2',
-                [tournamentId, playerName]
-            );
-
-            if (playerResult.rows.length === 0) {
-                await client.query('ROLLBACK');
-                return res.status(400).json({ error: `Player ${playerName} not found` });
-            }
-
-            const playerId = playerResult.rows[0].id;
-
-            await client.query(
-                'INSERT INTO user_rosters (user_id, tournament_id, player_id, position) VALUES ($1, $2, $3, $4)',
-                [req.user.id, tournamentId, playerId, i + 1]
-            );
-        }
-
-        // Update player pick counts
-        await client.query(`
-            UPDATE players 
-            SET times_picked = (
-                SELECT COUNT(DISTINCT ur.user_id) 
-                FROM user_rosters ur 
-                WHERE ur.player_id = players.id
-            )
-            WHERE tournament_id = $1
-        `, [tournamentId]);
-
-        await client.query('COMMIT');
-
-        res.json({ message: 'Roster saved successfully' });
-    } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('Save roster error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    } finally {
-        client.release();
-    }
-});
-
-// Get leaderboard for a tournament
-app.get('/api/tournaments/:tournamentId/leaderboard', async (req, res) => {
-    try {
-        const { tournamentId } = req.params;
-
-        const result = await pool.query(`
-            SELECT u.username,
-                   COUNT(ur.player_id) as players_count,
-                   COALESCE(SUM(p.fantasy_points), 0) as total_points,
-                   COALESCE(AVG(p.fantasy_points), 0) as average_points
-            FROM users u
-            JOIN user_rosters ur ON u.id = ur.user_id
-            LEFT JOIN players p ON ur.player_id = p.id
-            WHERE ur.tournament_id = $1
-            GROUP BY u.id, u.username
-            HAVING COUNT(ur.player_id) > 0
-            ORDER BY total_points DESC
-            LIMIT 100
-        `, [tournamentId]);
-
-        res.json({ leaderboard: result.rows });
-    } catch (error) {
-        console.error('Get leaderboard error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// === ADMIN ROUTES (for updating player stats) ===
-
-// Update player stats (admin only - you'd add admin middleware)
-app.put('/api/admin/players/:playerId/stats', async (req, res) => {
-    try {
-        const { playerId } = req.params;
-        const { fantasyPoints, battlesPlayed, totalBattles } = req.body;
-
-        const averagePoints = battlesPlayed > 0 ? fantasyPoints / battlesPlayed : 0;
-
-        await pool.query(`
-            UPDATE players 
-            SET fantasy_points = $1, battles_played = $2, total_battles = $3, 
-                average_points = $4, updated_at = CURRENT_TIMESTAMP
-            WHERE id = $5
-        `, [fantasyPoints, battlesPlayed, totalBattles, averagePoints, playerId]);
-
-        res.json({ message: 'Player stats updated successfully' });
-    } catch (error) {
-        console.error('Update player stats error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// Toggle tournament roster status (admin only)
-app.put('/api/admin/tournaments/:tournamentId/rosters', async (req, res) => {
-    try {
-        const { tournamentId } = req.params;
-        const { rostersOpen } = req.body;
-
-        await pool.query(
-            'UPDATE tournaments SET rosters_open = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-            [rostersOpen, tournamentId]
-        );
-
-        res.json({ message: 'Tournament roster status updated successfully' });
-    } catch (error) {
-        console.error('Update tournament status error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// Health check
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ status: 'OK', message: 'Fantasy Tanks API is running' });
 });
 
-// Error handling middleware
-app.use((error, req, res, next) => {
-    console.error('Unhandled error:', error);
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Username, email, and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const existingUser = await pool.query(
+      'SELECT id FROM users WHERE username = $1 OR email = $2',
+      [username, email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'Username or email already exists' });
+    }
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    const result = await pool.query(
+      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email',
+      [username, email, passwordHash]
+    );
+
+    const user = result.rows[0];
+
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({
+      message: 'User created successfully',
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-// Start server
-app.listen(port, () => {
-    console.log(`Fantasy Tanks API server running on port ${port}`);
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, username, email, password_hash FROM users WHERE username = $1 OR email = $1',
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const user = result.rows[0];
+
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/tournaments', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM tournaments ORDER BY created_at DESC'
+    );
+    
+    res.json({ tournaments: result.rows });
+  } catch (error) {
+    console.error('Get tournaments error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/tournaments/:tournamentId', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    
+    const result = await pool.query(
+      'SELECT * FROM tournaments WHERE tournament_id = $1',
+      [tournamentId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Tournament not found' });
+    }
+    
+    res.json({ tournament: result.rows[0] });
+  } catch (error) {
+    console.error('Get tournament error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT 
+        p.player_name,
+        p.team_code,
+        p.battles_played,
+        p.total_points,
+        p.average_points,
+        p.picked_percentage
+      FROM players p
+      WHERE p.tournament_id = $1
+      ORDER BY p.total_points DESC
+    `, [tournamentId]);
+    
+    res.json({ players: result.rows });
+  } catch (error) {
+    console.error('Get players error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/tournaments/:tournamentId/teams', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    
+    const result = await pool.query(
+      'SELECT team_name, team_code, region FROM teams WHERE tournament_id = $1 ORDER BY team_name',
+      [tournamentId]
+    );
+    
+    res.json({ teams: result.rows });
+  } catch (error) {
+    console.error('Get teams error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/roster', authenticateToken, async (req, res) => {
+  try {
+    const { tournamentId, matchDay = 1 } = req.query;
+    const userId = req.user.userId;
+
+    if (!tournamentId) {
+      return res.status(400).json({ error: 'Tournament ID is required' });
+    }
+
+    const result = await pool.query(
+      'SELECT roster FROM rosters WHERE user_id = $1 AND tournament_id = $2 AND match_day = $3',
+      [userId, tournamentId, matchDay]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ roster: [] });
+    }
+
+    res.json({ roster: result.rows[0].roster });
+
+  } catch (error) {
+    console.error('Get roster error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/roster/all/:tournamentId', authenticateToken, async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    const userId = req.user.userId;
+
+    const result = await pool.query(
+      'SELECT match_day, roster FROM rosters WHERE user_id = $1 AND tournament_id = $2 ORDER BY match_day',
+      [userId, tournamentId]
+    );
+
+    const rosters = {};
+    result.rows.forEach(row => {
+      rosters[row.match_day] = row.roster;
+    });
+
+    res.json({ rosters });
+
+  } catch (error) {
+    console.error('Get all rosters error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/roster', authenticateToken, async (req, res) => {
+  try {
+    const { tournamentId, roster, matchDay = 1 } = req.body;
+    const userId = req.user.userId;
+
+    if (!tournamentId || !roster) {
+      return res.status(400).json({ error: 'Tournament ID and roster are required' });
+    }
+
+    await pool.query(`
+      INSERT INTO rosters (user_id, tournament_id, roster, match_day, updated_at)
+      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+      ON CONFLICT (user_id, tournament_id, match_day)
+      DO UPDATE SET 
+        roster = EXCLUDED.roster,
+        updated_at = CURRENT_TIMESTAMP
+    `, [userId, tournamentId, JSON.stringify(roster), matchDay]);
+
+    await updatePickStats(tournamentId, matchDay);
+
+    res.json({ message: 'Roster saved successfully' });
+
+  } catch (error) {
+    console.error('Save roster error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+async function updatePickStats(tournamentId, matchDay) {
+  try {
+    const totalRosters = await pool.query(
+      'SELECT COUNT(*) as total FROM rosters WHERE tournament_id = $1 AND match_day = $2',
+      [tournamentId, matchDay]
+    );
+    
+    const total = parseInt(totalRosters.rows[0].total) || 1;
+    
+    const players = await pool.query(
+      'SELECT player_name FROM players WHERE tournament_id = $1',
+      [tournamentId]
+    );
+    
+    for (const player of players.rows) {
+      const pickCount = await pool.query(`
+        SELECT COUNT(*) as picks 
+        FROM rosters 
+        WHERE tournament_id = $1 AND match_day = $2
+        AND roster ? $3
+      `, [tournamentId, matchDay, player.player_name]);
+      
+      const picks = parseInt(pickCount.rows[0].picks) || 0;
+      const percentage = ((picks / total) * 100);
+      
+      await pool.query(`
+        INSERT INTO player_pick_stats (tournament_id, match_day, player_name, times_picked, total_rosters, pick_percentage)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (tournament_id, match_day, player_name)
+        DO UPDATE SET 
+          times_picked = EXCLUDED.times_picked,
+          total_rosters = EXCLUDED.total_rosters,
+          pick_percentage = EXCLUDED.pick_percentage,
+          updated_at = CURRENT_TIMESTAMP
+      `, [tournamentId, matchDay, player.player_name, picks, total, percentage]);
+    }
+    
+  } catch (error) {
+    console.error('Error updating pick stats:', error);
+  }
+}
+
+// Leaderboard API Endpoint
+app.get('/api/leaderboard/:tournamentId', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    const { matchDay, minRosterSize = 10 } = req.query;
+
+    if (!tournamentId) {
+      return res.status(400).json({ error: 'Tournament ID is required' });
+    }
+
+    let query, params;
+
+    if (matchDay) {
+      // Single match day leaderboard - using player_performances table
+      query = `
+        WITH roster_stats AS (
+          SELECT 
+            r.user_id,
+            r.match_day,
+            r.roster,
+            jsonb_array_length(r.roster) as roster_size,
+            u.username
+          FROM rosters r
+          JOIN users u ON r.user_id = u.id
+          WHERE r.tournament_id = $1 AND r.match_day = $2
+        ),
+        player_points AS (
+          SELECT 
+            rs.user_id,
+            rs.username,
+            rs.match_day,
+            rs.roster,
+            rs.roster_size,
+            COALESCE(SUM(pp.match_points), 0) as total_points,
+            COALESCE(AVG(pp.match_points), 0) as avg_points
+          FROM roster_stats rs
+          LEFT JOIN player_match_performance pp ON pp.tournament_id = $1
+            AND pp.match_day = $2
+            AND pp.player_name = ANY(SELECT jsonb_array_elements_text(rs.roster))
+          WHERE rs.roster_size >= $3
+          GROUP BY rs.user_id, rs.username, rs.match_day, rs.roster, rs.roster_size
+        )
+        SELECT 
+          username,
+          match_day,
+          total_points,
+          avg_points,
+          roster,
+          roster_size,
+          1 as match_days_played
+        FROM player_points
+        ORDER BY total_points DESC, username ASC
+      `;
+      params = [tournamentId, matchDay, minRosterSize];
+    } else {
+      // Overall tournament leaderboard - using player_performances table
+      query = `
+        WITH roster_stats AS (
+          SELECT 
+            r.user_id,
+            r.match_day,
+            r.roster,
+            jsonb_array_length(r.roster) as roster_size,
+            u.username
+          FROM rosters r
+          JOIN users u ON r.user_id = u.id
+          WHERE r.tournament_id = $1
+        ),
+        valid_rosters AS (
+          SELECT *
+          FROM roster_stats
+          WHERE roster_size >= $2
+        ),
+        user_points AS (
+          SELECT 
+            vr.user_id,
+            vr.username,
+            vr.match_day,
+            vr.roster,
+            COALESCE(SUM(pp.match_points), 0) as match_day_points
+          FROM valid_rosters vr
+          LEFT JOIN player_performances pp ON pp.tournament_id = $1 
+            AND pp.match_day = vr.match_day
+            AND pp.player_name = ANY(SELECT jsonb_array_elements_text(vr.roster))
+          GROUP BY vr.user_id, vr.username, vr.match_day, vr.roster
+        ),
+        user_totals AS (
+          SELECT 
+            user_id,
+            username,
+            SUM(match_day_points) as total_points,
+            AVG(match_day_points) as avg_points,
+            COUNT(DISTINCT match_day) as match_days_played,
+            ARRAY_AGG(DISTINCT match_day ORDER BY match_day) as participated_days
+          FROM user_points
+          GROUP BY user_id, username
+          HAVING COUNT(DISTINCT match_day) > 0
+        )
+        SELECT 
+          username,
+          total_points,
+          avg_points,
+          match_days_played,
+          participated_days
+        FROM user_totals
+        ORDER BY total_points DESC, avg_points DESC, username ASC
+      `;
+      params = [tournamentId, minRosterSize];
+    }
+
+    const result = await pool.query(query, params);
+    
+    // Add metadata to the response
+    const totalRosters = await pool.query(
+      'SELECT COUNT(DISTINCT user_id) as total FROM rosters WHERE tournament_id = $1',
+      [tournamentId]
+    );
+
+    const completeRosters = await pool.query(`
+      SELECT COUNT(DISTINCT user_id) as complete 
+      FROM rosters 
+      WHERE tournament_id = $1 AND jsonb_array_length(roster) >= $2
+    `, [tournamentId, minRosterSize]);
+
+    res.json({ 
+      leaderboard: result.rows,
+      metadata: {
+        total_participants: parseInt(totalRosters.rows[0]?.total || 0),
+        complete_rosters: parseInt(completeRosters.rows[0]?.complete || 0),
+        match_day_filter: matchDay || null,
+        min_roster_size: minRosterSize,
+        generated_at: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Get leaderboard error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Additional endpoint to get leaderboard statistics
+app.get('/api/leaderboard/:tournamentId/stats', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+    
+    // Get roster completion statistics
+    const rosterStats = await pool.query(`
+      SELECT 
+        match_day,
+        COUNT(*) as total_rosters,
+        COUNT(CASE WHEN jsonb_array_length(roster) >= 10 THEN 1 END) as complete_rosters,
+        COUNT(CASE WHEN jsonb_array_length(roster) < 10 THEN 1 END) as incomplete_rosters
+      FROM rosters 
+      WHERE tournament_id = $1
+      GROUP BY match_day
+      ORDER BY match_day
+    `, [tournamentId]);
+
+    // Get overall tournament stats
+    const overallStats = await pool.query(`
+      SELECT 
+        COUNT(DISTINCT user_id) as unique_participants,
+        COUNT(*) as total_roster_submissions,
+        AVG(jsonb_array_length(roster)) as avg_roster_size,
+        COUNT(CASE WHEN jsonb_array_length(roster) >= 10 THEN 1 END) as complete_roster_submissions
+      FROM rosters 
+      WHERE tournament_id = $1
+    `, [tournamentId]);
+
+    // Get top performers
+    const topPerformers = await pool.query(`
+      WITH user_points AS (
+        SELECT 
+          u.username,
+          SUM(ps.points) as total_points,
+          COUNT(DISTINCT ps.match_day) as active_days
+        FROM rosters r
+        JOIN users u ON r.user_id = u.id
+        LEFT JOIN player_scores ps ON ps.tournament_id = r.tournament_id 
+          AND ps.match_day = r.match_day
+          AND ps.player_name = ANY(SELECT jsonb_array_elements_text(r.roster))
+        WHERE r.tournament_id = $1 AND jsonb_array_length(r.roster) >= 10
+        GROUP BY u.username
+        HAVING COUNT(DISTINCT ps.match_day) > 0
+      )
+      SELECT username, total_points, active_days
+      FROM user_points
+      ORDER BY total_points DESC
+      LIMIT 5
+    `, [tournamentId]);
+
+    res.json({
+      roster_stats_by_day: rosterStats.rows,
+      overall_stats: overallStats.rows[0],
+      top_performers: topPerformers.rows
+    });
+
+  } catch (error) {
+    console.error('Get leaderboard stats error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Endpoint to get user's ranking and position
+app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async (req, res) => {
+  try {
+    const { tournamentId, userId } = req.params;
+    const { matchDay } = req.query;
+    
+    // Verify user can access this data (either their own or admin)
+    if (req.user.userId !== parseInt(userId) && req.user.userId !== 1) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    let query, params;
+
+    if (matchDay) {
+      query = `
+        WITH leaderboard AS (
+          SELECT 
+            u.username,
+            u.id as user_id,
+            COALESCE(SUM(ps.points), 0) as total_points,
+            ROW_NUMBER() OVER (ORDER BY COALESCE(SUM(ps.points), 0) DESC) as rank
+          FROM rosters r
+          JOIN users u ON r.user_id = u.id
+          LEFT JOIN player_scores ps ON ps.tournament_id = r.tournament_id 
+            AND ps.match_day = r.match_day
+            AND ps.player_name = ANY(SELECT jsonb_array_elements_text(r.roster))
+          WHERE r.tournament_id = $1 AND r.match_day = $2 AND jsonb_array_length(r.roster) >= 10
+          GROUP BY u.username, u.id
+        )
+        SELECT * FROM leaderboard WHERE user_id = $3
+      `;
+      params = [tournamentId, matchDay, userId];
+    } else {
+      query = `
+        WITH leaderboard AS (
+          SELECT 
+            u.username,
+            u.id as user_id,
+            COALESCE(SUM(ps.points), 0) as total_points,
+            COUNT(DISTINCT r.match_day) as match_days_played,
+            ROW_NUMBER() OVER (ORDER BY COALESCE(SUM(ps.points), 0) DESC) as rank
+          FROM rosters r
+          JOIN users u ON r.user_id = u.id
+          LEFT JOIN player_scores ps ON ps.tournament_id = r.tournament_id 
+            AND ps.match_day = r.match_day
+            AND ps.player_name = ANY(SELECT jsonb_array_elements_text(r.roster))
+          WHERE r.tournament_id = $1 AND jsonb_array_length(r.roster) >= 10
+          GROUP BY u.username, u.id
+          HAVING COUNT(DISTINCT r.match_day) > 0
+        )
+        SELECT * FROM leaderboard WHERE user_id = $2
+      `;
+      params = [tournamentId, userId];
+    }
+
+    const result = await pool.query(query, params);
+    
+    if (result.rows.length === 0) {
+      return res.json({ 
+        rank: null, 
+        message: 'User not found in leaderboard (may not have complete rosters)' 
+      });
+    }
+
+    res.json(result.rows[0]);
+
+  } catch (error) {
+    console.error('Get user ranking error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+const authenticateAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ error: 'Access token required' });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    const result = await pool.query(
+      'SELECT id, username, email FROM users WHERE id = $1',
+      [decoded.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(403).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+    
+    if (user.id !== 1 && user.username !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Admin authentication error:', error);
+    return res.status(403).json({ error: 'Invalid token' });
+  }
+};
+
+app.get('/admin', authenticateAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.post('/api/admin/scores', authenticateAdmin, async (req, res) => {
+  try {
+    const { tournamentId, matchDay, playerScores, playerData } = req.body;
+
+    if (!tournamentId || !matchDay) {
+      return res.status(400).json({ error: 'Tournament ID and match day are required' });
+    }
+
+    if (playerData) {
+      for (const [playerName, data] of Object.entries(playerData)) {
+        await pool.query(`
+          INSERT INTO player_scores (player_name, tournament_id, match_day, points)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (player_name, tournament_id, match_day)
+          DO UPDATE SET points = EXCLUDED.points
+        `, [playerName, tournamentId, matchDay, data.points]);
+
+        if (data.battlesPlayed !== undefined && data.totalBattles !== undefined) {
+          const battlePercentage = `${Math.round((data.battlesPlayed / data.totalBattles) * 100)}%`;
+          await pool.query(`
+            UPDATE players 
+            SET battles_played = $1 
+            WHERE player_name = $2 AND tournament_id = $3
+          `, [battlePercentage, playerName, tournamentId]);
+        }
+      }
+    } else if (playerScores) {
+      for (const [playerName, points] of Object.entries(playerScores)) {
+        await pool.query(`
+          INSERT INTO player_scores (player_name, tournament_id, match_day, points)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (player_name, tournament_id, match_day)
+          DO UPDATE SET points = EXCLUDED.points
+        `, [playerName, tournamentId, matchDay, points]);
+      }
+    } else {
+      return res.status(400).json({ error: 'Either playerScores or playerData is required' });
+    }
+
+    res.json({ message: 'Scores updated successfully' });
+
+  } catch (error) {
+    console.error('Update scores error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/admin/scores/:tournamentId/:matchDay', authenticateAdmin, async (req, res) => {
+  try {
+    const { tournamentId, matchDay } = req.params;
+    
+    const result = await pool.query(`
+      SELECT 
+        ps.player_name,
+        ps.points,
+        p.team_code,
+        p.battles_played,
+        p.picked_percentage
+      FROM player_scores ps
+      LEFT JOIN players p ON ps.player_name = p.player_name AND ps.tournament_id = p.tournament_id
+      WHERE ps.tournament_id = $1 AND ps.match_day = $2
+      ORDER BY ps.points DESC
+    `, [tournamentId, matchDay]);
+    
+    res.json({ players: result.rows });
+  } catch (error) {
+    console.error('Get admin scores error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/admin/calculate-picks', authenticateAdmin, async (req, res) => {
+  try {
+    const { tournamentId } = req.body;
+    
+    const totalRosters = await pool.query(
+      'SELECT COUNT(DISTINCT user_id) as total FROM rosters WHERE tournament_id = $1',
+      [tournamentId]
+    );
+    
+    const total = totalRosters.rows[0].total || 1;
+    
+    const players = await pool.query(
+      'SELECT player_name FROM players WHERE tournament_id = $1',
+      [tournamentId]
+    );
+    
+    for (const player of players.rows) {
+      const pickCount = await pool.query(`
+        SELECT COUNT(*) as picks 
+        FROM rosters 
+        WHERE tournament_id = $1 
+        AND roster ? $2
+      `, [tournamentId, player.player_name]);
+      
+      const picks = pickCount.rows[0].picks || 0;
+      const percentage = ((picks / total) * 100).toFixed(2) + '%';
+      
+      await pool.query(`
+        UPDATE players 
+        SET picked_percentage = $1 
+        WHERE player_name = $2 AND tournament_id = $3
+      `, [percentage, player.player_name, tournamentId]);
+    }
+    
+    res.json({ message: 'Pick percentages calculated successfully' });
+    
+  } catch (error) {
+    console.error('Calculate picks error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/admin/reset', authenticateAdmin, async (req, res) => {
+  try {
+    const { tournamentId } = req.body;
+    
+    await pool.query('DELETE FROM player_scores WHERE tournament_id = $1', [tournamentId]);
+    
+    await pool.query(`
+      UPDATE players 
+      SET total_points = 0, average_points = 0, battles_played = '0%'
+      WHERE tournament_id = $1
+    `, [tournamentId]);
+    
+    res.json({ message: 'Tournament reset successfully' });
+    
+  } catch (error) {
+    console.error('Reset tournament error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.listen(port, async () => {
+  console.log(`Server running on port ${port}`);
+  await initializeTables();
 });
