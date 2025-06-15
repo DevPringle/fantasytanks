@@ -198,7 +198,7 @@ class FantasyAPI {
         }
     }
 
-    // Enhanced leaderboard with filtering options
+    // Leaderboard with filtering options
     async getFilteredLeaderboard(tournamentId, options = {}) {
         const {
             matchDay = null,
