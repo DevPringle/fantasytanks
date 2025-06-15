@@ -921,7 +921,7 @@
             }
         }
 
-        /* Accessibility improvements */
+        /* Accessibility */
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -1281,7 +1281,7 @@
     </footer>
 
     <script>
-        // API client for connecting to your Railway backend
+        // API client for connecting to my Railway backend
         class FantasyAPI {
             constructor() {
                 this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
@@ -1446,7 +1446,7 @@
 
         // Filter content by region
         function filterByRegion(region) {
-            // This would normally filter tournaments and groups based on region
+            // Filters tournaments and groups based on region
             console.log(`Filtering content for ${region} region`);
         }
 
@@ -1549,7 +1549,7 @@
             observer.observe(el);
         });
 
-        // Enhanced button click effects
+        // Button click effects
         document.querySelectorAll('.btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 // Create ripple effect
@@ -1582,7 +1582,7 @@
             });
         });
 
-        // Add ripple animation CSS
+        // Ripple animation CSS
         const style = document.createElement('style');
         style.textContent = `
             @keyframes ripple {
@@ -1594,7 +1594,7 @@
         `;
         document.head.appendChild(style);
 
-        // Keyboard navigation improvements
+        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 // Close mobile menu on escape
@@ -1613,7 +1613,7 @@
                 clearTimeout(scrollTimeout);
             }
             scrollTimeout = setTimeout(() => {
-                // Additional scroll-based animations can go here
+                // Additional scroll-based animations go here
             }, 10);
         });
 
