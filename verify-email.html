@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - WoT Fantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .verify-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .verify-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            height: 48px;
+            width: auto;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+        }
+
+        .verify-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #00b8e6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .verify-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-state, .error-state {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .success-icon, .error-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-icon {
+            color: #22c55e;
+        }
+
+        .error-icon {
+            color: #ef4444;
+        }
+
+        .state-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .success-state .state-title {
+            color: #22c55e;
+        }
+
+        .error-state .state-title {
+            color: #ef4444;
+        }
+
+        .state-message {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+        }
+
+        .primary-button {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .secondary-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+            color: #ffffff;
+        }
+
+        .resend-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .resend-title {
+            color: #00d4ff;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .resend-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .resend-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .resend-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .resend-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 480px) {
+            .verify-container {
+                margin: 2rem 1rem;
+                padding: 2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-button {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state">
+            <div class="verify-header">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo" class="logo">
+                <h1 class="verify-title">Verifying Email</h1>
+                <p class="verify-subtitle">Please wait while we verify your email address</p>
+            </div>
+            <div class="loading-spinner"></div>
+            <p>Verifying your email address...</p>
+        </div>
+
+        <!-- Success State -->
+        <div id="successState" class="success-state" style="display: none;">
+            <div class="verify-header">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo" class="logo">
+            </div>
+            <div class="success-icon">✅</div>
+            <h2 class="state-title">Email Verified!</h2>
+            <p class="state-message">
+                Your email has been successfully verified. Your Fantasy Tanks account is now fully activated and you can start playing!
+            </p>
+            <div class="action-buttons">
+                <a href="tournaments.html" class="action-button primary-button">
+                    <span class="material-icons" style="font-size: 1rem;">sports_esports</span>
+                    Start Playing
+                </a>
+                <a href="login.html" class="action-button secondary-button">
+                    <span class="material-icons" style="font-size: 1rem;">login</span>
+                    Go to Login
+                </a>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <div class="verify-header">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo" class="logo">
+            </div>
+            <div class="error-icon">❌</div>
+            <h2 class="state-title" id="errorTitle">Verification Failed</h2>
+            <p class="state-message" id="errorMessage">
+                This verification link is invalid or has expired.
+            </p>
+            <div class="action-buttons">
+                <button id="resendEmailBtn" class="action-button primary-button">
+                    <span class="material-icons" style="font-size: 1rem;">email</span>
+                    Resend Verification
+                </button>
+                <a href="login.html" class="action-button secondary-button">
+                    <span class="material-icons" style="font-size: 1rem;">login</span>
+                    Back to Login
+                </a>
+            </div>
+
+            <div class="resend-section" id="resendSection" style="display: none;">
+                <div class="resend-title">Need a new verification email?</div>
+                <div class="resend-text">Enter your email address and we'll send you a new verification link.</div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="email" id="resendEmailInput" placeholder="Enter your email" 
+                           style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
+                    <button id="sendResendBtn" class="resend-button">Send</button>
+                </div>
+                <div id="resendMessage" style="margin-top: 1rem; font-size: 0.8rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        let verificationToken = null;
+
+        // Extract token from URL
+        function getVerificationToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('token');
+        }
+
+        // Show different states
+        function showState(state) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('successState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            
+            if (state === 'loading') {
+                document.getElementById('loadingState').style.display = 'block';
+            } else if (state === 'success') {
+                document.getElementById('successState').style.display = 'block';
+            } else if (state === 'error') {
+                document.getElementById('errorState').style.display = 'block';
+            }
+        }
+
+        // Show error with custom message
+        function showError(title, message) {
+            document.getElementById('errorTitle').textContent = title;
+            document.getElementById('errorMessage').textContent = message;
+            showState('error');
+        }
+
+        // Verify email
+        async function verifyEmail() {
+            verificationToken = getVerificationToken();
+            
+            if (!verificationToken) {
+                showError('Invalid Link', 'No verification token was provided in the URL. Please check your email and click the verification link again.');
+                return;
+            }
+
+            try {
+                const response = await api.verifyEmail(verificationToken);
+                
+                // If verification successful and we get a token, store it
+                if (response.token) {
+                    api.token = response.token;
+                    localStorage.setItem('authToken', response.token);
+                    localStorage.setItem('user', JSON.stringify(response.user));
+                }
+                
+                showState('success');
+                
+            } catch (error) {
+                console.error('Email verification error:', error);
+                
+                if (error.message.includes('expired')) {
+                    showError('Link Expired', 'This verification link has expired. Verification links are only valid for 24 hours.');
+                } else if (error.message.includes('already been verified')) {
+                    showError('Already Verified', 'This email address has already been verified. You can login normally.');
+                } else {
+                    showError('Verification Failed', error.message || 'This verification link is invalid or has expired.');
+                }
+            }
+        }
+
+        // Handle resend verification
+        document.getElementById('resendEmailBtn').addEventListener('click', () => {
+            document.getElementById('resendSection').style.display = 'block';
+        });
+
+        document.getElementById('sendResendBtn').addEventListener('click', async () => {
+            const email = document.getElementById('resendEmailInput').value.trim();
+            const messageDiv = document.getElementById('resendMessage');
+            const sendBtn = document.getElementById('sendResendBtn');
+            
+            if (!email) {
+                messageDiv.style.color = '#ef4444';
+                messageDiv.textContent = 'Please enter your email address';
+                return;
+            }
+
+            if (!api.validateEmail(email)) {
+                messageDiv.style.color = '#ef4444';
+                messageDiv.textContent = 'Please enter a valid email address';
+                return;
+            }
+
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+
+            try {
+                await api.resendVerification(email);
+                messageDiv.style.color = '#22c55e';
+                messageDiv.textContent = 'Verification email sent! Check your inbox.';
+                document.getElementById('resendEmailInput').value = '';
+            } catch (error) {
+                messageDiv.style.color = '#ef4444';
+                messageDiv.textContent = error.message || 'Failed to send verification email';
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send';
+            }
+        });
+
+        // Handle Enter key in email input
+        document.getElementById('resendEmailInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('sendResendBtn').click();
+            }
+        });
+
+        // Initialize page
+        window.addEventListener('load', () => {
+            // If user is already logged in, redirect them
+            if (api.isAuthenticated()) {
+                window.location.href = 'tournaments.html';
+                return;
+            }
+            
+            verifyEmail();
+        });
+    </script>
+</body>
+</html>

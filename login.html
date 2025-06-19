@@ -227,6 +227,53 @@
             gap: 0.5rem;
         }
 
+        .verification-message {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: #7dd3fc;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .verification-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .verification-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .verification-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .verification-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .form-footer {
             text-align: center;
             margin-top: 2rem;
@@ -365,6 +412,10 @@
                 top: 1rem;
                 left: 1rem;
             }
+
+            .verification-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -405,6 +456,7 @@
             </div>
             <div id="loginError" class="error-message" style="display: none;"></div>
             <div id="loginSuccess" class="success-message" style="display: none;"></div>
+            <div id="loginVerification" class="verification-message" style="display: none;"></div>
             <button type="submit" class="form-button">Sign In</button>
         </form>
 
@@ -447,6 +499,7 @@
             </div>
             <div id="registerError" class="error-message" style="display: none;"></div>
             <div id="registerSuccess" class="success-message" style="display: none;"></div>
+            <div id="registerVerification" class="verification-message" style="display: none;"></div>
             <button type="submit" class="form-button">Create Account</button>
         </form>
 
@@ -472,6 +525,8 @@
 
     <script src="js/api.js"></script>
     <script>
+        let currentVerificationEmail = null;
+
         // Tab switching
         function switchTab(tab) {
             // Updates tab buttons
@@ -527,7 +582,7 @@
 
         // Clears all error/success messages
         function clearMessages() {
-            document.querySelectorAll('.error-message, .success-message').forEach(msg => {
+            document.querySelectorAll('.error-message, .success-message, .verification-message').forEach(msg => {
                 msg.style.display = 'none';
                 msg.innerHTML = '';
             });
@@ -553,6 +608,68 @@
                 ${message}
             `;
             successDiv.style.display = 'flex';
+        }
+
+        // Show verification message
+        function showVerification(formType, message, email = null) {
+            clearMessages();
+            currentVerificationEmail = email;
+            const verificationDiv = document.getElementById(formType + 'Verification');
+            
+            let actionButtons = '';
+            if (email) {
+                actionButtons = `
+                    <div class="verification-actions">
+                        <button class="verification-button" onclick="resendVerificationEmail('${email}')" id="resendBtn">
+                            <span class="material-icons" style="font-size: 0.9rem;">email</span>
+                            Resend Email
+                        </button>
+                        <a href="verify-email.html" class="verification-button">
+                            <span class="material-icons" style="font-size: 0.9rem;">open_in_new</span>
+                            Check Verification
+                        </a>
+                    </div>
+                `;
+            }
+            
+            verificationDiv.innerHTML = `
+                <span class="material-icons" style="font-size: 1rem;">info</span>
+                <div>
+                    ${message}
+                    ${actionButtons}
+                </div>
+            `;
+            verificationDiv.style.display = 'flex';
+        }
+
+        // Resend verification email
+        async function resendVerificationEmail(email) {
+            const resendBtn = document.getElementById('resendBtn');
+            if (!resendBtn || !email) return;
+            
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = '<span class="material-icons" style="font-size: 0.9rem;">hourglass_empty</span>Sending...';
+            
+            try {
+                await api.resendVerification(email);
+                resendBtn.innerHTML = '<span class="material-icons" style="font-size: 0.9rem;">check</span>Sent!';
+                resendBtn.style.color = '#22c55e';
+                
+                setTimeout(() => {
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = '<span class="material-icons" style="font-size: 0.9rem;">email</span>Resend Email';
+                    resendBtn.style.color = '';
+                }, 3000);
+            } catch (error) {
+                resendBtn.innerHTML = '<span class="material-icons" style="font-size: 0.9rem;">error</span>Failed';
+                resendBtn.style.color = '#ef4444';
+                
+                setTimeout(() => {
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = '<span class="material-icons" style="font-size: 0.9rem;">email</span>Resend Email';
+                    resendBtn.style.color = '';
+                }, 3000);
+            }
         }
 
         // Set button loading state
@@ -691,7 +808,22 @@
                 
             } catch (error) {
                 console.error('Login error:', error);
-                showError('login', error.message || 'Login failed. Please try again.');
+                
+                // Check if this is an email verification error
+                if (error.message.includes('verify your email') || error.message.includes('requiresVerification')) {
+                    // Try to extract email from the username field if it looks like an email
+                    let email = null;
+                    if (api.validateEmail(username)) {
+                        email = username;
+                    }
+                    
+                    showVerification('login', 
+                        'Your email address needs to be verified before you can log in. Please check your inbox for a verification email.', 
+                        email
+                    );
+                } else {
+                    showError('login', error.message || 'Login failed. Please try again.');
+                }
                 setButtonLoading(button, false);
             }
         });
@@ -744,17 +876,28 @@
 
             try {
                 const result = await api.register(username, email, password);
-                showSuccess('register', 'Account created successfully! Redirecting...');
                 
-                // Redirect after short delay
-                setTimeout(() => {
-                    const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
-                    window.location.href = returnUrl;
-                }, 1500);
+                // Check if registration requires email verification
+                if (result.requiresVerification) {
+                    showVerification('register', 
+                        `Account created successfully! We've sent a verification email to ${email}. Please check your inbox and click the verification link to activate your account.`,
+                        email
+                    );
+                } else {
+                    // Auto-verified account (email service not configured)
+                    showSuccess('register', 'Account created successfully! Redirecting...');
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+                        window.location.href = returnUrl;
+                    }, 1500);
+                }
                 
             } catch (error) {
                 console.error('Registration error:', error);
                 showError('register', error.message || 'Registration failed. Please try again.');
+            } finally {
                 setButtonLoading(button, false);
             }
         });
@@ -847,6 +990,17 @@
             const email = urlParams.get('email');
             if (email) {
                 document.getElementById('forgotEmail').value = decodeURIComponent(email);
+            }
+        }
+
+        // Check for verification success message
+        const message = urlParams.get('message');
+        const type = urlParams.get('type');
+        if (message && type) {
+            if (type === 'verification-success') {
+                showSuccess('login', decodeURIComponent(message));
+            } else if (type === 'verification-error') {
+                showError('login', decodeURIComponent(message));
             }
         }
     </script>
