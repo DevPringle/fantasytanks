@@ -80,7 +80,6 @@ class FantasyAPI {
         }
     }
 
-    // NEW EMAIL VERIFICATION METHODS
     async verifyEmail(token) {
         try {
             const response = await this.request(`/auth/verify-email/${token}`);
@@ -501,7 +500,6 @@ class FantasyAPI {
         };
     }
 
-    // EMAIL VERIFICATION HELPER METHODS
     
     // Check if current user needs email verification
     needsEmailVerification() {
