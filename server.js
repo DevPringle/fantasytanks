@@ -27,7 +27,7 @@ if (!JWT_SECRET) {
   process.exit(1);
 }
 
-// EMAIL CONFIGURATION - FIXED VERSION
+// EMAIL CONFIGURATION
 const createEmailTransporter = () => {
   const emailConfig = {
     host: process.env.SMTP_HOST || 'smtp.zoho.com',
@@ -44,7 +44,6 @@ const createEmailTransporter = () => {
     return null;
   }
 
-  // FIXED LINE - createTransport (not createTransporter)
   return nodemailer.createTransport(emailConfig);
 };
 
@@ -59,6 +58,39 @@ if (emailTransporter) {
     }
   });
 }
+
+// EMAIL TEMPLATES
+const generateEmailVerificationEmail = (username, verificationToken, baseUrl) => {
+  const verifyUrl = `${baseUrl}/verify-email.html?token=${verificationToken}`;
+  
+  return {
+    subject: 'Verify Your Email - WoT Fantasy',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a2332; color: white; padding: 20px; border-radius: 10px;">
+        <h2 style="color: #00d4ff; text-align: center;">Verify Your Email Address</h2>
+        <p>Hello <strong>${username}</strong>,</p>
+        <p>Welcome to Fantasy Tanks! To complete your registration and start playing, please verify your email address.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verifyUrl}" style="background: linear-gradient(135deg, #00d4ff, #00b8e6); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Verify Email Address</a>
+        </div>
+        <p>If the button doesn't work, copy and paste this link into your browser:</p>
+        <p style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; word-break: break-all; font-family: monospace;">${verifyUrl}</p>
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; font-size: 0.9rem;"><strong>📧 Important:</strong></p>
+          <ul style="margin: 10px 0; font-size: 0.9rem;">
+            <li>You must verify your email to login</li>
+            <li>This link expires in 24 hours</li>
+            <li>If you didn't create this account, ignore this email</li>
+          </ul>
+        </div>
+        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.6); text-align: center; margin-top: 30px;">
+          This is an automated message from Fantasy Tanks. Please do not reply.
+        </p>
+      </div>
+    `,
+    text: `Verify Your Email - Fantasy Tanks\n\nHello ${username},\n\nTo complete registration, verify your email: ${verifyUrl}\n\nThis link expires in 24 hours.\n\nYou must verify your email to login.`
+  };
+};
 
 const generatePasswordResetEmail = (username, resetToken, baseUrl) => {
   const resetUrl = `${baseUrl}/reset-password.html?token=${resetToken}`;
@@ -94,12 +126,12 @@ const generatePasswordResetEmail = (username, resetToken, baseUrl) => {
 
 const generateWelcomeEmail = (username, baseUrl) => {
   return {
-    subject: 'Welcome to WoT Fantasy!',
+    subject: 'Welcome to WoT Fantasy - Email Verified!',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a2332; color: white; padding: 20px; border-radius: 10px;">
         <h2 style="color: #00d4ff; text-align: center;">Welcome to Fantasy Tanks!</h2>
         <p>Hello <strong>${username}</strong>,</p>
-        <p>Thank you for joining Fantasy Tanks! Your account has been successfully created.</p>
+        <p>🎉 <strong>Your email has been verified!</strong> Your Fantasy Tanks account is now fully activated and ready to use.</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${baseUrl}/tournaments.html" style="background: linear-gradient(135deg, #00d4ff, #00b8e6); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Start Playing Now</a>
         </div>
@@ -108,14 +140,18 @@ const generateWelcomeEmail = (username, baseUrl) => {
           <li>Draft pro players from real tournaments</li>
           <li>Earn points based on their live performance</li>
           <li>Compete against other fantasy managers</li>
-          <li>Climb the leaderboards</li>
+          <li>Climb the leaderboards and prove your skills</li>
         </ul>
+        <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00d4ff;">
+          <p style="margin: 0; font-size: 0.9rem;"><strong>🚀 Quick Start:</strong></p>
+          <p style="margin: 5px 0 0 0; font-size: 0.9rem;">Ready to build your first roster? Head to the tournaments section and start drafting your team of pro players!</p>
+        </div>
         <p style="font-size: 0.8rem; color: rgba(255,255,255,0.6); text-align: center; margin-top: 30px;">
           Welcome to the Fantasy Tanks community!
         </p>
       </div>
     `,
-    text: `Welcome to Fantasy Tanks!\n\nHello ${username},\n\nThank you for joining! Visit ${baseUrl}/tournaments.html to start playing.`
+    text: `Welcome to Fantasy Tanks!\n\nHello ${username},\n\nYour email has been verified! Your account is now fully activated.\n\nStart playing: ${baseUrl}/tournaments.html\n\nWelcome to the Fantasy Tanks community!`
   };
 };
 
@@ -145,6 +181,17 @@ async function initializeTables() {
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         email_verified BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS email_verifications (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        token VARCHAR(255) UNIQUE NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        verified BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -237,6 +284,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Fantasy Tanks API is running' });
 });
 
+// REGISTRATION WITH EMAIL VERIFICATION
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -261,46 +309,96 @@ app.post('/api/auth/register', async (req, res) => {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
+    // Create user (email_verified = false by default)
     const result = await pool.query(
       'INSERT INTO users (username, email, password_hash, email_verified) VALUES ($1, $2, $3, $4) RETURNING id, username, email',
-      [username, email, passwordHash, !emailTransporter]
+      [username, email, passwordHash, false]
     );
 
     const user = result.rows[0];
 
-    // Send welcome email if configured
+    // If email is configured, send verification email
     if (emailTransporter) {
       try {
+        // Generate verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 86400000); // 24 hours
+
+        // Store verification token
+        await pool.query(
+          'INSERT INTO email_verifications (user_id, token, expires_at) VALUES ($1, $2, $3)',
+          [user.id, verificationToken, expiresAt]
+        );
+
+        // Send verification email
         const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-        const welcomeEmail = generateWelcomeEmail(username, baseUrl);
+        const verificationEmail = generateEmailVerificationEmail(username, verificationToken, baseUrl);
+        
         await emailTransporter.sendMail({
           from: process.env.SMTP_FROM || process.env.SMTP_USER,
           to: email,
-          subject: welcomeEmail.subject,
-          html: welcomeEmail.html,
-          text: welcomeEmail.text
+          subject: verificationEmail.subject,
+          html: verificationEmail.html,
+          text: verificationEmail.text
         });
-        console.log('Welcome email sent to:', email);
+
+        console.log('Verification email sent to:', email);
+
+        res.status(201).json({
+          message: 'Account created successfully! Please check your email to verify your account before logging in.',
+          requiresVerification: true,
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            email_verified: false
+          }
+        });
+
       } catch (emailError) {
-        console.error('Failed to send welcome email:', emailError);
+        console.error('Failed to send verification email:', emailError);
+        
+        // If email fails, auto-verify the account
+        await pool.query('UPDATE users SET email_verified = true WHERE id = $1', [user.id]);
+        
+        const token = jwt.sign(
+          { userId: user.id, username: user.username },
+          JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+
+        res.status(201).json({
+          message: 'Account created successfully! (Email verification temporarily unavailable)',
+          token,
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            email_verified: true
+          }
+        });
       }
+    } else {
+      // No email configured, auto-verify account
+      await pool.query('UPDATE users SET email_verified = true WHERE id = $1', [user.id]);
+      
+      const token = jwt.sign(
+        { userId: user.id, username: user.username },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.status(201).json({
+        message: 'Account created successfully!',
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          email_verified: true
+        }
+      });
     }
-
-    const token = jwt.sign(
-      { userId: user.id, username: user.username },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.status(201).json({
-      message: 'User created successfully',
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email
-      }
-    });
 
   } catch (error) {
     console.error('Registration error:', error);
@@ -308,6 +406,164 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
+// EMAIL VERIFICATION ENDPOINT
+app.get('/api/auth/verify-email/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const result = await pool.query(`
+      SELECT ev.id, ev.user_id, ev.expires_at, ev.verified, u.username, u.email
+      FROM email_verifications ev
+      JOIN users u ON ev.user_id = u.id
+      WHERE ev.token = $1
+    `, [token]);
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid verification token' });
+    }
+
+    const verificationRecord = result.rows[0];
+
+    if (verificationRecord.verified) {
+      return res.status(400).json({ error: 'Email has already been verified' });
+    }
+
+    if (new Date() > new Date(verificationRecord.expires_at)) {
+      return res.status(400).json({ error: 'Verification token has expired' });
+    }
+
+    // Mark email as verified
+    await pool.query('BEGIN');
+    
+    try {
+      await pool.query(
+        'UPDATE users SET email_verified = true WHERE id = $1',
+        [verificationRecord.user_id]
+      );
+
+      await pool.query(
+        'UPDATE email_verifications SET verified = true WHERE id = $1',
+        [verificationRecord.id]
+      );
+
+      await pool.query('COMMIT');
+
+      // Send welcome email
+      if (emailTransporter) {
+        try {
+          const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+          const welcomeEmail = generateWelcomeEmail(verificationRecord.username, baseUrl);
+          
+          await emailTransporter.sendMail({
+            from: process.env.SMTP_FROM || process.env.SMTP_USER,
+            to: verificationRecord.email,
+            subject: welcomeEmail.subject,
+            html: welcomeEmail.html,
+            text: welcomeEmail.text
+          });
+
+          console.log('Welcome email sent to:', verificationRecord.email);
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+        }
+      }
+
+      // Generate auth token
+      const authToken = jwt.sign(
+        { userId: verificationRecord.user_id, username: verificationRecord.username },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.json({
+        message: 'Email verified successfully! You can now login.',
+        token: authToken,
+        user: {
+          id: verificationRecord.user_id,
+          username: verificationRecord.username,
+          email: verificationRecord.email,
+          email_verified: true
+        }
+      });
+
+    } catch (error) {
+      await pool.query('ROLLBACK');
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// RESEND VERIFICATION EMAIL
+app.post('/api/auth/resend-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    if (!emailTransporter) {
+      return res.status(503).json({ error: 'Email service not configured' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, username, email, email_verified FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ message: 'If an unverified account with that email exists, a verification email has been sent.' });
+    }
+
+    const user = result.rows[0];
+
+    if (user.email_verified) {
+      return res.status(400).json({ error: 'Email is already verified' });
+    }
+
+    // Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 86400000); // 24 hours
+
+    // Delete old verification tokens and create new one
+    await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [user.id]);
+    await pool.query(
+      'INSERT INTO email_verifications (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, verificationToken, expiresAt]
+    );
+
+    // Send new verification email
+    try {
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const verificationEmail = generateEmailVerificationEmail(user.username, verificationToken, baseUrl);
+      
+      await emailTransporter.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: user.email,
+        subject: verificationEmail.subject,
+        html: verificationEmail.html,
+        text: verificationEmail.text
+      });
+
+      console.log('New verification email sent to:', user.email);
+      res.json({ message: 'A new verification email has been sent.' });
+
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+      res.status(500).json({ error: 'Failed to send verification email' });
+    }
+
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// LOGIN WITH EMAIL VERIFICATION CHECK
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -317,7 +573,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const result = await pool.query(
-      'SELECT id, username, email, password_hash FROM users WHERE username = $1 OR email = $1',
+      'SELECT id, username, email, password_hash, email_verified FROM users WHERE username = $1 OR email = $1',
       [username]
     );
 
@@ -332,6 +588,15 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Check if email is verified
+    if (!user.email_verified) {
+      return res.status(403).json({ 
+        error: 'Please verify your email address before logging in',
+        requiresVerification: true,
+        email: user.email
+      });
+    }
+
     const token = jwt.sign(
       { userId: user.id, username: user.username },
       JWT_SECRET,
@@ -344,7 +609,8 @@ app.post('/api/auth/login', async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        email_verified: user.email_verified
       }
     });
 
@@ -354,6 +620,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// PASSWORD RESET (existing functionality)
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -367,7 +634,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     }
 
     const result = await pool.query(
-      'SELECT id, username, email FROM users WHERE email = $1',
+      'SELECT id, username, email, email_verified FROM users WHERE email = $1',
       [email]
     );
 
@@ -377,8 +644,13 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     const user = result.rows[0];
 
+    // Only allow password reset for verified accounts
+    if (!user.email_verified) {
+      return res.status(403).json({ error: 'Please verify your email address first before resetting your password' });
+    }
+
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 3600000);
+    const expiresAt = new Date(Date.now() + 3600000); // 1 hour
 
     await pool.query(
       'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
@@ -411,6 +683,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
   }
 });
 
+// PASSWORD RESET VERIFICATION (existing)
 app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -448,6 +721,7 @@ app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
   }
 });
 
+// RESET PASSWORD (existing)
 app.post('/api/auth/reset-password', async (req, res) => {
   try {
     const { token, password } = req.body;
@@ -526,6 +800,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
+// EXISTING ROUTES
 app.get('/api/tournaments', async (req, res) => {
   try {
     const result = await pool.query(
