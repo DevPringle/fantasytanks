@@ -69,7 +69,7 @@ const generateEmailVerificationEmail = (username, verificationToken, baseUrl) =>
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a2332; color: white; padding: 20px; border-radius: 10px;">
         <h2 style="color: #00d4ff; text-align: center;">Verify Your Email Address</h2>
         <p>Hello <strong>${username}</strong>,</p>
-        <p>Welcome to Fantasy Tanks! To complete your registration and start playing, please verify your email address.</p>
+        <p>Welcome to WoT Fantasy! To complete your registration and start playing, please verify your email address.</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${verifyUrl}" style="background: linear-gradient(135deg, #00d4ff, #00b8e6); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Verify Email Address</a>
         </div>
@@ -84,11 +84,11 @@ const generateEmailVerificationEmail = (username, verificationToken, baseUrl) =>
           </ul>
         </div>
         <p style="font-size: 0.8rem; color: rgba(255,255,255,0.6); text-align: center; margin-top: 30px;">
-          This is an automated message from Fantasy Tanks. Please do not reply.
+          This is an automated message from WoTFantasy. Please do not reply.
         </p>
       </div>
     `,
-    text: `Verify Your Email - Fantasy Tanks\n\nHello ${username},\n\nTo complete registration, verify your email: ${verifyUrl}\n\nThis link expires in 24 hours.\n\nYou must verify your email to login.`
+    text: `Verify Your Email - WoTFantasy\n\nHello ${username},\n\nTo complete registration, verify your email: ${verifyUrl}\n\nThis link expires in 24 hours.\n\nYou must verify your email to login.`
   };
 };
 
@@ -101,7 +101,7 @@ const generatePasswordResetEmail = (username, resetToken, baseUrl) => {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a2332; color: white; padding: 20px; border-radius: 10px;">
         <h2 style="color: #00d4ff; text-align: center;">Password Reset Request</h2>
         <p>Hello <strong>${username}</strong>,</p>
-        <p>We received a request to reset your password for your Fantasy Tanks account.</p>
+        <p>We received a request to reset your password for your WoTFantasy account.</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetUrl}" style="background: linear-gradient(135deg, #00d4ff, #00b8e6); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Your Password</a>
         </div>
@@ -116,11 +116,11 @@ const generatePasswordResetEmail = (username, resetToken, baseUrl) => {
           </ul>
         </div>
         <p style="font-size: 0.8rem; color: rgba(255,255,255,0.6); text-align: center; margin-top: 30px;">
-          This is an automated message from Fantasy Tanks. Please do not reply.
+          This is an automated message from WoTFantasy. Please do not reply.
         </p>
       </div>
     `,
-    text: `Password Reset - Fantasy Tanks\n\nHello ${username},\n\nTo reset your password, visit: ${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, ignore this email.`
+    text: `Password Reset - WoTFantasy\n\nHello ${username},\n\nTo reset your password, visit: ${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, ignore this email.`
   };
 };
 
@@ -129,29 +129,29 @@ const generateWelcomeEmail = (username, baseUrl) => {
     subject: 'Welcome to WoT Fantasy - Email Verified!',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a2332; color: white; padding: 20px; border-radius: 10px;">
-        <h2 style="color: #00d4ff; text-align: center;">Welcome to Fantasy Tanks!</h2>
+        <h2 style="color: #00d4ff; text-align: center;">Welcome to WoTFantasy!</h2>
         <p>Hello <strong>${username}</strong>,</p>
-        <p>🎉 <strong>Your email has been verified!</strong> Your Fantasy Tanks account is now fully activated and ready to use.</p>
+        <p>🎉 <strong>Your email has been verified!</strong> Your WoTFantasy account is now fully activated and ready to use.</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${baseUrl}/tournaments.html" style="background: linear-gradient(135deg, #00d4ff, #00b8e6); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Start Playing Now</a>
         </div>
-        <p>With Fantasy Tanks, you can:</p>
+        <p>With WoTFantasy, you can:</p>
         <ul>
-          <li>Draft pro players from real tournaments</li>
+          <li>Pick players from active tournaments</li>
           <li>Earn points based on their live performance</li>
-          <li>Compete against other fantasy managers</li>
+          <li>Compete against other fantasy teams</li>
           <li>Climb the leaderboards and prove your skills</li>
         </ul>
         <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00d4ff;">
           <p style="margin: 0; font-size: 0.9rem;"><strong>🚀 Quick Start:</strong></p>
-          <p style="margin: 5px 0 0 0; font-size: 0.9rem;">Ready to build your first roster? Head to the tournaments section and start drafting your team of pro players!</p>
+          <p style="margin: 5px 0 0 0; font-size: 0.9rem;">Ready to build your first roster? Head to the tournaments section and start drafting your team of players!</p>
         </div>
         <p style="font-size: 0.8rem; color: rgba(255,255,255,0.6); text-align: center; margin-top: 30px;">
-          Welcome to the Fantasy Tanks community!
+          Welcome to the WoTFantasy community!
         </p>
       </div>
     `,
-    text: `Welcome to Fantasy Tanks!\n\nHello ${username},\n\nYour email has been verified! Your account is now fully activated.\n\nStart playing: ${baseUrl}/tournaments.html\n\nWelcome to the Fantasy Tanks community!`
+    text: `Welcome to WoTFantasy!\n\nHello ${username},\n\nYour email has been verified! Your account is now fully activated.\n\nStart playing: ${baseUrl}/tournaments.html\n\nWelcome to the WoTFantasy community!`
   };
 };
 
@@ -281,7 +281,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Fantasy Tanks API is running' });
+  res.json({ status: 'OK', message: 'WoTFantasy API is running' });
 });
 
 // REGISTRATION WITH EMAIL VERIFICATION
