@@ -1,6 +1,6 @@
 class FantasyAPI {
     constructor() {
-        this.baseURL = 'https:/fantasytanks-production.up.railway.app/api';
+        this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
         
         this.token = localStorage.getItem('authToken');
     }
