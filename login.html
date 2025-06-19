@@ -350,6 +350,7 @@
             text-decoration: none;
             font-size: 0.9rem;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .forgot-password-link:hover {
@@ -396,6 +397,7 @@
             color: #00d4ff;
             text-decoration: none;
             font-size: 0.9rem;
+            cursor: pointer;
         }
 
         .back-link:hover {
@@ -452,7 +454,7 @@
                         <span class="material-icons">visibility</span>
                     </button>
                 </div>
-                <a href="#" class="forgot-password-link" onclick="switchTab('forgot'); return false;">Forgot your password?</a>
+                <a class="forgot-password-link" onclick="switchTab('forgot')">Forgot your password?</a>
             </div>
             <div id="loginError" class="error-message" style="display: none;"></div>
             <div id="loginSuccess" class="success-message" style="display: none;"></div>
@@ -513,7 +515,7 @@
             <div id="forgotError" class="error-message" style="display: none;"></div>
             <div id="forgotSuccess" class="success-message" style="display: none;"></div>
             <button type="submit" class="form-button">Send Reset Link</button>
-            <a href="#" class="back-link" onclick="switchTab('login'); return false;">Back to Sign In</a>
+            <a class="back-link" onclick="switchTab('login')">Back to Sign In</a>
         </form>
 
         <div class="form-footer">
@@ -527,8 +529,8 @@
     <script>
         let currentVerificationEmail = null;
 
-        // Tab switching
-        function switchTab(tab) {
+        // Make functions global to avoid ReferenceError
+        window.switchTab = function(tab) {
             // Updates tab buttons
             document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
             
@@ -564,10 +566,10 @@
                 title.textContent = 'Reset Password';
                 subtitle.textContent = 'Enter your email to receive a reset link';
             }
-        }
+        };
 
         // Password visibility toggle
-        function togglePassword(inputId) {
+        window.togglePassword = function(inputId) {
             const input = document.getElementById(inputId);
             const button = input.parentElement.querySelector('.password-toggle span');
             
@@ -578,7 +580,7 @@
                 input.type = 'password';
                 button.textContent = 'visibility';
             }
-        }
+        };
 
         // Clears all error/success messages
         function clearMessages() {
@@ -643,7 +645,7 @@
         }
 
         // Resend verification email
-        async function resendVerificationEmail(email) {
+        window.resendVerificationEmail = async function(email) {
             const resendBtn = document.getElementById('resendBtn');
             if (!resendBtn || !email) return;
             
@@ -670,7 +672,7 @@
                     resendBtn.style.color = '';
                 }, 3000);
             }
-        }
+        };
 
         // Set button loading state
         function setButtonLoading(button, loading) {
@@ -841,7 +843,7 @@
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            // Validation
+            // Client-side validation
             if (!username || !email || !password || !confirmPassword) {
                 showError('register', 'Please fill in all fields');
                 setButtonLoading(button, false);
@@ -875,7 +877,9 @@
             }
 
             try {
+                console.log('Attempting registration for:', username, email);
                 const result = await api.register(username, email, password);
+                console.log('Registration result:', result);
                 
                 // Check if registration requires email verification
                 if (result.requiresVerification) {
@@ -896,7 +900,17 @@
                 
             } catch (error) {
                 console.error('Registration error:', error);
-                showError('register', error.message || 'Registration failed. Please try again.');
+                
+                // More specific error handling
+                if (error.message.includes('Username or email already exists')) {
+                    showError('register', 'This username or email is already taken. Please try a different one.');
+                } else if (error.message.includes('Password must be at least')) {
+                    showError('register', 'Password must be at least 6 characters long');
+                } else if (error.message.includes('Internal server error')) {
+                    showError('register', 'Server error occurred. Please try again in a moment or contact support if the problem persists.');
+                } else {
+                    showError('register', error.message || 'Registration failed. Please try again.');
+                }
             } finally {
                 setButtonLoading(button, false);
             }
