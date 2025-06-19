@@ -1,9 +1,6 @@
 class FantasyAPI {
     constructor() {
-        // 🚨 IMPORTANT: UPDATE THIS URL TO YOUR RAILWAY BACKEND URL 🚨
-        // Replace 'your-railway-app-name' with your actual Railway app name
-        this.baseURL = 'https://your-railway-app-name.up.railway.app/api';
-        // Example: this.baseURL = 'https://fantasy-tanks-api.up.railway.app/api';
+        this.baseURL = 'https:/fantasytanks-production.up.railway.app/api';
         
         this.token = localStorage.getItem('authToken');
     }
