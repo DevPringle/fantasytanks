@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const path = require('path');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -24,6 +26,98 @@ if (!JWT_SECRET) {
   console.error('Please set JWT_SECRET in your Railway environment variables');
   process.exit(1);
 }
+
+// EMAIL CONFIGURATION - FIXED VERSION
+const createEmailTransporter = () => {
+  const emailConfig = {
+    host: process.env.SMTP_HOST || 'smtp.zoho.com',
+    port: parseInt(process.env.SMTP_PORT) || 465,
+    secure: process.env.SMTP_SECURE === 'true' || true,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD
+    }
+  };
+
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+    console.log('No SMTP credentials provided. Email functionality disabled.');
+    return null;
+  }
+
+  // FIXED LINE - createTransport (not createTransporter)
+  return nodemailer.createTransport(emailConfig);
+};
+
+const emailTransporter = createEmailTransporter();
+
+if (emailTransporter) {
+  emailTransporter.verify((error, success) => {
+    if (error) {
+      console.log('Email transporter verification failed:', error);
+    } else {
+      console.log('Email server is ready to send messages');
+    }
+  });
+}
+
+const generatePasswordResetEmail = (username, resetToken, baseUrl) => {
+  const resetUrl = `${baseUrl}/reset-password.html?token=${resetToken}`;
+  
+  return {
+    subject: 'Password Reset - WoT Fantasy',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a2332; color: white; padding: 20px; border-radius: 10px;">
+        <h2 style="color: #00d4ff; text-align: center;">Password Reset Request</h2>
+        <p>Hello <strong>${username}</strong>,</p>
+        <p>We received a request to reset your password for your Fantasy Tanks account.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" style="background: linear-gradient(135deg, #00d4ff, #00b8e6); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Your Password</a>
+        </div>
+        <p>If the button doesn't work, copy and paste this link into your browser:</p>
+        <p style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; word-break: break-all; font-family: monospace;">${resetUrl}</p>
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; font-size: 0.9rem;"><strong>🔒 Security Info:</strong></p>
+          <ul style="margin: 10px 0; font-size: 0.9rem;">
+            <li>This link expires in 1 hour</li>
+            <li>If you didn't request this, ignore this email</li>
+            <li>Never share this link with anyone</li>
+          </ul>
+        </div>
+        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.6); text-align: center; margin-top: 30px;">
+          This is an automated message from Fantasy Tanks. Please do not reply.
+        </p>
+      </div>
+    `,
+    text: `Password Reset - Fantasy Tanks\n\nHello ${username},\n\nTo reset your password, visit: ${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, ignore this email.`
+  };
+};
+
+const generateWelcomeEmail = (username, baseUrl) => {
+  return {
+    subject: 'Welcome to WoT Fantasy!',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a2332; color: white; padding: 20px; border-radius: 10px;">
+        <h2 style="color: #00d4ff; text-align: center;">Welcome to Fantasy Tanks!</h2>
+        <p>Hello <strong>${username}</strong>,</p>
+        <p>Thank you for joining Fantasy Tanks! Your account has been successfully created.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${baseUrl}/tournaments.html" style="background: linear-gradient(135deg, #00d4ff, #00b8e6); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Start Playing Now</a>
+        </div>
+        <p>With Fantasy Tanks, you can:</p>
+        <ul>
+          <li>Draft pro players from real tournaments</li>
+          <li>Earn points based on their live performance</li>
+          <li>Compete against other fantasy managers</li>
+          <li>Climb the leaderboards</li>
+        </ul>
+        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.6); text-align: center; margin-top: 30px;">
+          Welcome to the Fantasy Tanks community!
+        </p>
+      </div>
+    `,
+    text: `Welcome to Fantasy Tanks!\n\nHello ${username},\n\nThank you for joining! Visit ${baseUrl}/tournaments.html to start playing.`
+  };
+};
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -169,10 +263,28 @@ app.post('/api/auth/register', async (req, res) => {
 
     const result = await pool.query(
       'INSERT INTO users (username, email, password_hash, email_verified) VALUES ($1, $2, $3, $4) RETURNING id, username, email',
-      [username, email, passwordHash, true]
+      [username, email, passwordHash, !emailTransporter]
     );
 
     const user = result.rows[0];
+
+    // Send welcome email if configured
+    if (emailTransporter) {
+      try {
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        const welcomeEmail = generateWelcomeEmail(username, baseUrl);
+        await emailTransporter.sendMail({
+          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          to: email,
+          subject: welcomeEmail.subject,
+          html: welcomeEmail.html,
+          text: welcomeEmail.text
+        });
+        console.log('Welcome email sent to:', email);
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+      }
+    }
 
     const token = jwt.sign(
       { userId: user.id, username: user.username },
@@ -242,7 +354,6 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Temporary password reset that returns success but doesn't send email
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -251,11 +362,166 @@ app.post('/api/auth/forgot-password', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    // Just return success message without actually sending email
-    res.json({ message: 'Password reset functionality temporarily disabled. Please contact support.' });
+    if (!emailTransporter) {
+      return res.status(503).json({ error: 'Email service not configured' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, username, email FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ message: 'If an account with that email exists, a password reset link has been sent.' });
+    }
+
+    const user = result.rows[0];
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000);
+
+    await pool.query(
+      'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, resetToken, expiresAt]
+    );
+
+    try {
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const resetEmail = generatePasswordResetEmail(user.username, resetToken, baseUrl);
+      
+      await emailTransporter.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: user.email,
+        subject: resetEmail.subject,
+        html: resetEmail.html,
+        text: resetEmail.text
+      });
+
+      console.log('Password reset email sent to:', user.email);
+      res.json({ message: 'If an account with that email exists, a password reset link has been sent.' });
+
+    } catch (emailError) {
+      console.error('Failed to send password reset email:', emailError);
+      res.status(500).json({ error: 'Failed to send password reset email' });
+    }
 
   } catch (error) {
     console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const result = await pool.query(`
+      SELECT pr.id, pr.user_id, pr.expires_at, pr.used, u.username 
+      FROM password_resets pr
+      JOIN users u ON pr.user_id = u.id
+      WHERE pr.token = $1
+    `, [token]);
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid reset token' });
+    }
+
+    const resetRecord = result.rows[0];
+
+    if (resetRecord.used) {
+      return res.status(400).json({ error: 'Reset token has already been used' });
+    }
+
+    if (new Date() > new Date(resetRecord.expires_at)) {
+      return res.status(400).json({ error: 'Reset token has expired' });
+    }
+
+    res.json({ 
+      valid: true, 
+      username: resetRecord.username,
+      message: 'Reset token is valid' 
+    });
+
+  } catch (error) {
+    console.error('Verify reset token error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const result = await pool.query(`
+      SELECT pr.id, pr.user_id, pr.expires_at, pr.used, u.username, u.email
+      FROM password_resets pr
+      JOIN users u ON pr.user_id = u.id
+      WHERE pr.token = $1
+    `, [token]);
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid reset token' });
+    }
+
+    const resetRecord = result.rows[0];
+
+    if (resetRecord.used) {
+      return res.status(400).json({ error: 'Reset token has already been used' });
+    }
+
+    if (new Date() > new Date(resetRecord.expires_at)) {
+      return res.status(400).json({ error: 'Reset token has expired' });
+    }
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    await pool.query('BEGIN');
+    
+    try {
+      await pool.query(
+        'UPDATE users SET password_hash = $1 WHERE id = $2',
+        [passwordHash, resetRecord.user_id]
+      );
+
+      await pool.query(
+        'UPDATE password_resets SET used = true WHERE id = $1',
+        [resetRecord.id]
+      );
+
+      await pool.query('COMMIT');
+
+      const authToken = jwt.sign(
+        { userId: resetRecord.user_id, username: resetRecord.username },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.json({
+        message: 'Password reset successful',
+        token: authToken,
+        user: {
+          id: resetRecord.user_id,
+          username: resetRecord.username,
+          email: resetRecord.email
+        }
+      });
+
+    } catch (error) {
+      await pool.query('ROLLBACK');
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Reset password error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
