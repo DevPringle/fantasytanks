@@ -61,6 +61,12 @@ class FantasyAPI {
                 body: JSON.stringify({ username, email, password })
             });
 
+            // If registration requires verification, don't store token yet
+            if (response.requiresVerification) {
+                return response;
+            }
+
+            // If auto-verified (no email service), store token
             if (response.token) {
                 this.token = response.token;
                 localStorage.setItem('authToken', this.token);
@@ -71,6 +77,36 @@ class FantasyAPI {
             }
         } catch (error) {
             throw new Error(error.message || 'Registration failed');
+        }
+    }
+
+    // NEW EMAIL VERIFICATION METHODS
+    async verifyEmail(token) {
+        try {
+            const response = await this.request(`/auth/verify-email/${token}`);
+            
+            // If verification successful and we get a token, store it
+            if (response.token) {
+                this.token = response.token;
+                localStorage.setItem('authToken', this.token);
+                localStorage.setItem('user', JSON.stringify(response.user));
+            }
+            
+            return response;
+        } catch (error) {
+            throw new Error(error.message || 'Email verification failed');
+        }
+    }
+
+    async resendVerification(email) {
+        try {
+            const response = await this.request('/auth/resend-verification', {
+                method: 'POST',
+                body: JSON.stringify({ email })
+            });
+            return response;
+        } catch (error) {
+            throw new Error(error.message || 'Failed to resend verification email');
         }
     }
 
@@ -462,6 +498,75 @@ class FantasyAPI {
         return {
             valid: usernameRegex.test(username),
             message: 'Username must be 3-20 characters and contain only letters, numbers, and underscores'
+        };
+    }
+
+    // EMAIL VERIFICATION HELPER METHODS
+    
+    // Check if current user needs email verification
+    needsEmailVerification() {
+        const user = this.getCurrentUser();
+        return user && !user.email_verified;
+    }
+
+    // Get user's email for verification purposes
+    getUserEmail() {
+        const user = this.getCurrentUser();
+        return user ? user.email : null;
+    }
+
+    // Handle login responses that require verification
+    handleLoginResponse(response) {
+        if (response.requiresVerification) {
+            return {
+                success: false,
+                requiresVerification: true,
+                email: response.email,
+                message: response.error || 'Please verify your email address before logging in'
+            };
+        }
+
+        if (response.token) {
+            this.token = response.token;
+            localStorage.setItem('authToken', this.token);
+            localStorage.setItem('user', JSON.stringify(response.user));
+            return {
+                success: true,
+                user: response.user,
+                message: response.message || 'Login successful'
+            };
+        }
+
+        return {
+            success: false,
+            message: 'Login failed'
+        };
+    }
+
+    // Handle registration responses that may require verification
+    handleRegistrationResponse(response) {
+        if (response.requiresVerification) {
+            return {
+                success: true,
+                requiresVerification: true,
+                message: response.message || 'Please check your email to verify your account'
+            };
+        }
+
+        if (response.token) {
+            this.token = response.token;
+            localStorage.setItem('authToken', this.token);
+            localStorage.setItem('user', JSON.stringify(response.user));
+            return {
+                success: true,
+                user: response.user,
+                message: response.message || 'Account created successfully'
+            };
+        }
+
+        return {
+            success: false,
+            message: 'Registration failed'
         };
     }
 }
