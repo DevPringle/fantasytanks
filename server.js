@@ -620,7 +620,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// PASSWORD RESET (existing functionality)
+// PASSWORD RESET
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -683,7 +683,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
   }
 });
 
-// PASSWORD RESET VERIFICATION (existing)
+// PASSWORD RESET VERIFICATION
 app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -721,7 +721,7 @@ app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
   }
 });
 
-// RESET PASSWORD (existing)
+// RESET PASSWORD
 app.post('/api/auth/reset-password', async (req, res) => {
   try {
     const { token, password } = req.body;
