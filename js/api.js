@@ -1,6 +1,10 @@
 class FantasyAPI {
     constructor() {
-        this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
+        // 🚨 IMPORTANT: UPDATE THIS URL TO YOUR RAILWAY BACKEND URL 🚨
+        // Replace 'your-railway-app-name' with your actual Railway app name
+        this.baseURL = 'https://your-railway-app-name.up.railway.app/api';
+        // Example: this.baseURL = 'https://fantasy-tanks-api.up.railway.app/api';
+        
         this.token = localStorage.getItem('authToken');
     }
 
@@ -70,6 +74,60 @@ class FantasyAPI {
             }
         } catch (error) {
             throw new Error(error.message || 'Registration failed');
+        }
+    }
+
+    // Password reset functionality
+    async forgotPassword(email) {
+        try {
+            const response = await this.request('/auth/forgot-password', {
+                method: 'POST',
+                body: JSON.stringify({ email })
+            });
+            return response;
+        } catch (error) {
+            throw new Error(error.message || 'Failed to send password reset email');
+        }
+    }
+
+    async verifyResetToken(token) {
+        try {
+            const response = await this.request(`/auth/verify-reset-token/${token}`);
+            return response;
+        } catch (error) {
+            throw new Error(error.message || 'Invalid or expired reset token');
+        }
+    }
+
+    async resetPassword(token, newPassword) {
+        try {
+            const response = await this.request('/auth/reset-password', {
+                method: 'POST',
+                body: JSON.stringify({ token, password: newPassword })
+            });
+
+            if (response.token) {
+                this.token = response.token;
+                localStorage.setItem('authToken', this.token);
+                localStorage.setItem('user', JSON.stringify(response.user));
+                return response;
+            } else {
+                throw new Error('Password reset successful but no token received');
+            }
+        } catch (error) {
+            throw new Error(error.message || 'Password reset failed');
+        }
+    }
+
+    async changePassword(currentPassword, newPassword) {
+        try {
+            const response = await this.request('/auth/change-password', {
+                method: 'POST',
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+            return response;
+        } catch (error) {
+            throw new Error(error.message || 'Password change failed');
         }
     }
 
@@ -349,6 +407,65 @@ class FantasyAPI {
             console.error('Error getting roster completion status:', error);
             return { authenticated: true, error: error.message };
         }
+    }
+
+    // Password validation utility
+    validatePassword(password) {
+        const errors = [];
+        
+        if (!password) {
+            errors.push('Password is required');
+            return { valid: false, errors };
+        }
+        
+        if (password.length < 6) {
+            errors.push('Password must be at least 6 characters long');
+        }
+        
+        if (!/[A-Za-z]/.test(password)) {
+            errors.push('Password must contain at least one letter');
+        }
+        
+        if (!/\d/.test(password)) {
+            errors.push('Password should contain at least one number for better security');
+        }
+        
+        return {
+            valid: errors.length === 0,
+            errors,
+            strength: this.getPasswordStrength(password)
+        };
+    }
+
+    // Password strength calculator
+    getPasswordStrength(password) {
+        let score = 0;
+        
+        if (password.length >= 8) score += 1;
+        if (password.length >= 12) score += 1;
+        if (/[a-z]/.test(password)) score += 1;
+        if (/[A-Z]/.test(password)) score += 1;
+        if (/\d/.test(password)) score += 1;
+        if (/[^A-Za-z0-9]/.test(password)) score += 1;
+        
+        if (score < 3) return 'weak';
+        if (score < 5) return 'medium';
+        return 'strong';
+    }
+
+    // Email validation utility
+    validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    // Username validation utility
+    validateUsername(username) {
+        const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+        return {
+            valid: usernameRegex.test(username),
+            message: 'Username must be 3-20 characters and contain only letters, numbers, and underscores'
+        };
     }
 }
 
