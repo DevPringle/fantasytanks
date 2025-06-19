@@ -150,6 +150,16 @@
             background: rgba(255, 255, 255, 0.15);
         }
 
+        .form-input.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .form-input.success {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
         .form-button {
             width: 100%;
             padding: 1rem;
@@ -166,7 +176,7 @@
             overflow: hidden;
         }
 
-        .form-button:hover {
+        .form-button:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
         }
@@ -285,6 +295,66 @@
             padding-right: 3rem;
         }
 
+        .forgot-password-link {
+            display: block;
+            text-align: right;
+            margin-top: 0.5rem;
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password-link:hover {
+            color: #ffffff;
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 0.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+
+        .strength-weak { color: #ef4444; }
+        .strength-weak .strength-fill { background: #ef4444; width: 33%; }
+        .strength-medium { color: #f59e0b; }
+        .strength-medium .strength-fill { background: #f59e0b; width: 66%; }
+        .strength-strong { color: #22c55e; }
+        .strength-strong .strength-fill { background: #22c55e; width: 100%; }
+
+        .validation-message {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #ffffff;
+        }
+
         @media (max-width: 480px) {
             .auth-container {
                 margin: 2rem 1rem;
@@ -314,6 +384,7 @@
         <div class="auth-tabs">
             <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
             <button class="auth-tab" onclick="switchTab('register')">Register</button>
+            <button class="auth-tab" onclick="switchTab('forgot')" style="display: none;">Reset</button>
         </div>
 
         <!-- Login Form -->
@@ -330,6 +401,7 @@
                         <span class="material-icons">visibility</span>
                     </button>
                 </div>
+                <a href="#" class="forgot-password-link" onclick="switchTab('forgot'); return false;">Forgot your password?</a>
             </div>
             <div id="loginError" class="error-message" style="display: none;"></div>
             <div id="loginSuccess" class="success-message" style="display: none;"></div>
@@ -341,10 +413,12 @@
             <div class="form-group">
                 <label for="registerUsername" class="form-label">Username</label>
                 <input type="text" id="registerUsername" class="form-input" placeholder="Choose a username" required minlength="3" maxlength="20">
+                <div id="usernameValidation" class="validation-message"></div>
             </div>
             <div class="form-group">
                 <label for="registerEmail" class="form-label">Email</label>
                 <input type="email" id="registerEmail" class="form-input" placeholder="Enter your email address" required>
+                <div id="emailValidation" class="validation-message"></div>
             </div>
             <div class="form-group">
                 <label for="registerPassword" class="form-label">Password</label>
@@ -353,6 +427,12 @@
                     <button type="button" class="password-toggle" onclick="togglePassword('registerPassword')">
                         <span class="material-icons">visibility</span>
                     </button>
+                </div>
+                <div id="passwordStrength" class="password-strength" style="display: none;">
+                    <div class="strength-text">Password strength: <span id="strengthLabel">Weak</span></div>
+                    <div class="strength-bar">
+                        <div id="strengthFill" class="strength-fill"></div>
+                    </div>
                 </div>
             </div>
             <div class="form-group">
@@ -363,10 +443,24 @@
                         <span class="material-icons">visibility</span>
                     </button>
                 </div>
+                <div id="confirmValidation" class="validation-message"></div>
             </div>
             <div id="registerError" class="error-message" style="display: none;"></div>
             <div id="registerSuccess" class="success-message" style="display: none;"></div>
             <button type="submit" class="form-button">Create Account</button>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgotForm" class="auth-form">
+            <div class="form-group">
+                <label for="forgotEmail" class="form-label">Email Address</label>
+                <input type="email" id="forgotEmail" class="form-input" placeholder="Enter your email address" required>
+                <div class="validation-message">We'll send you a password reset link</div>
+            </div>
+            <div id="forgotError" class="error-message" style="display: none;"></div>
+            <div id="forgotSuccess" class="success-message" style="display: none;"></div>
+            <button type="submit" class="form-button">Send Reset Link</button>
+            <a href="#" class="back-link" onclick="switchTab('login'); return false;">Back to Sign In</a>
         </form>
 
         <div class="form-footer">
@@ -382,7 +476,17 @@
         function switchTab(tab) {
             // Updates tab buttons
             document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            
+            // Find and activate the correct tab button
+            const tabButtons = document.querySelectorAll('.auth-tab');
+            if (tab === 'login') {
+                tabButtons[0].classList.add('active');
+            } else if (tab === 'register') {
+                tabButtons[1].classList.add('active');
+            } else if (tab === 'forgot') {
+                tabButtons[2].style.display = 'block';
+                tabButtons[2].classList.add('active');
+            }
 
             // Updates forms
             document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
@@ -398,9 +502,12 @@
             if (tab === 'login') {
                 title.textContent = 'Welcome Back';
                 subtitle.textContent = 'Sign in to manage your fantasy roster';
-            } else {
+            } else if (tab === 'register') {
                 title.textContent = 'Join Fantasy Tanks';
                 subtitle.textContent = 'Create an account to start competing';
+            } else if (tab === 'forgot') {
+                title.textContent = 'Reset Password';
+                subtitle.textContent = 'Enter your email to receive a reset link';
             }
         }
 
@@ -459,6 +566,102 @@
             }
         }
 
+        // Update password strength indicator
+        function updatePasswordStrength(password) {
+            const strengthDiv = document.getElementById('passwordStrength');
+            const strengthLabel = document.getElementById('strengthLabel');
+            const strengthFill = document.getElementById('strengthFill');
+            
+            if (!password) {
+                strengthDiv.style.display = 'none';
+                return;
+            }
+            
+            strengthDiv.style.display = 'block';
+            const validation = api.validatePassword(password);
+            const strength = validation.strength;
+            
+            // Remove existing strength classes
+            strengthDiv.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+            
+            // Add new strength class and update label
+            strengthDiv.classList.add(`strength-${strength}`);
+            strengthLabel.textContent = strength.charAt(0).toUpperCase() + strength.slice(1);
+        }
+
+        // Real-time validation functions
+        function validateUsernameInput(username) {
+            const validation = api.validateUsername(username);
+            const validationDiv = document.getElementById('usernameValidation');
+            const input = document.getElementById('registerUsername');
+            
+            if (!username) {
+                validationDiv.textContent = '';
+                input.classList.remove('error', 'success');
+                return;
+            }
+            
+            if (validation.valid) {
+                validationDiv.textContent = 'Username looks good!';
+                validationDiv.style.color = '#22c55e';
+                input.classList.remove('error');
+                input.classList.add('success');
+            } else {
+                validationDiv.textContent = validation.message;
+                validationDiv.style.color = '#ef4444';
+                input.classList.remove('success');
+                input.classList.add('error');
+            }
+        }
+
+        function validateEmailInput(email) {
+            const validationDiv = document.getElementById('emailValidation');
+            const input = document.getElementById('registerEmail');
+            
+            if (!email) {
+                validationDiv.textContent = '';
+                input.classList.remove('error', 'success');
+                return;
+            }
+            
+            if (api.validateEmail(email)) {
+                validationDiv.textContent = 'Email format is valid';
+                validationDiv.style.color = '#22c55e';
+                input.classList.remove('error');
+                input.classList.add('success');
+            } else {
+                validationDiv.textContent = 'Please enter a valid email address';
+                validationDiv.style.color = '#ef4444';
+                input.classList.remove('success');
+                input.classList.add('error');
+            }
+        }
+
+        function validatePasswordConfirmation() {
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const validationDiv = document.getElementById('confirmValidation');
+            const input = document.getElementById('confirmPassword');
+            
+            if (!confirmPassword) {
+                validationDiv.textContent = '';
+                input.classList.remove('error', 'success');
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                validationDiv.textContent = 'Passwords match';
+                validationDiv.style.color = '#22c55e';
+                input.classList.remove('error');
+                input.classList.add('success');
+            } else {
+                validationDiv.textContent = 'Passwords do not match';
+                validationDiv.style.color = '#ef4444';
+                input.classList.remove('success');
+                input.classList.add('error');
+            }
+        }
+
         // Handle login form submission
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -513,36 +716,28 @@
                 return;
             }
 
-            if (username.length < 3) {
-                showError('register', 'Username must be at least 3 characters');
+            const usernameValidation = api.validateUsername(username);
+            if (!usernameValidation.valid) {
+                showError('register', usernameValidation.message);
                 setButtonLoading(button, false);
                 return;
             }
 
-            if (password.length < 6) {
-                showError('register', 'Password must be at least 6 characters');
+            if (!api.validateEmail(email)) {
+                showError('register', 'Please enter a valid email address');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            const passwordValidation = api.validatePassword(password);
+            if (!passwordValidation.valid) {
+                showError('register', passwordValidation.errors[0]);
                 setButtonLoading(button, false);
                 return;
             }
 
             if (password !== confirmPassword) {
                 showError('register', 'Passwords do not match');
-                setButtonLoading(button, false);
-                return;
-            }
-
-            // Email format validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showError('register', 'Please enter a valid email address');
-                setButtonLoading(button, false);
-                return;
-            }
-
-            // Username format validation
-            const usernameRegex = /^[a-zA-Z0-9_]+$/;
-            if (!usernameRegex.test(username)) {
-                showError('register', 'Username can only contain letters, numbers, and underscores');
                 setButtonLoading(button, false);
                 return;
             }
@@ -564,30 +759,61 @@
             }
         });
 
-        // Real-time password confirmation validation
-        document.getElementById('confirmPassword').addEventListener('input', (e) => {
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = e.target.value;
+        // Handle forgot password form submission
+        document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            if (confirmPassword && password !== confirmPassword) {
-                e.target.style.borderColor = '#ef4444';
-            } else {
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            const button = e.target.querySelector('.form-button');
+            setButtonLoading(button, true);
+            clearMessages();
+
+            const email = document.getElementById('forgotEmail').value.trim();
+
+            if (!email) {
+                showError('forgot', 'Please enter your email address');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            if (!api.validateEmail(email)) {
+                showError('forgot', 'Please enter a valid email address');
+                setButtonLoading(button, false);
+                return;
+            }
+
+            try {
+                const result = await api.forgotPassword(email);
+                showSuccess('forgot', result.message || 'If an account with that email exists, a password reset link has been sent.');
+                
+                // Reset form after success
+                document.getElementById('forgotEmail').value = '';
+                
+            } catch (error) {
+                console.error('Forgot password error:', error);
+                showError('forgot', error.message || 'Failed to send password reset email. Please try again.');
+            } finally {
+                setButtonLoading(button, false);
             }
         });
 
-        // Real-time username validation
+        // Real-time validation event listeners
         document.getElementById('registerUsername').addEventListener('input', (e) => {
-            const username = e.target.value;
-            const usernameRegex = /^[a-zA-Z0-9_]+$/;
-            
-            if (username && !usernameRegex.test(username)) {
-                e.target.style.borderColor = '#ef4444';
-            } else if (username.length >= 3) {
-                e.target.style.borderColor = '#22c55e';
-            } else {
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            validateUsernameInput(e.target.value);
+        });
+
+        document.getElementById('registerEmail').addEventListener('input', (e) => {
+            validateEmailInput(e.target.value);
+        });
+
+        document.getElementById('registerPassword').addEventListener('input', (e) => {
+            updatePasswordStrength(e.target.value);
+            if (document.getElementById('confirmPassword').value) {
+                validatePasswordConfirmation();
             }
+        });
+
+        document.getElementById('confirmPassword').addEventListener('input', (e) => {
+            validatePasswordConfirmation();
         });
 
         // Check if user is already logged in
@@ -613,6 +839,16 @@
 
         // Auto-focus first input
         document.getElementById('loginUsername').focus();
+
+        // Check for forgot password redirect from reset-password page
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('forgot') === 'true') {
+            switchTab('forgot');
+            const email = urlParams.get('email');
+            if (email) {
+                document.getElementById('forgotEmail').value = decodeURIComponent(email);
+            }
+        }
     </script>
 </body>
 </html>
