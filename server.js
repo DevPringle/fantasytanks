@@ -19,7 +19,14 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+// Security check - fail fast if JWT_SECRET is not set
+if (!JWT_SECRET) {
+  console.error('FATAL ERROR: JWT_SECRET environment variable is not set');
+  console.error('Please set JWT_SECRET in your Railway environment variables');
+  process.exit(1);
+}
 
 // Email configuration
 const createEmailTransporter = () => {
@@ -33,7 +40,7 @@ const createEmailTransporter = () => {
     }
   };
 
-  // For development, disable email if no SMTP credentials provided
+  // disable email if no SMTP credentials provided
   if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
     console.log('No SMTP credentials provided. Email functionality disabled for development.');
     return null;
