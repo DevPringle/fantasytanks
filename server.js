@@ -27,7 +27,6 @@ if (!JWT_SECRET) {
   process.exit(1);
 }
 
-// EMAIL CONFIGURATION
 const createEmailTransporter = () => {
   const emailConfig = {
     host: process.env.SMTP_HOST || 'smtp.zoho.com',
@@ -44,7 +43,7 @@ const createEmailTransporter = () => {
     return null;
   }
 
-  return nodemailer.createTransport(emailConfig);
+  return nodemailer.createTransporter(emailConfig);
 };
 
 const emailTransporter = createEmailTransporter();
@@ -59,7 +58,6 @@ if (emailTransporter) {
   });
 }
 
-// EMAIL TEMPLATES
 const generateEmailVerificationEmail = (username, verificationToken, baseUrl) => {
   const verifyUrl = `${baseUrl}/verify-email.html?token=${verificationToken}`;
   
@@ -233,6 +231,18 @@ async function initializeTables() {
     `);
 
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS player_match_performance (
+        id SERIAL PRIMARY KEY,
+        player_name VARCHAR(100) NOT NULL,
+        tournament_id VARCHAR(100) NOT NULL,
+        match_day INTEGER NOT NULL,
+        points DECIMAL(10,2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(player_name, tournament_id, match_day)
+      )
+    `);
+
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS tournaments (
         tournament_id VARCHAR(100) PRIMARY KEY,
         tournament_name VARCHAR(255) NOT NULL,
@@ -284,7 +294,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'WoTFantasy API is running' });
 });
 
-// REGISTRATION WITH EMAIL VERIFICATION
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -309,7 +318,6 @@ app.post('/api/auth/register', async (req, res) => {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user (email_verified = false by default)
     const result = await pool.query(
       'INSERT INTO users (username, email, password_hash, email_verified) VALUES ($1, $2, $3, $4) RETURNING id, username, email',
       [username, email, passwordHash, false]
@@ -317,20 +325,16 @@ app.post('/api/auth/register', async (req, res) => {
 
     const user = result.rows[0];
 
-    // If email is configured, send verification email
     if (emailTransporter) {
       try {
-        // Generate verification token
         const verificationToken = crypto.randomBytes(32).toString('hex');
-        const expiresAt = new Date(Date.now() + 86400000); // 24 hours
+        const expiresAt = new Date(Date.now() + 86400000);
 
-        // Store verification token
         await pool.query(
           'INSERT INTO email_verifications (user_id, token, expires_at) VALUES ($1, $2, $3)',
           [user.id, verificationToken, expiresAt]
         );
 
-        // Send verification email
         const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         const verificationEmail = generateEmailVerificationEmail(username, verificationToken, baseUrl);
         
@@ -358,7 +362,6 @@ app.post('/api/auth/register', async (req, res) => {
       } catch (emailError) {
         console.error('Failed to send verification email:', emailError);
         
-        // If email fails, auto-verify the account
         await pool.query('UPDATE users SET email_verified = true WHERE id = $1', [user.id]);
         
         const token = jwt.sign(
@@ -379,7 +382,6 @@ app.post('/api/auth/register', async (req, res) => {
         });
       }
     } else {
-      // No email configured, auto-verify account
       await pool.query('UPDATE users SET email_verified = true WHERE id = $1', [user.id]);
       
       const token = jwt.sign(
@@ -406,7 +408,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// EMAIL VERIFICATION ENDPOINT
 app.get('/api/auth/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -432,7 +433,6 @@ app.get('/api/auth/verify-email/:token', async (req, res) => {
       return res.status(400).json({ error: 'Verification token has expired' });
     }
 
-    // Mark email as verified
     await pool.query('BEGIN');
     
     try {
@@ -448,7 +448,6 @@ app.get('/api/auth/verify-email/:token', async (req, res) => {
 
       await pool.query('COMMIT');
 
-      // Send welcome email
       if (emailTransporter) {
         try {
           const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
@@ -468,7 +467,6 @@ app.get('/api/auth/verify-email/:token', async (req, res) => {
         }
       }
 
-      // Generate auth token
       const authToken = jwt.sign(
         { userId: verificationRecord.user_id, username: verificationRecord.username },
         JWT_SECRET,
@@ -497,7 +495,6 @@ app.get('/api/auth/verify-email/:token', async (req, res) => {
   }
 });
 
-// RESEND VERIFICATION EMAIL
 app.post('/api/auth/resend-verification', async (req, res) => {
   try {
     const { email } = req.body;
@@ -525,18 +522,15 @@ app.post('/api/auth/resend-verification', async (req, res) => {
       return res.status(400).json({ error: 'Email is already verified' });
     }
 
-    // Generate new verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 86400000); // 24 hours
+    const expiresAt = new Date(Date.now() + 86400000);
 
-    // Delete old verification tokens and create new one
     await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [user.id]);
     await pool.query(
       'INSERT INTO email_verifications (user_id, token, expires_at) VALUES ($1, $2, $3)',
       [user.id, verificationToken, expiresAt]
     );
 
-    // Send new verification email
     try {
       const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
       const verificationEmail = generateEmailVerificationEmail(user.username, verificationToken, baseUrl);
@@ -563,7 +557,6 @@ app.post('/api/auth/resend-verification', async (req, res) => {
   }
 });
 
-// LOGIN WITH EMAIL VERIFICATION CHECK
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -588,7 +581,6 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check if email is verified
     if (!user.email_verified) {
       return res.status(403).json({ 
         error: 'Please verify your email address before logging in',
@@ -620,7 +612,6 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// PASSWORD RESET
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -644,13 +635,12 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     const user = result.rows[0];
 
-    // Only allow password reset for verified accounts
     if (!user.email_verified) {
       return res.status(403).json({ error: 'Please verify your email address first before resetting your password' });
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+    const expiresAt = new Date(Date.now() + 3600000);
 
     await pool.query(
       'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
@@ -683,7 +673,6 @@ app.post('/api/auth/forgot-password', async (req, res) => {
   }
 });
 
-// PASSWORD RESET VERIFICATION
 app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -721,7 +710,6 @@ app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
   }
 });
 
-// RESET PASSWORD
 app.post('/api/auth/reset-password', async (req, res) => {
   try {
     const { token, password } = req.body;
@@ -794,103 +782,4 @@ app.post('/api/auth/reset-password', async (req, res) => {
       throw error;
     }
 
-  } catch (error) {
-    console.error('Reset password error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// EXISTING ROUTES
-app.get('/api/tournaments', async (req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT * FROM tournaments ORDER BY created_at DESC'
-    );
-    
-    res.json({ tournaments: result.rows });
-  } catch (error) {
-    console.error('Get tournaments error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
-  try {
-    const { tournamentId } = req.params;
-    
-    const result = await pool.query(`
-      SELECT 
-        p.player_name,
-        p.team_code,
-        p.battles_played,
-        p.total_points,
-        p.average_points,
-        p.picked_percentage
-      FROM players p
-      WHERE p.tournament_id = $1
-      ORDER BY p.total_points DESC
-    `, [tournamentId]);
-    
-    res.json({ players: result.rows });
-  } catch (error) {
-    console.error('Get players error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.get('/api/roster', authenticateToken, async (req, res) => {
-  try {
-    const { tournamentId, matchDay = 1 } = req.query;
-    const userId = req.user.userId;
-
-    if (!tournamentId) {
-      return res.status(400).json({ error: 'Tournament ID is required' });
-    }
-
-    const result = await pool.query(
-      'SELECT roster FROM rosters WHERE user_id = $1 AND tournament_id = $2 AND match_day = $3',
-      [userId, tournamentId, matchDay]
-    );
-
-    if (result.rows.length === 0) {
-      return res.json({ roster: [] });
-    }
-
-    res.json({ roster: result.rows[0].roster });
-
-  } catch (error) {
-    console.error('Get roster error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.post('/api/roster', authenticateToken, async (req, res) => {
-  try {
-    const { tournamentId, roster, matchDay = 1 } = req.body;
-    const userId = req.user.userId;
-
-    if (!tournamentId || !roster) {
-      return res.status(400).json({ error: 'Tournament ID and roster are required' });
-    }
-
-    await pool.query(`
-      INSERT INTO rosters (user_id, tournament_id, roster, match_day, updated_at)
-      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-      ON CONFLICT (user_id, tournament_id, match_day)
-      DO UPDATE SET 
-        roster = EXCLUDED.roster,
-        updated_at = CURRENT_TIMESTAMP
-    `, [userId, tournamentId, JSON.stringify(roster), matchDay]);
-
-    res.json({ message: 'Roster saved successfully' });
-
-  } catch (error) {
-    console.error('Save roster error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.listen(port, async () => {
-  console.log(`Server running on port ${port}`);
-  await initializeTables();
-});
+  
