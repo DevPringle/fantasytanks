@@ -1344,7 +1344,7 @@
             to { transform: translateX(0); opacity: 1; }
         }
     </style>
-<script src="api.js"></script>
+<script src="js/api.js"></script>
 </head>
 <body>
     <header class="header" id="header">
@@ -1862,85 +1862,6 @@
     </footer>
 
     <script>
-        // Fantasy API client for connecting to backend
-        class FantasyAPI {
-            constructor() {
-                this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
-                this.token = localStorage.getItem('authToken');
-            }
-
-            async request(endpoint, options = {}) {
-                const url = `${this.baseURL}${endpoint}`;
-                const config = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    },
-                    ...options
-                };
-
-                if (this.token) {
-                    config.headers.Authorization = `Bearer ${this.token}`;
-                }
-
-                try {
-                    const response = await fetch(url, config);
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || 'API request failed');
-                    }
-
-                    return data;
-                } catch (error) {
-                    console.error('API request error:', error);
-                    throw error;
-                }
-            }
-
-            async getRoster(tournamentId, matchDay = 1) {
-                return await this.request(`/roster?tournamentId=${tournamentId}&matchDay=${matchDay}`);
-            }
-
-            async saveRoster(tournamentId, roster, matchDay = 1) {
-                return await this.request('/roster', {
-                    method: 'POST',
-                    body: JSON.stringify({ tournamentId, roster, matchDay })
-                });
-            }
-
-            async getPlayers(tournamentId) {
-                return await this.request(`/tournaments/${tournamentId}/players`);
-            }
-            
-            async getTeams(tournamentId) {
-                return await this.request(`/tournaments/${tournamentId}/teams`);
-            }
-
-            getCurrentUser() {
-                if (!this.token) return null;
-                try {
-                    const payload = JSON.parse(atob(this.token.split('.')[1]));
-                    return { username: payload.username, id: payload.userId };
-                } catch (error) {
-                    return null;
-                }
-            }
-
-            logout() {
-                localStorage.removeItem('authToken');
-                this.token = null;
-                window.location.reload();
-            }
-
-            isAuthenticated() {
-                return !!this.token;
-            }
-        }
-
-        // Initialize API
-        const api = new FantasyAPI();
-
         // Global variables
         let playersData = [];
         let teamsData = [];
