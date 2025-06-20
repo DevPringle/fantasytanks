@@ -46,7 +46,7 @@ const createEmailTransporter = () => {
     return null;
   }
 
-  return nodemailer.createTransport(emailConfig);
+  return nodemailer.createTransporter(emailConfig);
 };
 
 const emailTransporter = createEmailTransporter();
@@ -175,6 +175,7 @@ const authenticateToken = (req, res, next) => {
 
 async function initializeTables() {
   try {
+    // Users table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -186,6 +187,7 @@ async function initializeTables() {
       )
     `);
 
+    // Email verifications table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS email_verifications (
         id SERIAL PRIMARY KEY,
@@ -197,6 +199,7 @@ async function initializeTables() {
       )
     `);
 
+    // Password resets table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS password_resets (
         id SERIAL PRIMARY KEY,
@@ -208,6 +211,7 @@ async function initializeTables() {
       )
     `);
 
+    // Rosters table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS rosters (
         id SERIAL PRIMARY KEY,
@@ -221,30 +225,23 @@ async function initializeTables() {
       )
     `);
 
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS player_scores (
-        id SERIAL PRIMARY KEY,
-        player_name VARCHAR(100) NOT NULL,
-        tournament_id VARCHAR(100) NOT NULL,
-        match_day INTEGER NOT NULL,
-        points DECIMAL(10,2) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(player_name, tournament_id, match_day)
-      )
-    `);
-
+    // Player match performance table (individual match day scores)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS player_match_performance (
         id SERIAL PRIMARY KEY,
         player_name VARCHAR(100) NOT NULL,
         tournament_id VARCHAR(100) NOT NULL,
         match_day INTEGER NOT NULL,
-        match_points points DECIMAL(10,2) NOT NULL,
+        match_points DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        battles_played INTEGER DEFAULT 0,
+        total_battles INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(player_name, tournament_id, match_day)
       )
     `);
 
+    // Tournaments table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS tournaments (
         tournament_id VARCHAR(100) PRIMARY KEY,
@@ -259,6 +256,7 @@ async function initializeTables() {
       )
     `);
 
+    // Teams table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS teams (
         team_name VARCHAR(100) NOT NULL,
@@ -269,6 +267,7 @@ async function initializeTables() {
       )
     `);
 
+    // Players table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS players (
         player_name VARCHAR(100) NOT NULL,
@@ -282,6 +281,63 @@ async function initializeTables() {
         UNIQUE(tournament_id, player_name)
       )
     `);
+
+    // Insert default tournament data
+    await pool.query(`
+      INSERT INTO tournaments (tournament_id, tournament_name, region, status, max_roster_size)
+      VALUES ('na-15v15-summer-series', 'NA 15v15 Summer Series', 'North America', 'active', 10)
+      ON CONFLICT (tournament_id) DO NOTHING
+    `);
+
+    // Insert sample teams
+    const teams = [
+      { name: 'CRAKD', code: 'CRAKD' },
+      { name: 'DOPAMINE', code: 'DOPAMINE' },
+      { name: 'ARCANE', code: 'ARCANE' },
+      { name: 'MVP', code: 'MVP' },
+      { name: 'Dönerteller', code: 'DONER' },
+      { name: 'Employed', code: 'EMPLOY' },
+      { name: 'Cine Pa', code: 'CINE' },
+      { name: 'FUMES', code: 'FUMES' }
+    ];
+
+    for (const team of teams) {
+      await pool.query(`
+        INSERT INTO teams (team_name, team_code, tournament_id, region)
+        VALUES ($1, $2, 'na-15v15-summer-series', 'North America')
+        ON CONFLICT (tournament_id, team_code) DO NOTHING
+      `, [team.name, team.code]);
+    }
+
+    // Insert sample players
+    const samplePlayers = [
+      { name: 'bigtanker13', team: 'CRAKD', points: 5714.7, avg: 53.9, picked: '50.04%' },
+      { name: 'Ferret', team: 'DOPAMINE', points: 5550.5, avg: 48.7, picked: '57.61%' },
+      { name: 'Poi', team: 'ARCANE', points: 5298.5, avg: 49.5, picked: '55.14%' },
+      { name: 'Sadge', team: 'MVP', points: 4868.7, avg: 46.4, picked: '11.85%' },
+      { name: 'will', team: 'EMPLOY', points: 4781.3, avg: 45.8, picked: '29.86%' },
+      { name: 'pringle', team: 'CRAKD', points: 4567.0, avg: 43.9, picked: '17.93%' },
+      { name: 'Charan', team: 'DOPAMINE', points: 4513.9, avg: 49.1, picked: '10.58%' },
+      { name: 'Stored', team: 'ARCANE', points: 4492.0, avg: 52.8, picked: '7.50%' },
+      { name: 'Employed', team: 'EMPLOY', points: 4461.1, avg: 44.6, picked: '33.53%' },
+      { name: 'Player1', team: 'MVP', points: 4395.0, avg: 48.3, picked: '63.84%' },
+      { name: 'Player2', team: 'DONER', points: 4339.6, avg: 49.1, picked: '25.67%' },
+      { name: 'Player3', team: 'CINE', points: 4268.6, avg: 47.8, picked: '18.42%' },
+      { name: 'Player4', team: 'FUMES', points: 4036.9, avg: 44.2, picked: '22.15%' },
+      { name: 'Player5', team: 'CRAKD', points: 4029.7, avg: 40.3, picked: '15.78%' },
+      { name: 'Player6', team: 'DOPAMINE', points: 3998.4, avg: 45.7, picked: '31.25%' }
+    ];
+
+    for (const player of samplePlayers) {
+      await pool.query(`
+        INSERT INTO players (player_name, tournament_id, team_code, battles_played, total_points, average_points, picked_percentage)
+        VALUES ($1, 'na-15v15-summer-series', $2, '100%', $3, $4, $5)
+        ON CONFLICT (tournament_id, player_name) DO UPDATE SET
+          total_points = EXCLUDED.total_points,
+          average_points = EXCLUDED.average_points,
+          picked_percentage = EXCLUDED.picked_percentage
+      `, [player.name, player.team, player.points, player.avg, player.picked]);
+    }
 
     console.log('Database tables initialized successfully');
   } catch (error) {
@@ -791,10 +847,44 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
+// Fixed leaderboard endpoint with proper table structure
 app.get('/api/leaderboard/:tournamentId', async (req, res) => {
   try {
     const { tournamentId } = req.params;
     const { matchDay, minRosterSize = 10, limit, offset = 0 } = req.query;
+
+    // First check if we have any player scores data
+    const scoresCheck = await pool.query(`
+      SELECT COUNT(*) as count FROM player_scores 
+      WHERE tournament_id = $1
+    `, [tournamentId]);
+
+    if (parseInt(scoresCheck.rows[0].count) === 0) {
+      // No player scores yet, return empty leaderboard with metadata
+      const metadataQuery = `
+        SELECT 
+          COUNT(DISTINCT u.id) as total_participants,
+          COUNT(DISTINCT CASE WHEN jsonb_array_length(r.roster) >= $2 THEN u.id END) as complete_rosters,
+          COUNT(DISTINCT r.match_day) as total_match_days
+        FROM users u
+        JOIN rosters r ON u.id = r.user_id
+        WHERE r.tournament_id = $1
+      `;
+
+      const metadataResult = await pool.query(metadataQuery, [tournamentId, minRosterSize]);
+
+      return res.json({
+        leaderboard: [],
+        metadata: {
+          total_participants: parseInt(metadataResult.rows[0].total_participants) || 0,
+          complete_rosters: parseInt(metadataResult.rows[0].complete_rosters) || 0,
+          total_match_days: parseInt(metadataResult.rows[0].total_match_days) || 0,
+          showing_results_for: matchDay ? `Match Day ${matchDay}` : 'Overall Tournament',
+          min_roster_size: parseInt(minRosterSize),
+          message: 'No player performance data available yet'
+        }
+      });
+    }
 
     let query = `
       WITH user_scores AS (
@@ -802,15 +892,15 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
           u.id as user_id,
           u.username,
           r.match_day,
-          SUM(COALESCE(pmp.points, 0)) as match_day_points,
-          COUNT(CASE WHEN r.roster ? pmp.player_name THEN 1 END) as players_with_scores,
+          SUM(COALESCE(ps.points, 0)) as match_day_points,
+          COUNT(CASE WHEN r.roster ? ps.player_name THEN 1 END) as players_with_scores,
           jsonb_array_length(r.roster) as roster_size
         FROM users u
         JOIN rosters r ON u.id = r.user_id
-        LEFT JOIN player_match_performance pmp ON 
-          pmp.tournament_id = r.tournament_id 
-          AND pmp.match_day = r.match_day
-          AND r.roster ? pmp.player_name
+        LEFT JOIN player_scores ps ON 
+          ps.tournament_id = r.tournament_id 
+          AND ps.match_day = r.match_day
+          AND r.roster ? ps.player_name
         WHERE r.tournament_id = $1
           AND jsonb_array_length(r.roster) >= $2
     `;
@@ -907,7 +997,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
           u.id as user_id,
           u.username,
           r.match_day,
-          SUM(COALESCE(pmp.points, 0)) as match_day_points,
+          SUM(COALESCE(pmp.match_points, 0)) as match_day_points,
           jsonb_array_length(r.roster) as roster_size
         FROM users u
         JOIN rosters r ON u.id = r.user_id
@@ -1048,6 +1138,74 @@ app.post('/api/roster', authenticateToken, async (req, res) => {
 
   } catch (error) {
     console.error('Save roster error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Admin endpoint to add player match performance scores
+app.post('/api/admin/scores', async (req, res) => {
+  try {
+    const { tournamentId, matchDay, playerData } = req.body;
+
+    if (!tournamentId || !matchDay || !playerData) {
+      return res.status(400).json({ error: 'Tournament ID, match day, and player data are required' });
+    }
+
+    await pool.query('BEGIN');
+
+    try {
+      for (const [playerName, data] of Object.entries(playerData)) {
+        await pool.query(`
+          INSERT INTO player_match_performance (player_name, tournament_id, match_day, match_points, battles_played, total_battles)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          ON CONFLICT (player_name, tournament_id, match_day)
+          DO UPDATE SET 
+            match_points = EXCLUDED.match_points,
+            battles_played = EXCLUDED.battles_played,
+            total_battles = EXCLUDED.total_battles,
+            updated_at = CURRENT_TIMESTAMP
+        `, [playerName, tournamentId, matchDay, data.points || 0, data.battlesPlayed || 0, data.totalBattles || 0]);
+      }
+
+      await pool.query('COMMIT');
+      res.json({ message: 'Player match performance updated successfully' });
+
+    } catch (error) {
+      await pool.query('ROLLBACK');
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Update scores error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get player scores for a specific match day (for admin)
+app.get('/api/admin/scores/:tournamentId/:matchDay', async (req, res) => {
+  try {
+    const { tournamentId, matchDay } = req.params;
+
+    const result = await pool.query(`
+      SELECT 
+        player_name,
+        match_points,
+        battles_played,
+        total_battles,
+        updated_at
+      FROM player_match_performance
+      WHERE tournament_id = $1 AND match_day = $2
+      ORDER BY match_points DESC
+    `, [tournamentId, matchDay]);
+
+    res.json({ 
+      tournament_id: tournamentId,
+      match_day: parseInt(matchDay),
+      player_scores: result.rows 
+    });
+
+  } catch (error) {
+    console.error('Get admin scores error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
