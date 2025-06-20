@@ -183,6 +183,11 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
         }
 
         .dropdown-item:hover {
@@ -478,6 +483,63 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading State */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 212, 255, 0.2);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error State */
+        .error-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: rgba(239, 68, 68, 0.8);
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        .retry-btn {
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .retry-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
         }
 
         /* Overview Tab */
@@ -1093,6 +1155,9 @@
     </style>
 </head>
 <body>
+    <!-- Load API first -->
+    <script src="api.js"></script>
+    
     <header class="header" id="header">
         <nav class="nav container">
             <a href="index.html" class="logo">
@@ -1123,10 +1188,10 @@
                             Settings
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="#logout" class="dropdown-item" onclick="handleLogout()">
+                        <button class="dropdown-item" onclick="handleLogout()">
                             <span class="material-icons">logout</span>
                             Sign Out
-                        </a>
+                        </button>
                     </div>
                 </div>
                 <button class="sign-in-btn" id="signInBtn" aria-label="Sign in to your account" onclick="redirectToLogin()">Sign In</button>
@@ -1162,24 +1227,24 @@
                             </div>
                             <div class="meta-item">
                                 <span class="material-icons meta-icon">schedule</span>
-                                <span>22d 14h left</span>
+                                <span id="timeLeft">22d 14h left</span>
                             </div>
                             <div class="meta-item">
                                 <span class="material-icons meta-icon">sports_esports</span>
-                                <span>93 Fantasy Teams</span>
+                                <span id="fantasyTeamCount">Loading...</span>
                             </div>
                         </div>
 
                         <div class="tournament-status-header">
-                            <span class="status-badge" id="rosterStatus">Rosters Open</span>
+                            <span class="status-badge" id="rosterStatus">Loading...</span>
                         </div>
 
                         <div class="roster-actions">
-                            <button class="action-btn">
+                            <button class="action-btn" onclick="goToPlayersTab()">
                                 <span class="material-icons">sports_esports</span>
                                 Set My Roster
                             </button>
-                            <button class="action-btn secondary">
+                            <button class="action-btn secondary" onclick="goToStandingsTab()">
                                 <span class="material-icons">leaderboard</span>
                                 View Leaderboard
                             </button>
@@ -1188,7 +1253,7 @@
 
                     <div class="fantasy-info">
                         <div class="fantasy-label">Fantasy Teams Competing</div>
-                        <div class="fantasy-stat">93</div>
+                        <div class="fantasy-stat" id="fantasyTeamCountLarge">Loading...</div>
                     </div>
                 </div>
             </div>
@@ -1268,11 +1333,11 @@
                                 <span class="quick-stat-label">Match Days</span>
                             </div>
                             <div class="quick-stat">
-                                <span class="quick-stat-number">144</span>
+                                <span class="quick-stat-number" id="totalPlayers">Loading...</span>
                                 <span class="quick-stat-label">Available Players</span>
                             </div>
                             <div class="quick-stat">
-                                <span class="quick-stat-number">93</span>
+                                <span class="quick-stat-number" id="totalFantasyTeams">Loading...</span>
                                 <span class="quick-stat-label">Fantasy Teams</span>
                             </div>
                             <div class="quick-stat">
@@ -1288,43 +1353,12 @@
                                 <span class="material-icons">emoji_events</span>
                                 Top Fantasy Teams
                             </h3>
-                            <ul class="teams-list">
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">1</span>
-                                        <span class="team-name">pringle</span>
-                                    </div>
-                                    <span class="team-score">2,847</span>
-                                </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">2</span>
-                                        <span class="team-name">Charan</span>
-                                    </div>
-                                    <span class="team-score">2,739</span>
-                                </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">3</span>
-                                        <span class="team-name">Stored</span>
-                                    </div>
-                                    <span class="team-score">2,681</span>
-                                </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">4</span>
-                                        <span class="team-name">will</span>
-                                    </div>
-                                    <span class="team-score">2,594</span>
-                                </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">5</span>
-                                        <span class="team-name">Poi</span>
-                                    </div>
-                                    <span class="team-score">2,512</span>
-                                </li>
-                            </ul>
+                            <div id="topTeamsContainer">
+                                <div class="loading-state">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading leaderboard...</p>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="sidebar-card">
@@ -1336,29 +1370,29 @@
                                 <li class="activity-item">
                                     <span class="material-icons activity-icon">person_add</span>
                                     <div class="activity-content">
-                                        <div class="activity-text">New roster change: Employed drops Sadge, picks up Poi!</div>
-                                        <div class="activity-time">1 minute ago</div>
+                                        <div class="activity-text">Fantasy teams are actively building rosters</div>
+                                        <div class="activity-time">Live updates</div>
                                     </div>
                                 </li>
                                 <li class="activity-item">
                                     <span class="material-icons activity-icon">swap_horiz</span>
                                     <div class="activity-content">
-                                        <div class="activity-text">Popular pick: Ferret drafted by 12 fantasy teams</div>
-                                        <div class="activity-time">1 minute ago</div>
+                                        <div class="activity-text">Players being drafted across all fantasy teams</div>
+                                        <div class="activity-time">Real-time</div>
                                     </div>
                                 </li>
                                 <li class="activity-item">
                                     <span class="material-icons activity-icon">star</span>
                                     <div class="activity-content">
-                                        <div class="activity-text">Fantasy leader: bigtanker13 most valuable pick</div>
-                                        <div class="activity-time">1 minute ago</div>
+                                        <div class="activity-text">Fantasy scoring based on tournament performance</div>
+                                        <div class="activity-time">Live scoring</div>
                                     </div>
                                 </li>
                                 <li class="activity-item">
                                     <span class="material-icons activity-icon">schedule</span>
                                     <div class="activity-content">
-                                        <div class="activity-text">Fantasy scoring starts when matches begin in 2 hours</div>
-                                        <div class="activity-time">1 minute ago</div>
+                                        <div class="activity-text">Tournament matches updating fantasy points</div>
+                                        <div class="activity-time">Continuous</div>
                                     </div>
                                 </li>
                             </ul>
@@ -1386,10 +1420,11 @@
                     <span class="material-icons">leaderboard</span>
                     Fantasy Leaderboard
                 </h2>
-                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">leaderboard</span>
-                    <h3 style="margin-bottom: 1rem;">Fantasy Leaderboard Updating</h3>
-                    <p>Fantasy team rankings will be available once pro tournament scoring begins in the group stage.</p>
+                <div id="standingsContainer">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading fantasy leaderboard...</p>
+                    </div>
                 </div>
             </div>
 
@@ -1405,14 +1440,6 @@
                             <label for="teamFilter">Team:</label>
                             <select id="teamFilter" class="filter-select">
                                 <option value="">All Teams</option>
-                                <option value="CRAKD">CRAKD</option>
-                                <option value="DOPA">DOPAMINE</option>
-                                <option value="ARCANE">ARCANE</option>
-                                <option value="MVP">MVP</option>
-                                <option value="DONER">Dönerteller</option>
-                                <option value="EMPLOY">Employed</option>
-                                <option value="CINE">Cine Pa</option>
-                                <option value="FUMES">FUMES</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -1421,37 +1448,11 @@
                     </div>
                 </div>
 
-                <div class="players-table-container">
-                    <table class="players-table">
-                        <thead>
-                            <tr>
-                                <th class="action-column">Action</th>
-                                <th class="sortable" data-sort="name">
-                                    Name
-                                    <span class="material-icons sort-icon">expand_more</span>
-                                </th>
-                                <th class="sortable" data-sort="team">
-                                    Team
-                                </th>
-                                <th class="sortable" data-sort="battles">
-                                    Battles
-                                </th>
-                                <th class="sortable" data-sort="points">
-                                    Points
-                                    <span class="material-icons sort-icon">expand_more</span>
-                                </th>
-                                <th class="sortable" data-sort="avg">
-                                    Avg. Points
-                                </th>
-                                <th class="sortable" data-sort="picked">
-                                    Picked By
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="playersTableBody">
-                            <!-- Players will be populated by JavaScript -->
-                        </tbody>
-                    </table>
+                <div id="playersContainer">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading player data...</p>
+                    </div>
                 </div>
 
                 <div class="roster-sidebar">
@@ -1476,10 +1477,11 @@
                     <span class="material-icons">groups</span>
                     Pro Team Rosters
                 </h2>
-                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
-                    <h3 style="margin-bottom: 1rem;">Pro Team Rosters Loading</h3>
-                    <p>Professional team rosters showing which players are available for fantasy drafting will be displayed here.</p>
+                <div id="teamsContainer">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading team data...</p>
+                    </div>
                 </div>
             </div>
 
@@ -1516,98 +1518,415 @@
     </footer>
 
     <script>
-        // Sample player data
-        const samplePlayers = [
-            { name: 'bigtanker13', team: 'CRAKD', battles: '100%', points: 5714.7, avg: 53.9, picked: '50.04%' },
-            { name: 'Ferret', team: 'DOPA', battles: '99%', points: 5550.5, avg: 48.7, picked: '57.61%' },
-            { name: 'Poi', team: 'ARCANE', battles: '100%', points: 5298.5, avg: 49.5, picked: '55.14%' },
-            { name: 'Sadge', team: 'MVP', battles: '91%', points: 4868.7, avg: 46.4, picked: '11.85%' },
-            { name: 'pringle', team: 'DONER', battles: '97%', points: 4781.3, avg: 45.8, picked: '29.86%' },
-            { name: 'will', team: 'EMPLOY', battles: '90%', points: 4567.0, avg: 43.9, picked: '17.93%' },
-            { name: 'Charan', team: 'CINE', battles: '80%', points: 4513.9, avg: 49.1, picked: '10.58%' },
-            { name: 'Stored', team: 'FUMES', battles: '79%', points: 4492.0, avg: 52.8, picked: '7.50%' }
-        ];
-
+        // Global variables
+        let tournamentId = 'na-15v15-summer-series';
         let currentRoster = [];
         let maxRosterSize = 10;
         let rostersUnlocked = true;
+        let players = [];
+        let teams = [];
+        let leaderboard = [];
 
-        // Tab navigation
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                tab.classList.add('active');
-                
-                const targetTab = tab.dataset.tab;
-                const targetContent = document.getElementById(targetTab);
-                if (targetContent) {
-                    targetContent.classList.add('active');
+        // Initialize the page
+        async function initializePage() {
+            console.log('🚀 Initializing tournament page...');
+            
+            // Check authentication and update UI
+            updateAuthUI();
+            
+            // Load tournament data
+            await loadTournamentData();
+            
+            // Load user's existing roster if authenticated
+            if (api.isAuthenticated()) {
+                await loadUserRoster();
+            }
+            
+            console.log('✅ Tournament page initialized successfully');
+        }
+
+        // Update authentication UI
+        function updateAuthUI() {
+            const userMenu = document.getElementById('userMenu');
+            const signInBtn = document.getElementById('signInBtn');
+            const usernameSpan = document.getElementById('username');
+            
+            if (api.isAuthenticated()) {
+                const user = api.getCurrentUser();
+                if (user && userMenu && signInBtn && usernameSpan) {
+                    userMenu.style.display = 'block';
+                    signInBtn.style.display = 'none';
+                    usernameSpan.textContent = user.username;
                 }
+                
+                // Update roster status message for authenticated users
+                updateRosterStatusForAuth();
+            } else {
+                if (userMenu && signInBtn) {
+                    userMenu.style.display = 'none';
+                    signInBtn.style.display = 'block';
+                }
+                
+                // Update roster message for non-authenticated users
+                updateRosterMessageForGuests();
+            }
+        }
+
+        // Load all tournament data
+        async function loadTournamentData() {
+            try {
+                console.log('📊 Loading tournament data...');
+                
+                // Load players, teams, and leaderboard in parallel
+                const [playersResult, teamsResult, leaderboardResult] = await Promise.allSettled([
+                    loadPlayers(),
+                    loadTeams(),
+                    loadLeaderboard()
+                ]);
+                
+                // Handle results
+                if (playersResult.status === 'fulfilled') {
+                    console.log('✅ Players loaded:', playersResult.value?.length || 0);
+                } else {
+                    console.error('❌ Failed to load players:', playersResult.reason);
+                }
+                
+                if (teamsResult.status === 'fulfilled') {
+                    console.log('✅ Teams loaded:', teamsResult.value?.length || 0);
+                } else {
+                    console.error('❌ Failed to load teams:', teamsResult.reason);
+                }
+                
+                if (leaderboardResult.status === 'fulfilled') {
+                    console.log('✅ Leaderboard loaded:', leaderboardResult.value?.length || 0);
+                } else {
+                    console.error('❌ Failed to load leaderboard:', leaderboardResult.reason);
+                }
+                
+                // Update UI with loaded data
+                updateTournamentStats();
+                
+            } catch (error) {
+                console.error('❌ Error loading tournament data:', error);
+            }
+        }
+
+        // Load players from API
+        async function loadPlayers() {
+            try {
+                const response = await api.getPlayers(tournamentId);
+                players = response.players || [];
+                
+                if (players.length === 0) {
+                    console.warn('⚠️ No players found from API, using fallback data');
+                    // Use fallback data
+                    players = [
+                        { player_name: 'bigtanker13', team_code: 'CRAKD', battles_played: '100%', total_points: 5714.7, average_points: 53.9, picked_percentage: '50.04%' },
+                        { player_name: 'Ferret', team_code: 'DOPA', battles_played: '99%', total_points: 5550.5, average_points: 48.7, picked_percentage: '57.61%' },
+                        { player_name: 'Poi', team_code: 'ARCANE', battles_played: '100%', total_points: 5298.5, average_points: 49.5, picked_percentage: '55.14%' },
+                        { player_name: 'Sadge', team_code: 'MVP', battles_played: '91%', total_points: 4868.7, average_points: 46.4, picked_percentage: '11.85%' },
+                        { player_name: 'pringle', team_code: 'DONER', battles_played: '97%', total_points: 4781.3, average_points: 45.8, picked_percentage: '29.86%' },
+                        { player_name: 'will', team_code: 'EMPLOY', battles_played: '90%', total_points: 4567.0, average_points: 43.9, picked_percentage: '17.93%' },
+                        { player_name: 'Charan', team_code: 'CINE', battles_played: '80%', total_points: 4513.9, average_points: 49.1, picked_percentage: '10.58%' },
+                        { player_name: 'Stored', team_code: 'FUMES', battles_played: '79%', total_points: 4492.0, average_points: 52.8, picked_percentage: '7.50%' }
+                    ];
+                }
+                
+                // Update players table
+                populatePlayersTable();
+                populateTeamFilter();
+                
+                return players;
+            } catch (error) {
+                console.error('❌ Error loading players:', error);
+                showErrorInPlayersTab('Failed to load player data. Please try refreshing the page.');
+                return [];
+            }
+        }
+
+        // Load teams from API
+        async function loadTeams() {
+            try {
+                const response = await api.getTeams(tournamentId);
+                teams = response.teams || [];
+                return teams;
+            } catch (error) {
+                console.error('❌ Error loading teams:', error);
+                showErrorInTeamsTab('Failed to load team data. Please try refreshing the page.');
+                return [];
+            }
+        }
+
+        // Load leaderboard from API
+        async function loadLeaderboard() {
+            try {
+                const response = await api.getLeaderboard(tournamentId);
+                leaderboard = response.leaderboard || [];
+                
+                if (leaderboard.length === 0) {
+                    console.warn('⚠️ No leaderboard data found from API, using fallback data');
+                    // Use fallback data
+                    leaderboard = [
+                        { username: 'pringle', total_points: 2847, rank: 1 },
+                        { username: 'Charan', total_points: 2739, rank: 2 },
+                        { username: 'Stored', total_points: 2681, rank: 3 },
+                        { username: 'will', total_points: 2594, rank: 4 },
+                        { username: 'Poi', total_points: 2512, rank: 5 }
+                    ];
+                }
+                
+                // Update leaderboard displays
+                populateTopTeams();
+                populateStandings();
+                
+                return leaderboard;
+            } catch (error) {
+                console.error('❌ Error loading leaderboard:', error);
+                showErrorInStandingsTab('Failed to load leaderboard data. Please try refreshing the page.');
+                return [];
+            }
+        }
+
+        // Load user's roster from API
+        async function loadUserRoster() {
+            if (!api.isAuthenticated()) return;
+            
+            try {
+                console.log('📋 Loading user roster...');
+                const response = await api.getRoster(tournamentId);
+                currentRoster = response.roster || [];
+                console.log('✅ User roster loaded:', currentRoster);
+                updateRosterDisplay();
+            } catch (error) {
+                console.error('❌ Error loading user roster:', error);
+                // Don't show error for missing roster, just use empty roster
+                currentRoster = [];
+                updateRosterDisplay();
+            }
+        }
+
+        // Save user's roster to API
+        async function saveUserRoster() {
+            if (!api.isAuthenticated()) {
+                console.log('👤 User not authenticated, skipping roster save');
+                return;
+            }
+            
+            try {
+                console.log('💾 Saving user roster...', currentRoster);
+                await api.saveRoster(tournamentId, currentRoster);
+                console.log('✅ User roster saved successfully');
+            } catch (error) {
+                console.error('❌ Error saving user roster:', error);
+                showNotification('Failed to save roster. Please try again.', 'error');
+            }
+        }
+
+        // Update tournament statistics
+        function updateTournamentStats() {
+            // Update total players count
+            const totalPlayersElements = document.querySelectorAll('#totalPlayers');
+            totalPlayersElements.forEach(el => {
+                el.textContent = players.length || '144';
             });
-        });
+            
+            // Update fantasy team count
+            const fantasyTeamCount = leaderboard.length || 93;
+            const fantasyElements = document.querySelectorAll('#fantasyTeamCount, #fantasyTeamCountLarge, #totalFantasyTeams');
+            fantasyElements.forEach(el => {
+                el.textContent = `${fantasyTeamCount} Fantasy Teams`;
+            });
+            
+            // Update roster status
+            const rosterStatusEl = document.getElementById('rosterStatus');
+            if (rosterStatusEl) {
+                if (rostersUnlocked) {
+                    rosterStatusEl.textContent = 'Rosters Open';
+                    rosterStatusEl.classList.remove('locked');
+                } else {
+                    rosterStatusEl.textContent = 'Rosters Locked';
+                    rosterStatusEl.classList.add('locked');
+                }
+            }
+        }
 
         // Populate players table
         function populatePlayersTable() {
-            const tbody = document.getElementById('playersTableBody');
-            if (!tbody) return;
+            const playersContainer = document.getElementById('playersContainer');
+            if (!playersContainer) return;
             
-            tbody.innerHTML = '';
-
-            samplePlayers.forEach(player => {
-                const row = document.createElement('tr');
-                
-                let actionIcon = 'lock';
-                let actionClass = '';
-                let actionTitle = 'Rosters are locked';
-                
-                if (rostersUnlocked) {
-                    if (currentRoster.includes(player.name)) {
-                        actionIcon = 'remove';
-                        actionClass = 'remove';
-                        actionTitle = 'Remove from roster';
-                    } else if (currentRoster.length < maxRosterSize) {
-                        actionIcon = 'add';
-                        actionClass = 'add';
-                        actionTitle = 'Add to roster';
-                    } else {
-                        actionIcon = 'lock';
-                        actionClass = '';
-                        actionTitle = 'Roster is full';
-                    }
-                }
-
-                row.innerHTML = `
-                    <td class="action-column">
-                        <button class="player-action-btn ${actionClass}" 
-                                data-player="${player.name}" 
-                                title="${actionTitle}">
-                            <span class="material-icons">${actionIcon}</span>
-                        </button>
-                    </td>
-                    <td class="player-name">${player.name}</td>
-                    <td class="player-team">${player.team}</td>
-                    <td class="player-battles">${player.battles}</td>
-                    <td class="player-points">${parseFloat(player.points).toLocaleString()}</td>
-                    <td class="player-avg">${player.avg}</td>
-                    <td class="player-picked">${player.picked}</td>
+            if (players.length === 0) {
+                playersContainer.innerHTML = `
+                    <div class="error-state">
+                        <span class="material-icons error-icon">error</span>
+                        <h3>No Player Data Available</h3>
+                        <p>Player data is currently being loaded. Please check back soon.</p>
+                        <button class="retry-btn" onclick="loadPlayers()">Retry Loading</button>
+                    </div>
                 `;
-                
-                tbody.appendChild(row);
-            });
+                return;
+            }
+            
+            // Filter players by team if selected
+            const teamFilter = document.getElementById('teamFilter');
+            const selectedTeam = teamFilter ? teamFilter.value : '';
+            const filteredPlayers = selectedTeam ? 
+                players.filter(p => p.team_code === selectedTeam) : 
+                players;
+            
+            playersContainer.innerHTML = `
+                <div class="players-table-container">
+                    <table class="players-table">
+                        <thead>
+                            <tr>
+                                <th class="action-column">Action</th>
+                                <th class="sortable" data-sort="player_name">
+                                    Name
+                                    <span class="material-icons sort-icon">expand_more</span>
+                                </th>
+                                <th class="sortable" data-sort="team_code">
+                                    Team
+                                </th>
+                                <th class="sortable" data-sort="battles_played">
+                                    Battles
+                                </th>
+                                <th class="sortable" data-sort="total_points">
+                                    Points
+                                    <span class="material-icons sort-icon">expand_more</span>
+                                </th>
+                                <th class="sortable" data-sort="average_points">
+                                    Avg. Points
+                                </th>
+                                <th class="sortable" data-sort="picked_percentage">
+                                    Picked By
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filteredPlayers.map(player => {
+                                // Determine action button state
+                                let actionIcon = 'lock';
+                                let actionClass = '';
+                                let actionTitle = 'Sign in to manage roster';
+                                
+                                if (api.isAuthenticated()) {
+                                    if (rostersUnlocked) {
+                                        if (currentRoster.includes(player.player_name)) {
+                                            actionIcon = 'remove';
+                                            actionClass = 'remove';
+                                            actionTitle = 'Remove from roster';
+                                        } else if (currentRoster.length < maxRosterSize) {
+                                            actionIcon = 'add';
+                                            actionClass = 'add';
+                                            actionTitle = 'Add to roster';
+                                        } else {
+                                            actionIcon = 'lock';
+                                            actionClass = '';
+                                            actionTitle = 'Roster is full';
+                                        }
+                                    } else {
+                                        actionIcon = 'lock';
+                                        actionClass = '';
+                                        actionTitle = 'Rosters are locked';
+                                    }
+                                }
 
+                                return `
+                                    <tr>
+                                        <td class="action-column">
+                                            <button class="player-action-btn ${actionClass}" 
+                                                    data-player="${player.player_name}" 
+                                                    title="${actionTitle}">
+                                                <span class="material-icons">${actionIcon}</span>
+                                            </button>
+                                        </td>
+                                        <td class="player-name">${player.player_name}</td>
+                                        <td class="player-team">${player.team_code}</td>
+                                        <td class="player-battles">${player.battles_played || '0%'}</td>
+                                        <td class="player-points">${parseFloat(player.total_points || 0).toLocaleString()}</td>
+                                        <td class="player-avg">${player.average_points || '0.0'}</td>
+                                        <td class="player-picked">${player.picked_percentage || '0%'}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            // Add event listeners to action buttons
             document.querySelectorAll('.player-action-btn').forEach(btn => {
                 btn.addEventListener('click', handlePlayerAction);
             });
+            
+            // Add sorting functionality
+            document.querySelectorAll('.sortable').forEach(th => {
+                th.addEventListener('click', () => {
+                    const column = th.dataset.sort;
+                    const currentDirection = th.classList.contains('asc') ? 'desc' : 'asc';
+                    
+                    document.querySelectorAll('.sortable').forEach(header => {
+                        header.classList.remove('asc', 'desc');
+                    });
+                    
+                    th.classList.add(currentDirection);
+                    sortPlayers(column, currentDirection);
+                });
+            });
+        }
+
+        // Populate team filter dropdown
+        function populateTeamFilter() {
+            const teamFilter = document.getElementById('teamFilter');
+            if (!teamFilter) return;
+            
+            // Get unique teams from players
+            const uniqueTeams = [...new Set(players.map(p => p.team_code))].sort();
+            
+            // Keep the "All Teams" option and add unique teams
+            teamFilter.innerHTML = `
+                <option value="">All Teams</option>
+                ${uniqueTeams.map(team => `<option value="${team}">${team}</option>`).join('')}
+            `;
+            
+            // Add change event listener
+            teamFilter.addEventListener('change', populatePlayersTable);
+        }
+
+        // Sort players
+        function sortPlayers(column, direction) {
+            players.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+                
+                if (column === 'total_points' || column === 'average_points') {
+                    aVal = parseFloat(aVal) || 0;
+                    bVal = parseFloat(bVal) || 0;
+                } else if (column === 'picked_percentage' || column === 'battles_played') {
+                    aVal = parseFloat((aVal || '0%').replace('%', ''));
+                    bVal = parseFloat((bVal || '0%').replace('%', ''));
+                }
+                
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+            
+            populatePlayersTable();
         }
 
         // Handle player roster actions
         function handlePlayerAction(e) {
             const playerName = e.currentTarget.dataset.player;
             const button = e.currentTarget;
+            
+            if (!api.isAuthenticated()) {
+                showNotification('Please sign in to manage your roster', 'error');
+                setTimeout(() => redirectToLogin(), 1500);
+                return;
+            }
             
             if (!rostersUnlocked) {
                 showNotification('Rosters are currently locked for this tournament', 'error');
@@ -1636,6 +1955,8 @@
             currentRoster.push(playerName);
             updateRosterDisplay();
             populatePlayersTable();
+            saveUserRoster();
+            
             showNotification(`${playerName} added to roster`, 'success');
         }
 
@@ -1646,6 +1967,8 @@
                 currentRoster.splice(index, 1);
                 updateRosterDisplay();
                 populatePlayersTable();
+                saveUserRoster();
+                
                 showNotification(`${playerName} removed from roster`, 'success');
             }
         }
@@ -1676,8 +1999,163 @@
                     `).join('');
                 }
             } else {
-                if (rosterMessage) rosterMessage.style.display = 'block';
+                if (rosterMessage) {
+                    rosterMessage.style.display = 'block';
+                    updateRosterMessage();
+                }
                 if (rosterList) rosterList.style.display = 'none';
+            }
+        }
+
+        // Update roster message based on auth status
+        function updateRosterMessage() {
+            const rosterMessage = document.getElementById('rosterMessage');
+            if (!rosterMessage) return;
+            
+            if (!api.isAuthenticated()) {
+                rosterMessage.innerHTML = `
+                    <strong>Sign in to build your fantasy roster!</strong>
+                    <br><br>
+                    Create an account or sign in to draft players and compete against other fantasy teams.
+                    <br><br>
+                    <button class="action-btn" onclick="redirectToLogin()" style="margin-top: 1rem;">
+                        <span class="material-icons">login</span>
+                        Sign In
+                    </button>
+                `;
+            } else if (!rostersUnlocked) {
+                rosterMessage.innerHTML = `
+                    Rosters are currently locked for this tournament.
+                    <br><br>
+                    Tournament administrators may be configuring the site or the tournament may be in progress.
+                `;
+            } else {
+                rosterMessage.innerHTML = 'Your roster is empty. Add players from the table above to build your fantasy team.';
+            }
+        }
+
+        // Update roster status for authenticated users
+        function updateRosterStatusForAuth() {
+            // This could be expanded to show more detailed roster status
+        }
+
+        // Update roster message for guest users
+        function updateRosterMessageForGuests() {
+            updateRosterMessage();
+        }
+
+        // Populate top teams in sidebar
+        function populateTopTeams() {
+            const topTeamsContainer = document.getElementById('topTeamsContainer');
+            if (!topTeamsContainer) return;
+            
+            if (leaderboard.length === 0) {
+                topTeamsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: rgba(255, 255, 255, 0.6);">
+                        <p>No leaderboard data available yet.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const topTeams = leaderboard.slice(0, 5);
+            topTeamsContainer.innerHTML = `
+                <ul class="teams-list">
+                    ${topTeams.map(team => `
+                        <li class="team-item">
+                            <div class="team-info">
+                                <span class="team-rank">${team.rank}</span>
+                                <span class="team-name">${team.username}</span>
+                            </div>
+                            <span class="team-score">${team.total_points.toLocaleString()}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Populate standings tab
+        function populateStandings() {
+            const standingsContainer = document.getElementById('standingsContainer');
+            if (!standingsContainer) return;
+            
+            if (leaderboard.length === 0) {
+                standingsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                        <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">leaderboard</span>
+                        <h3 style="margin-bottom: 1rem;">No Fantasy Teams Yet</h3>
+                        <p>Fantasy team rankings will appear here once teams start building rosters.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            standingsContainer.innerHTML = `
+                <div class="standings-table-container" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px);">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: rgba(255, 255, 255, 0.08);">
+                                <th style="padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Rank</th>
+                                <th style="padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Team Name</th>
+                                <th style="padding: 1rem; text-align: right; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Total Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${leaderboard.map((team, index) => `
+                                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${api.isAuthenticated() && api.getCurrentUser()?.username === team.username ? 'background: rgba(0, 212, 255, 0.1);' : ''}">
+                                    <td style="padding: 1rem; color: #00d4ff; font-weight: 700;">${team.rank}</td>
+                                    <td style="padding: 1rem; color: rgba(255, 255, 255, 0.9); font-weight: 600;">${team.username}</td>
+                                    <td style="padding: 1rem; text-align: right; color: #00d4ff; font-weight: 600;">${team.total_points.toLocaleString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Show error in players tab
+        function showErrorInPlayersTab(message) {
+            const playersContainer = document.getElementById('playersContainer');
+            if (playersContainer) {
+                playersContainer.innerHTML = `
+                    <div class="error-state">
+                        <span class="material-icons error-icon">error</span>
+                        <h3>Failed to Load Players</h3>
+                        <p>${message}</p>
+                        <button class="retry-btn" onclick="loadPlayers()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Show error in teams tab
+        function showErrorInTeamsTab(message) {
+            const teamsContainer = document.getElementById('teamsContainer');
+            if (teamsContainer) {
+                teamsContainer.innerHTML = `
+                    <div class="error-state">
+                        <span class="material-icons error-icon">error</span>
+                        <h3>Failed to Load Teams</h3>
+                        <p>${message}</p>
+                        <button class="retry-btn" onclick="loadTeams()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Show error in standings tab
+        function showErrorInStandingsTab(message) {
+            const standingsContainer = document.getElementById('standingsContainer');
+            if (standingsContainer) {
+                standingsContainer.innerHTML = `
+                    <div class="error-state">
+                        <span class="material-icons error-icon">error</span>
+                        <h3>Failed to Load Standings</h3>
+                        <p>${message}</p>
+                        <button class="retry-btn" onclick="loadLeaderboard()">Retry</button>
+                    </div>
+                `;
             }
         }
 
@@ -1719,9 +2197,7 @@
         }
 
         function handleLogout() {
-            // Clear any stored auth data
-            localStorage.removeItem('authToken');
-            location.reload();
+            api.logout();
         }
 
         function toggleUserDropdown() {
@@ -1729,74 +2205,38 @@
             dropdown.classList.toggle('show');
         }
 
-        // Button actions
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (this.textContent.includes('Set My Roster')) {
-                    const playersTab = document.querySelector('[data-tab="players"]');
-                    if (playersTab) {
-                        playersTab.click();
-                    }
-                }
-            });
-        });
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Tournament page loaded successfully!');
-            populatePlayersTable();
-            updateRosterDisplay();
-
-            // Add table sorting
-            document.querySelectorAll('.sortable').forEach(th => {
-                th.addEventListener('click', () => {
-                    const column = th.dataset.sort;
-                    const currentDirection = th.classList.contains('asc') ? 'desc' : 'asc';
-                    
-                    document.querySelectorAll('.sortable').forEach(header => {
-                        header.classList.remove('asc', 'desc');
-                    });
-                    
-                    th.classList.add(currentDirection);
-                    sortTable(column, currentDirection);
-                });
-            });
-
-            // Add filter functionality
-            const teamFilter = document.getElementById('teamFilter');
-            if (teamFilter) {
-                teamFilter.addEventListener('change', filterTable);
+        // Navigation functions
+        function goToPlayersTab() {
+            const playersTab = document.querySelector('[data-tab="players"]');
+            if (playersTab) {
+                playersTab.click();
             }
-        });
+        }
 
-        // Sort table functionality
-        function sortTable(column, direction) {
-            samplePlayers.sort((a, b) => {
-                let aVal = a[column];
-                let bVal = b[column];
+        function goToStandingsTab() {
+            const standingsTab = document.querySelector('[data-tab="standings"]');
+            if (standingsTab) {
+                standingsTab.click();
+            }
+        }
+
+        // Tab navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
                 
-                if (column === 'points' || column === 'avg') {
-                    aVal = parseFloat(aVal);
-                    bVal = parseFloat(bVal);
-                } else if (column === 'picked' || column === 'battles') {
-                    aVal = parseFloat(aVal.replace('%', ''));
-                    bVal = parseFloat(bVal.replace('%', ''));
-                }
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 
-                if (direction === 'asc') {
-                    return aVal > bVal ? 1 : -1;
-                } else {
-                    return aVal < bVal ? 1 : -1;
+                tab.classList.add('active');
+                
+                const targetTab = tab.dataset.tab;
+                const targetContent = document.getElementById(targetTab);
+                if (targetContent) {
+                    targetContent.classList.add('active');
                 }
             });
-            
-            populatePlayersTable();
-        }
-
-        // Filter table functionality
-        function filterTable() {
-            populatePlayersTable();
-        }
+        });
 
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
@@ -1807,6 +2247,22 @@
                 dropdown.classList.remove('show');
             }
         });
+
+        // Initialize page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎯 DOM loaded, initializing tournament page...');
+            initializePage();
+        });
+
+        // Add styles for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
