@@ -61,12 +61,10 @@ class FantasyAPI {
                 body: JSON.stringify({ username, email, password })
             });
 
-            // If registration requires verification, don't store token yet
             if (response.requiresVerification) {
                 return response;
             }
 
-            // If auto-verified (no email service), store token
             if (response.token) {
                 this.token = response.token;
                 localStorage.setItem('authToken', this.token);
@@ -84,7 +82,6 @@ class FantasyAPI {
         try {
             const response = await this.request(`/auth/verify-email/${token}`);
             
-            // If verification successful and we get a token, store it
             if (response.token) {
                 this.token = response.token;
                 localStorage.setItem('authToken', this.token);
@@ -109,7 +106,6 @@ class FantasyAPI {
         }
     }
 
-    // Password reset functionality
     async forgotPassword(email) {
         try {
             const response = await this.request('/auth/forgot-password', {
@@ -240,7 +236,6 @@ class FantasyAPI {
         return await this.request('/tournaments');
     }
 
-    // Admin endpoints
     async updatePlayerScores(tournamentId, matchDay, playerScores, playerData = null) {
         const body = { tournamentId, matchDay };
         if (playerData) {
@@ -273,7 +268,6 @@ class FantasyAPI {
         });
     }
 
-    // Utility methods for fantasy standings
     async getCurrentUserStanding(tournamentId, matchDay = null) {
         if (!this.isAuthenticated()) return null;
         
@@ -288,7 +282,6 @@ class FantasyAPI {
         }
     }
 
-    // Leaderboard with filtering options
     async getFilteredLeaderboard(tournamentId, options = {}) {
         const {
             matchDay = null,
@@ -310,10 +303,9 @@ class FantasyAPI {
         return await this.request(endpoint);
     }
 
-    // Batch operations for admin
     async batchUpdateScores(tournamentId, matchDay, playersData) {
         const promises = [];
-        const batchSize = 50; // Process in batches to avoid overwhelming the server
+        const batchSize = 50;
         
         for (let i = 0; i < playersData.length; i += batchSize) {
             const batch = playersData.slice(i, i + batchSize);
@@ -333,7 +325,6 @@ class FantasyAPI {
         return await Promise.all(promises);
     }
 
-    // Health check
     async healthCheck() {
         try {
             return await this.request('/health');
@@ -343,7 +334,6 @@ class FantasyAPI {
         }
     }
 
-    // Get API status and user info
     getStatus() {
         return {
             authenticated: this.isAuthenticated(),
@@ -353,12 +343,10 @@ class FantasyAPI {
         };
     }
 
-    // Clear all local data (useful for debugging)
     clearLocalData() {
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
         
-        // Clear roster data
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
             if (key.startsWith('roster_')) {
@@ -369,7 +357,6 @@ class FantasyAPI {
         this.token = null;
     }
 
-    // Validate roster before submission
     validateRoster(roster, maxSize = 10) {
         if (!Array.isArray(roster)) {
             return { valid: false, error: 'Roster must be an array' };
@@ -383,13 +370,11 @@ class FantasyAPI {
             return { valid: false, error: `Roster cannot exceed ${maxSize} players` };
         }
         
-        // Check for duplicates
         const uniquePlayers = [...new Set(roster)];
         if (uniquePlayers.length !== roster.length) {
             return { valid: false, error: 'Roster cannot contain duplicate players' };
         }
         
-        // Check for empty or invalid player names
         for (const player of roster) {
             if (!player || typeof player !== 'string' || player.trim().length === 0) {
                 return { valid: false, error: 'All players must have valid names' };
@@ -399,7 +384,6 @@ class FantasyAPI {
         return { valid: true };
     }
 
-    // Get roster completion status
     async getRosterCompletionStatus(tournamentId, totalMatchDays = 7) {
         if (!this.isAuthenticated()) {
             return { authenticated: false };
@@ -441,7 +425,6 @@ class FantasyAPI {
         }
     }
 
-    // Password validation utility
     validatePassword(password) {
         const errors = [];
         
@@ -469,7 +452,6 @@ class FantasyAPI {
         };
     }
 
-    // Password strength calculator
     getPasswordStrength(password) {
         let score = 0;
         
@@ -485,13 +467,11 @@ class FantasyAPI {
         return 'strong';
     }
 
-    // Email validation utility
     validateEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
 
-    // Username validation utility
     validateUsername(username) {
         const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
         return {
@@ -500,20 +480,16 @@ class FantasyAPI {
         };
     }
 
-    
-    // Check if current user needs email verification
     needsEmailVerification() {
         const user = this.getCurrentUser();
         return user && !user.email_verified;
     }
 
-    // Get user's email for verification purposes
     getUserEmail() {
         const user = this.getCurrentUser();
         return user ? user.email : null;
     }
 
-    // Handle login responses that require verification
     handleLoginResponse(response) {
         if (response.requiresVerification) {
             return {
@@ -541,7 +517,6 @@ class FantasyAPI {
         };
     }
 
-    // Handle registration responses that may require verification
     handleRegistrationResponse(response) {
         if (response.requiresVerification) {
             return {
@@ -569,10 +544,8 @@ class FantasyAPI {
     }
 }
 
-// Create a global instance
 const api = new FantasyAPI();
 
-// Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = FantasyAPI;
 }
