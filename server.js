@@ -10,7 +10,10 @@ const crypto = require('crypto');
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: ['https://devpringle.github.io', 'http://localhost:3000', 'https://localhost:3000'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static('.'));
 
@@ -27,7 +30,6 @@ if (!JWT_SECRET) {
   process.exit(1);
 }
 
-// EMAIL CONFIGURATION
 const createEmailTransporter = () => {
   const emailConfig = {
     host: process.env.SMTP_HOST || 'smtp.zoho.com',
@@ -59,7 +61,6 @@ if (emailTransporter) {
   });
 }
 
-// EMAIL TEMPLATES
 const generateEmailVerificationEmail = (username, verificationToken, baseUrl) => {
   const verifyUrl = `${baseUrl}/verify-email.html?token=${verificationToken}`;
   
@@ -296,7 +297,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'WoTFantasy API is running' });
 });
 
-// REGISTRATION WITH EMAIL VERIFICATION
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -321,7 +321,6 @@ app.post('/api/auth/register', async (req, res) => {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user (email_verified = false by default)
     const result = await pool.query(
       'INSERT INTO users (username, email, password_hash, email_verified) VALUES ($1, $2, $3, $4) RETURNING id, username, email',
       [username, email, passwordHash, false]
@@ -329,20 +328,16 @@ app.post('/api/auth/register', async (req, res) => {
 
     const user = result.rows[0];
 
-    // If email is configured, send verification email
     if (emailTransporter) {
       try {
-        // Generate verification token
         const verificationToken = crypto.randomBytes(32).toString('hex');
-        const expiresAt = new Date(Date.now() + 86400000); // 24 hours
+        const expiresAt = new Date(Date.now() + 86400000);
 
-        // Store verification token
         await pool.query(
           'INSERT INTO email_verifications (user_id, token, expires_at) VALUES ($1, $2, $3)',
           [user.id, verificationToken, expiresAt]
         );
 
-        // Send verification email
         const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         const verificationEmail = generateEmailVerificationEmail(username, verificationToken, baseUrl);
         
@@ -370,7 +365,6 @@ app.post('/api/auth/register', async (req, res) => {
       } catch (emailError) {
         console.error('Failed to send verification email:', emailError);
         
-        // If email fails, auto-verify the account
         await pool.query('UPDATE users SET email_verified = true WHERE id = $1', [user.id]);
         
         const token = jwt.sign(
@@ -391,7 +385,6 @@ app.post('/api/auth/register', async (req, res) => {
         });
       }
     } else {
-      // No email configured, auto-verify account
       await pool.query('UPDATE users SET email_verified = true WHERE id = $1', [user.id]);
       
       const token = jwt.sign(
@@ -418,7 +411,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// EMAIL VERIFICATION ENDPOINT
 app.get('/api/auth/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -438,6 +430,316 @@ app.get('/api/auth/verify-email/:token', async (req, res) => {
 
     if (verificationRecord.verified) {
       return res.status(400).json({ error: 'Email has already been verified' });
+    }
+
+    if (new Date() > new Date(verificationRecord.expires_at)) {
+      return res.status(400).json({ error: 'Verification token has expired' });
+    }
+
+    await pool.query('BEGIN');
+    
+    try {
+      await pool.query(
+        'UPDATE users SET email_verified = true WHERE id = $1',
+        [verificationRecord.user_id]
+      );
+
+      await pool.query(
+        'UPDATE email_verifications SET verified = true WHERE id = $1',
+        [verificationRecord.id]
+      );
+
+      await pool.query('COMMIT');
+
+      if (emailTransporter) {
+        try {
+          const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+          const welcomeEmail = generateWelcomeEmail(verificationRecord.username, baseUrl);
+          
+          await emailTransporter.sendMail({
+            from: process.env.SMTP_FROM || process.env.SMTP_USER,
+            to: verificationRecord.email,
+            subject: welcomeEmail.subject,
+            html: welcomeEmail.html,
+            text: welcomeEmail.text
+          });
+
+          console.log('Welcome email sent to:', verificationRecord.email);
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+        }
+      }
+
+      const authToken = jwt.sign(
+        { userId: verificationRecord.user_id, username: verificationRecord.username },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.json({
+        message: 'Email verified successfully! You can now login.',
+        token: authToken,
+        user: {
+          id: verificationRecord.user_id,
+          username: verificationRecord.username,
+          email: verificationRecord.email,
+          email_verified: true
+        }
+      });
+
+    } catch (error) {
+      await pool.query('ROLLBACK');
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/auth/resend-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    if (!emailTransporter) {
+      return res.status(503).json({ error: 'Email service not configured' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, username, email, email_verified FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ message: 'If an unverified account with that email exists, a verification email has been sent.' });
+    }
+
+    const user = result.rows[0];
+
+    if (user.email_verified) {
+      return res.status(400).json({ error: 'Email is already verified' });
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 86400000);
+
+    await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [user.id]);
+    await pool.query(
+      'INSERT INTO email_verifications (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, verificationToken, expiresAt]
+    );
+
+    try {
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const verificationEmail = generateEmailVerificationEmail(user.username, verificationToken, baseUrl);
+      
+      await emailTransporter.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: user.email,
+        subject: verificationEmail.subject,
+        html: verificationEmail.html,
+        text: verificationEmail.text
+      });
+
+      console.log('New verification email sent to:', user.email);
+      res.json({ message: 'A new verification email has been sent.' });
+
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+      res.status(500).json({ error: 'Failed to send verification email' });
+    }
+
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, username, email, password_hash, email_verified FROM users WHERE username = $1 OR email = $1',
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const user = result.rows[0];
+
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    if (!user.email_verified) {
+      return res.status(403).json({ 
+        error: 'Please verify your email address before logging in',
+        requiresVerification: true,
+        email: user.email
+      });
+    }
+
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        email_verified: user.email_verified
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    if (!emailTransporter) {
+      return res.status(503).json({ error: 'Email service not configured' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, username, email, email_verified FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ message: 'If an account with that email exists, a password reset link has been sent.' });
+    }
+
+    const user = result.rows[0];
+
+    if (!user.email_verified) {
+      return res.status(403).json({ error: 'Please verify your email address first before resetting your password' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000);
+
+    await pool.query(
+      'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, resetToken, expiresAt]
+    );
+
+    try {
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const resetEmail = generatePasswordResetEmail(user.username, resetToken, baseUrl);
+      
+      await emailTransporter.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: user.email,
+        subject: resetEmail.subject,
+        html: resetEmail.html,
+        text: resetEmail.text
+      });
+
+      console.log('Password reset email sent to:', user.email);
+      res.json({ message: 'If an account with that email exists, a password reset link has been sent.' });
+
+    } catch (emailError) {
+      console.error('Failed to send password reset email:', emailError);
+      res.status(500).json({ error: 'Failed to send password reset email' });
+    }
+
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const result = await pool.query(`
+      SELECT pr.id, pr.user_id, pr.expires_at, pr.used, u.username 
+      FROM password_resets pr
+      JOIN users u ON pr.user_id = u.id
+      WHERE pr.token = $1
+    `, [token]);
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid reset token' });
+    }
+
+    const resetRecord = result.rows[0];
+
+    if (resetRecord.used) {
+      return res.status(400).json({ error: 'Reset token has already been used' });
+    }
+
+    if (new Date() > new Date(resetRecord.expires_at)) {
+      return res.status(400).json({ error: 'Reset token has expired' });
+    }
+
+    res.json({ 
+      valid: true, 
+      username: resetRecord.username,
+      message: 'Reset token is valid' 
+    });
+
+  } catch (error) {
+    console.error('Verify reset token error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const result = await pool.query(`
+      SELECT pr.id, pr.user_id, pr.expires_at, pr.used, u.username, u.email
+      FROM password_resets pr
+      JOIN users u ON pr.user_id = u.id
+      WHERE pr.token = $1
+    `, [token]);
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid reset token' });
+    }
+
+    const resetRecord = result.rows[0];
+
+    if (resetRecord.used) {
+      return res.status(400).json({ error: 'Reset token has already been used' });
     }
 
     if (new Date() > new Date(resetRecord.expires_at)) {
@@ -489,7 +791,6 @@ app.get('/api/auth/verify-email/:token', async (req, res) => {
   }
 });
 
-// LEADERBOARD ENDPOINTS
 app.get('/api/leaderboard/:tournamentId', async (req, res) => {
   try {
     const { tournamentId } = req.params;
@@ -662,7 +963,6 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
   }
 });
 
-// EXISTING ROUTES
 app.get('/api/tournaments', async (req, res) => {
   try {
     const result = await pool.query(
@@ -755,327 +1055,4 @@ app.post('/api/roster', authenticateToken, async (req, res) => {
 app.listen(port, async () => {
   console.log(`Server running on port ${port}`);
   await initializeTables();
-}); Date() > new Date(verificationRecord.expires_at)) {
-      return res.status(400).json({ error: 'Verification token has expired' });
-    }
-
-    // Mark email as verified
-    await pool.query('BEGIN');
-    
-    try {
-      await pool.query(
-        'UPDATE users SET email_verified = true WHERE id = $1',
-        [verificationRecord.user_id]
-      );
-
-      await pool.query(
-        'UPDATE email_verifications SET verified = true WHERE id = $1',
-        [verificationRecord.id]
-      );
-
-      await pool.query('COMMIT');
-
-      // Send welcome email
-      if (emailTransporter) {
-        try {
-          const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-          const welcomeEmail = generateWelcomeEmail(verificationRecord.username, baseUrl);
-          
-          await emailTransporter.sendMail({
-            from: process.env.SMTP_FROM || process.env.SMTP_USER,
-            to: verificationRecord.email,
-            subject: welcomeEmail.subject,
-            html: welcomeEmail.html,
-            text: welcomeEmail.text
-          });
-
-          console.log('Welcome email sent to:', verificationRecord.email);
-        } catch (emailError) {
-          console.error('Failed to send welcome email:', emailError);
-        }
-      }
-
-      // Generate auth token
-      const authToken = jwt.sign(
-        { userId: verificationRecord.user_id, username: verificationRecord.username },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-
-      res.json({
-        message: 'Email verified successfully! You can now login.',
-        token: authToken,
-        user: {
-          id: verificationRecord.user_id,
-          username: verificationRecord.username,
-          email: verificationRecord.email,
-          email_verified: true
-        }
-      });
-
-    } catch (error) {
-      await pool.query('ROLLBACK');
-      throw error;
-    }
-
-  } catch (error) {
-    console.error('Email verification error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 });
-
-// RESEND VERIFICATION EMAIL
-app.post('/api/auth/resend-verification', async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
-    }
-
-    if (!emailTransporter) {
-      return res.status(503).json({ error: 'Email service not configured' });
-    }
-
-    const result = await pool.query(
-      'SELECT id, username, email, email_verified FROM users WHERE email = $1',
-      [email]
-    );
-
-    if (result.rows.length === 0) {
-      return res.json({ message: 'If an unverified account with that email exists, a verification email has been sent.' });
-    }
-
-    const user = result.rows[0];
-
-    if (user.email_verified) {
-      return res.status(400).json({ error: 'Email is already verified' });
-    }
-
-    // Generate new verification token
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 86400000); // 24 hours
-
-    // Delete old verification tokens and create new one
-    await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [user.id]);
-    await pool.query(
-      'INSERT INTO email_verifications (user_id, token, expires_at) VALUES ($1, $2, $3)',
-      [user.id, verificationToken, expiresAt]
-    );
-
-    // Send new verification email
-    try {
-      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-      const verificationEmail = generateEmailVerificationEmail(user.username, verificationToken, baseUrl);
-      
-      await emailTransporter.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER,
-        to: user.email,
-        subject: verificationEmail.subject,
-        html: verificationEmail.html,
-        text: verificationEmail.text
-      });
-
-      console.log('New verification email sent to:', user.email);
-      res.json({ message: 'A new verification email has been sent.' });
-
-    } catch (emailError) {
-      console.error('Failed to send verification email:', emailError);
-      res.status(500).json({ error: 'Failed to send verification email' });
-    }
-
-  } catch (error) {
-    console.error('Resend verification error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// LOGIN WITH EMAIL VERIFICATION CHECK
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
-    }
-
-    const result = await pool.query(
-      'SELECT id, username, email, password_hash, email_verified FROM users WHERE username = $1 OR email = $1',
-      [username]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    const user = result.rows[0];
-
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Check if email is verified
-    if (!user.email_verified) {
-      return res.status(403).json({ 
-        error: 'Please verify your email address before logging in',
-        requiresVerification: true,
-        email: user.email
-      });
-    }
-
-    const token = jwt.sign(
-      { userId: user.id, username: user.username },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        email_verified: user.email_verified
-      }
-    });
-
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// PASSWORD RESET
-app.post('/api/auth/forgot-password', async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
-    }
-
-    if (!emailTransporter) {
-      return res.status(503).json({ error: 'Email service not configured' });
-    }
-
-    const result = await pool.query(
-      'SELECT id, username, email, email_verified FROM users WHERE email = $1',
-      [email]
-    );
-
-    if (result.rows.length === 0) {
-      return res.json({ message: 'If an account with that email exists, a password reset link has been sent.' });
-    }
-
-    const user = result.rows[0];
-
-    // Only allow password reset for verified accounts
-    if (!user.email_verified) {
-      return res.status(403).json({ error: 'Please verify your email address first before resetting your password' });
-    }
-
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 3600000); // 1 hour
-
-    await pool.query(
-      'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
-      [user.id, resetToken, expiresAt]
-    );
-
-    try {
-      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-      const resetEmail = generatePasswordResetEmail(user.username, resetToken, baseUrl);
-      
-      await emailTransporter.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER,
-        to: user.email,
-        subject: resetEmail.subject,
-        html: resetEmail.html,
-        text: resetEmail.text
-      });
-
-      console.log('Password reset email sent to:', user.email);
-      res.json({ message: 'If an account with that email exists, a password reset link has been sent.' });
-
-    } catch (emailError) {
-      console.error('Failed to send password reset email:', emailError);
-      res.status(500).json({ error: 'Failed to send password reset email' });
-    }
-
-  } catch (error) {
-    console.error('Forgot password error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// PASSWORD RESET VERIFICATION
-app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
-  try {
-    const { token } = req.params;
-
-    const result = await pool.query(`
-      SELECT pr.id, pr.user_id, pr.expires_at, pr.used, u.username 
-      FROM password_resets pr
-      JOIN users u ON pr.user_id = u.id
-      WHERE pr.token = $1
-    `, [token]);
-
-    if (result.rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid reset token' });
-    }
-
-    const resetRecord = result.rows[0];
-
-    if (resetRecord.used) {
-      return res.status(400).json({ error: 'Reset token has already been used' });
-    }
-
-    if (new Date() > new Date(resetRecord.expires_at)) {
-      return res.status(400).json({ error: 'Reset token has expired' });
-    }
-
-    res.json({ 
-      valid: true, 
-      username: resetRecord.username,
-      message: 'Reset token is valid' 
-    });
-
-  } catch (error) {
-    console.error('Verify reset token error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// RESET PASSWORD
-app.post('/api/auth/reset-password', async (req, res) => {
-  try {
-    const { token, password } = req.body;
-
-    if (!token || !password) {
-      return res.status(400).json({ error: 'Token and password are required' });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    }
-
-    const result = await pool.query(`
-      SELECT pr.id, pr.user_id, pr.expires_at, pr.used, u.username, u.email
-      FROM password_resets pr
-      JOIN users u ON pr.user_id = u.id
-      WHERE pr.token = $1
-    `, [token]);
-
-    if (result.rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid reset token' });
-    }
-
-    const resetRecord = result.rows[0];
-
-    if (resetRecord.used) {
-      return res.status(400).json({ error: 'Reset token has already been used' });
-    }
-
-    if (new
