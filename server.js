@@ -46,7 +46,7 @@ const createEmailTransporter = () => {
     return null;
   }
 
-  return nodemailer.createTransporter(emailConfig);
+  return nodemailer.createTransport(emailConfig);
 };
 
 const emailTransporter = createEmailTransporter();
