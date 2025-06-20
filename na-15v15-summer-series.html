@@ -2205,11 +2205,7 @@
         
             try {
                 const matchDayFilter = document.getElementById('standingsMatchDayFilter')?.value || '';
-                const endpoint = matchDayFilter 
-                    ? `/leaderboard/na-15v15-summer-series?matchDay=${matchDayFilter}`
-                    : `/leaderboard/na-15v15-summer-series`;
-                
-                const response = await api.request(endpoint);
+                const response = await api.getLeaderboard('na-15v15-summer-series', matchDayFilter || null);
         
                 loadingState.style.display = 'none';
                 standingsTable.style.display = 'table';
@@ -2226,17 +2222,23 @@
                         </tr>
                     `).join('');
                 }
-        
-                // Updates metadata (if elements exist)
-                const participantsElement = document.getElementById('standingsTotalParticipants');
-                if (participantsElement) {
-                    participantsElement.textContent = `${response.metadata.complete_rosters} qualified fantasy teams`;
-                }
                 
             } catch (error) {
                 console.error('Error loading leaderboard:', error);
                 loadingState.style.display = 'none';
-                // Shows error state
+                
+                const tbody = document.getElementById('fantasyStandingsTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">
+                                <div style="font-size: 1.2rem; margin-bottom: 1rem;">⚠️ No Leaderboard Data</div>
+                                <div>No fantasy scores available yet. Player performance data needs to be added to calculate standings.</div>
+                            </td>
+                        </tr>
+                    `;
+                }
+                standingsTable.style.display = 'table';
             }
         }
 
