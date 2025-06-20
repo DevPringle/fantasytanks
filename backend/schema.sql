@@ -124,7 +124,7 @@ INSERT INTO teams (tournament_id, name, abbreviation) VALUES
     ('na-15v15-summer-series', 'Warriors', 'WAR'),
     ('na-15v15-summer-series', 'Steel Battalion', 'SB');
 
--- Insert sample players (you'll need the team IDs from above)
+-- Insert sample players ( team IDs)
 INSERT INTO players (tournament_id, team_id, name, battles_played, total_battles, fantasy_points, average_points, times_picked) VALUES
     ('na-15v15-summer-series', 1, 'muscles1', 15, 15, 5714.7, 53.9, 47),
     ('na-15v15-summer-series', 2, 'notch123', 14, 15, 5550.5, 48.7, 54),
