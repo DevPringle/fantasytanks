@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
     <style>
+        /* Material Icons fallback */
         .material-icons {
             font-family: 'Material Icons', 'Material Icons Outlined', sans-serif;
             font-weight: normal;
@@ -183,11 +184,6 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             font-size: 0.9rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
         }
 
         .dropdown-item:hover {
@@ -349,6 +345,35 @@
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
         }
 
+        .cutoff-timer {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .timer-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 25px rgba(255, 193, 7, 0.4);
+            }
+        }
+
         .fantasy-info {
             text-align: right;
         }
@@ -483,63 +508,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Loading State */
-        .loading-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 4rem 2rem;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(0, 212, 255, 0.2);
-            border-top: 3px solid #00d4ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Error State */
-        .error-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 4rem 2rem;
-            color: rgba(239, 68, 68, 0.8);
-            text-align: center;
-        }
-
-        .error-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.6;
-        }
-
-        .retry-btn {
-            margin-top: 1rem;
-            padding: 0.8rem 1.5rem;
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            color: #ef4444;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .retry-btn:hover {
-            background: rgba(239, 68, 68, 0.3);
         }
 
         /* Overview Tab */
@@ -734,6 +702,103 @@
         .activity-time {
             color: rgba(255, 255, 255, 0.5);
             font-size: 0.8rem;
+        }
+
+        /* Match Day Selector */
+        .match-day-selector {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .match-day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .match-day-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .match-day-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .match-day-tab {
+            padding: 0.6rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .match-day-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .match-day-tab.active {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border-color: #00d4ff;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .match-day-tab.locked {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+            cursor: not-allowed;
+        }
+
+        .match-day-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .roster-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .roster-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .roster-status-dot.incomplete {
+            background: #ffc107;
+        }
+
+        .roster-status-dot.empty {
+            background: #6b7280;
         }
 
         /* Players Tab Styles */
@@ -971,6 +1036,43 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .auth-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .auth-message {
+            background: rgba(15, 20, 25, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+            max-width: 280px;
+        }
+
+        .auth-message h4 {
+            color: #00d4ff;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .auth-message p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
         .roster-list {
             display: none;
         }
@@ -1003,6 +1105,93 @@
 
         .roster-player-remove:hover {
             background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Standings Styles */
+        .standings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .standings-filters {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .standings-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .standings-table th {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1rem;
+            text-align: left;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .standings-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .rank-cell {
+            text-align: center;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .username-cell {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .score-cell {
+            text-align: right;
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Footer */
@@ -1045,15 +1234,6 @@
             font-size: 0.9rem;
             text-align: center;
             max-width: 400px;
-        }
-
-        /* Focus states for accessibility */
-        .action-btn:focus,
-        .nav-tab:focus,
-        .region-btn:focus,
-        .player-action-btn:focus {
-            outline: 2px solid #00d4ff;
-            outline-offset: 2px;
         }
 
         /* Responsive Design */
@@ -1146,6 +1326,17 @@
                 padding: 0.75rem 0.5rem;
                 font-size: 0.85rem;
             }
+
+            .match-day-tabs {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+
+            .match-day-tab {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+                min-width: 60px;
+            }
         }
 
         @keyframes slideInRight {
@@ -1155,9 +1346,6 @@
     </style>
 </head>
 <body>
-    <!-- Load API first -->
-    <script src="api.js"></script>
-    
     <header class="header" id="header">
         <nav class="nav container">
             <a href="index.html" class="logo">
@@ -1188,10 +1376,10 @@
                             Settings
                         </a>
                         <div class="dropdown-divider"></div>
-                        <button class="dropdown-item" onclick="handleLogout()">
+                        <a href="#logout" class="dropdown-item" onclick="handleLogout()">
                             <span class="material-icons">logout</span>
                             Sign Out
-                        </button>
+                        </a>
                     </div>
                 </div>
                 <button class="sign-in-btn" id="signInBtn" aria-label="Sign in to your account" onclick="redirectToLogin()">Sign In</button>
@@ -1227,24 +1415,28 @@
                             </div>
                             <div class="meta-item">
                                 <span class="material-icons meta-icon">schedule</span>
-                                <span id="timeLeft">22d 14h left</span>
+                                <span>22d 14h left</span>
                             </div>
                             <div class="meta-item">
                                 <span class="material-icons meta-icon">sports_esports</span>
-                                <span id="fantasyTeamCount">Loading...</span>
+                                <span>93 Fantasy Teams</span>
                             </div>
                         </div>
 
                         <div class="tournament-status-header">
-                            <span class="status-badge" id="rosterStatus">Loading...</span>
+                            <span class="status-badge" id="rosterStatus">Rosters Open</span>
+                            <div class="cutoff-timer" id="cutoffTimer" style="display: none;">
+                                <span class="material-icons">schedule</span>
+                                <span id="timeRemaining">--:--:--</span>
+                            </div>
                         </div>
 
                         <div class="roster-actions">
-                            <button class="action-btn" onclick="goToPlayersTab()">
+                            <button class="action-btn">
                                 <span class="material-icons">sports_esports</span>
                                 Set My Roster
                             </button>
-                            <button class="action-btn secondary" onclick="goToStandingsTab()">
+                            <button class="action-btn secondary">
                                 <span class="material-icons">leaderboard</span>
                                 View Leaderboard
                             </button>
@@ -1253,7 +1445,7 @@
 
                     <div class="fantasy-info">
                         <div class="fantasy-label">Fantasy Teams Competing</div>
-                        <div class="fantasy-stat" id="fantasyTeamCountLarge">Loading...</div>
+                        <div class="fantasy-stat">93</div>
                     </div>
                 </div>
             </div>
@@ -1333,11 +1525,11 @@
                                 <span class="quick-stat-label">Match Days</span>
                             </div>
                             <div class="quick-stat">
-                                <span class="quick-stat-number" id="totalPlayers">Loading...</span>
+                                <span class="quick-stat-number">144</span>
                                 <span class="quick-stat-label">Available Players</span>
                             </div>
                             <div class="quick-stat">
-                                <span class="quick-stat-number" id="totalFantasyTeams">Loading...</span>
+                                <span class="quick-stat-number">93</span>
                                 <span class="quick-stat-label">Fantasy Teams</span>
                             </div>
                             <div class="quick-stat">
@@ -1353,12 +1545,43 @@
                                 <span class="material-icons">emoji_events</span>
                                 Top Fantasy Teams
                             </h3>
-                            <div id="topTeamsContainer">
-                                <div class="loading-state">
-                                    <div class="loading-spinner"></div>
-                                    <p>Loading leaderboard...</p>
-                                </div>
-                            </div>
+                            <ul class="teams-list">
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">1</span>
+                                        <span class="team-name">pringle</span>
+                                    </div>
+                                    <span class="team-score">2,847</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">2</span>
+                                        <span class="team-name">Charan</span>
+                                    </div>
+                                    <span class="team-score">2,739</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">3</span>
+                                        <span class="team-name">Stored</span>
+                                    </div>
+                                    <span class="team-score">2,681</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">4</span>
+                                        <span class="team-name">will</span>
+                                    </div>
+                                    <span class="team-score">2,594</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">5</span>
+                                        <span class="team-name">Poi</span>
+                                    </div>
+                                    <span class="team-score">2,512</span>
+                                </li>
+                            </ul>
                         </div>
 
                         <div class="sidebar-card">
@@ -1370,29 +1593,29 @@
                                 <li class="activity-item">
                                     <span class="material-icons activity-icon">person_add</span>
                                     <div class="activity-content">
-                                        <div class="activity-text">Fantasy teams are actively building rosters</div>
-                                        <div class="activity-time">Live updates</div>
+                                        <div class="activity-text">New roster change: Employed drops Sadge, picks up Poi!</div>
+                                        <div class="activity-time">1 minute ago</div>
                                     </div>
                                 </li>
                                 <li class="activity-item">
                                     <span class="material-icons activity-icon">swap_horiz</span>
                                     <div class="activity-content">
-                                        <div class="activity-text">Players being drafted across all fantasy teams</div>
-                                        <div class="activity-time">Real-time</div>
+                                        <div class="activity-text">Popular pick: Ferret drafted by 12 fantasy teams</div>
+                                        <div class="activity-time">1 minute ago</div>
                                     </div>
                                 </li>
                                 <li class="activity-item">
                                     <span class="material-icons activity-icon">star</span>
                                     <div class="activity-content">
-                                        <div class="activity-text">Fantasy scoring based on tournament performance</div>
-                                        <div class="activity-time">Live scoring</div>
+                                        <div class="activity-text">Fantasy leader: bigtanker13 most valuable pick</div>
+                                        <div class="activity-time">1 minute ago</div>
                                     </div>
                                 </li>
                                 <li class="activity-item">
                                     <span class="material-icons activity-icon">schedule</span>
                                     <div class="activity-content">
-                                        <div class="activity-text">Tournament matches updating fantasy points</div>
-                                        <div class="activity-time">Continuous</div>
+                                        <div class="activity-text">Fantasy scoring starts when matches begin in 2 hours</div>
+                                        <div class="activity-time">1 minute ago</div>
                                     </div>
                                 </li>
                             </ul>
@@ -1416,30 +1639,114 @@
 
             <!-- Standings Tab -->
             <div id="standings" class="tab-content">
-                <h2 class="section-title">
-                    <span class="material-icons">leaderboard</span>
-                    Fantasy Leaderboard
-                </h2>
-                <div id="standingsContainer">
-                    <div class="loading-state">
-                        <div class="loading-spinner"></div>
-                        <p>Loading fantasy leaderboard...</p>
+                <div class="standings-header">
+                    <h2 class="section-title">
+                        <span class="material-icons">leaderboard</span>
+                        Fantasy Leaderboard
+                    </h2>
+                    <div class="standings-filters">
+                        <div class="filter-group">
+                            <label for="standingsBracketFilter">View:</label>
+                            <select id="standingsBracketFilter" class="filter-select">
+                                <option value="">Overall Tournament</option>
+                                <option value="match-day">Single Match Day</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="standingsMatchDayFilter">Match Day:</label>
+                            <select id="standingsMatchDayFilter" class="filter-select">
+                                <option value="">All Match Days</option>
+                                <option value="1">Match Day 1</option>
+                                <option value="2">Match Day 2</option>
+                                <option value="3">Match Day 3</option>
+                                <option value="4">Match Day 4</option>
+                                <option value="5">Match Day 5</option>
+                                <option value="6">Match Day 6</option>
+                                <option value="7">Match Day 7</option>
+                            </select>
+                        </div>
+                        <button class="action-btn secondary">
+                            <span class="material-icons">refresh</span>
+                            Refresh
+                        </button>
                     </div>
+                </div>
+
+                <div class="standings-container">
+                    <div id="standingsLoadingState" class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <div>Loading fantasy standings...</div>
+                    </div>
+
+                    <table class="standings-table" id="fantasyStandingsTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th class="rank-column">Rank</th>
+                                <th class="name-column">Name</th>
+                                <th class="score-column">Score</th>
+                                <th class="avg-column">Avg. Score</th>
+                                <th class="days-column">Days</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fantasyStandingsTableBody">
+                            <!-- Standings populate here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- Players Tab -->
             <div id="players" class="tab-content">
+                <!-- Match Day Selector -->
+                <div class="match-day-selector">
+                    <div class="match-day-header">
+                        <div class="match-day-title">
+                            <span class="material-icons">event</span>
+                            Select Match Day for Roster
+                        </div>
+                        <div class="roster-status-indicator">
+                            <div class="roster-status-dot" id="currentRosterStatusDot"></div>
+                            <span id="currentRosterStatusText">No roster set</span>
+                        </div>
+                    </div>
+                    
+                    <div class="match-day-tabs" id="matchDayTabs">
+                        <button class="match-day-tab active" data-match-day="1">Day 1</button>
+                        <button class="match-day-tab" data-match-day="2">Day 2</button>
+                        <button class="match-day-tab" data-match-day="3">Day 3</button>
+                        <button class="match-day-tab" data-match-day="4">Day 4</button>
+                        <button class="match-day-tab" data-match-day="5">Day 5</button>
+                        <button class="match-day-tab" data-match-day="6">Day 6</button>
+                        <button class="match-day-tab" data-match-day="7">Day 7</button>
+                    </div>
+                    
+                    <div class="match-day-info">
+                        <span id="matchDayDescription">Select a match day to set your roster for that specific tournament round.</span>
+                        <span id="rosterDeadlineInfo"></span>
+                    </div>
+                </div>
+
                 <div class="players-header">
                     <h2 class="section-title">
                         <span class="material-icons">people</span>
                         Fantasy Player Pool
+                        <span id="currentMatchDayDisplay" style="color: #00d4ff; font-size: 1rem; margin-left: 1rem;">
+                            (Match Day 1)
+                        </span>
                     </h2>
                     <div class="players-filters">
                         <div class="filter-group">
                             <label for="teamFilter">Team:</label>
                             <select id="teamFilter" class="filter-select">
                                 <option value="">All Teams</option>
+                                <option value="CRAKD">CRAKD</option>
+                                <option value="DOPA">DOPAMINE</option>
+                                <option value="ARCANE">ARCANE</option>
+                                <option value="MVP">MVP</option>
+                                <option value="DONER">Dönerteller</option>
+                                <option value="EMPLOY">Employed</option>
+                                <option value="CINE">Cine Pa</option>
+                                <option value="FUMES">FUMES</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -1448,16 +1755,47 @@
                     </div>
                 </div>
 
-                <div id="playersContainer">
-                    <div class="loading-state">
-                        <div class="loading-spinner"></div>
-                        <p>Loading player data...</p>
-                    </div>
+                <div class="players-table-container">
+                    <table class="players-table">
+                        <thead>
+                            <tr>
+                                <th class="action-column">Action</th>
+                                <th class="sortable" data-sort="name">
+                                    Name
+                                    <span class="material-icons sort-icon">expand_more</span>
+                                </th>
+                                <th class="sortable" data-sort="team">
+                                    Team
+                                </th>
+                                <th class="sortable" data-sort="battles">
+                                    Battles
+                                </th>
+                                <th class="sortable" data-sort="points">
+                                    Points
+                                    <span class="material-icons sort-icon">expand_more</span>
+                                </th>
+                                <th class="sortable" data-sort="avg">
+                                    Avg. Points
+                                </th>
+                                <th class="sortable" data-sort="picked">
+                                    Picked By
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="playersTableBody">
+                            <!-- Players populated by js -->
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="roster-sidebar">
                     <div class="roster-card">
-                        <h3 class="roster-title">Your Fantasy Roster</h3>
+                        <h3 class="roster-title">
+                            Your Fantasy Roster
+                            <div style="font-size: 0.9rem; font-weight: 500; color: #00d4ff; margin-top: 0.5rem;">
+                                Match Day <span id="sidebarMatchDay">1</span>
+                            </div>
+                        </h3>
                         <div class="roster-status">
                             <span id="rosterCount">0</span>/10 Players Selected
                         </div>
@@ -1465,7 +1803,13 @@
                             Your roster is empty. Add players from the table above to build your fantasy team.
                         </div>
                         <div class="roster-list" id="rosterList">
-                            <!-- Selected players will appear here -->
+                            <!-- Selected players appear here -->
+                        </div>
+                        <div class="auth-overlay" id="authOverlay" style="display: none;">
+                            <div class="auth-message">
+                                <h4>Sign In Required</h4>
+                                <p>Please sign in to start building your Fantasy Roster. Click the Sign In button in the top-right of the page.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1477,11 +1821,10 @@
                     <span class="material-icons">groups</span>
                     Pro Team Rosters
                 </h2>
-                <div id="teamsContainer">
-                    <div class="loading-state">
-                        <div class="loading-spinner"></div>
-                        <p>Loading team data...</p>
-                    </div>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
+                    <h3 style="margin-bottom: 1rem;">Pro Team Rosters Loading</h3>
+                    <p>Professional team rosters showing which players are available for fantasy drafting will be displayed here.</p>
                 </div>
             </div>
 
@@ -1518,418 +1861,512 @@
     </footer>
 
     <script>
+        // Fantasy API client for connecting to backend
+        class FantasyAPI {
+            constructor() {
+                this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
+                this.token = localStorage.getItem('authToken');
+            }
+
+            async request(endpoint, options = {}) {
+                const url = `${this.baseURL}${endpoint}`;
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                };
+
+                if (this.token) {
+                    config.headers.Authorization = `Bearer ${this.token}`;
+                }
+
+                try {
+                    const response = await fetch(url, config);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'API request failed');
+                    }
+
+                    return data;
+                } catch (error) {
+                    console.error('API request error:', error);
+                    throw error;
+                }
+            }
+
+            async getRoster(tournamentId, matchDay = 1) {
+                return await this.request(`/roster?tournamentId=${tournamentId}&matchDay=${matchDay}`);
+            }
+
+            async saveRoster(tournamentId, roster, matchDay = 1) {
+                return await this.request('/roster', {
+                    method: 'POST',
+                    body: JSON.stringify({ tournamentId, roster, matchDay })
+                });
+            }
+
+            async getPlayers(tournamentId) {
+                return await this.request(`/tournaments/${tournamentId}/players`);
+            }
+            
+            async getTeams(tournamentId) {
+                return await this.request(`/tournaments/${tournamentId}/teams`);
+            }
+
+            getCurrentUser() {
+                if (!this.token) return null;
+                try {
+                    const payload = JSON.parse(atob(this.token.split('.')[1]));
+                    return { username: payload.username, id: payload.userId };
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            logout() {
+                localStorage.removeItem('authToken');
+                this.token = null;
+                window.location.reload();
+            }
+
+            isAuthenticated() {
+                return !!this.token;
+            }
+        }
+
+        // Initialize API
+        const api = new FantasyAPI();
+
         // Global variables
-        let tournamentId = 'na-15v15-summer-series';
-        let currentRoster = [];
+        let playersData = [];
+        let teamsData = [];
+        let userRosters = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
+        let currentMatchDay = 1;
         let maxRosterSize = 10;
-        let rostersUnlocked = true;
-        let players = [];
-        let teams = [];
-        let leaderboard = [];
+        let isAuthenticated = false;
+        let dataLoaded = false;
 
-        // Initialize the page
-        async function initializePage() {
-            console.log('🚀 Initializing tournament page...');
-            
-            // Check authentication and update UI
-            updateAuthUI();
-            
-            // Load tournament data
-            await loadTournamentData();
-            
-            // Load user's existing roster if authenticated
-            if (api.isAuthenticated()) {
-                await loadUserRoster();
+        // Tournament configuration
+        const tournamentConfig = {
+            totalMatchDays: 7,
+            rosterCutoffs: {
+                1: new Date('2025-06-11T00:00:00Z'),
+                2: new Date('2025-06-15T00:00:00Z'),
+                3: new Date('2025-06-18T00:00:00Z'),
+                4: new Date('2025-06-22T00:00:00Z'),
+                5: new Date('2025-06-25T00:00:00Z'),
+                6: new Date('2025-06-29T00:00:00Z'),
+                7: new Date('2025-06-30T00:00:00Z')
             }
+        };
+
+        // Tab Navigation System
+        function initializeTabNavigation() {
+            const navTabs = document.querySelectorAll('.nav-tab');
             
-            console.log('✅ Tournament page initialized successfully');
-        }
-
-        // Update authentication UI
-        function updateAuthUI() {
-            const userMenu = document.getElementById('userMenu');
-            const signInBtn = document.getElementById('signInBtn');
-            const usernameSpan = document.getElementById('username');
-            
-            if (api.isAuthenticated()) {
-                const user = api.getCurrentUser();
-                if (user && userMenu && signInBtn && usernameSpan) {
-                    userMenu.style.display = 'block';
-                    signInBtn.style.display = 'none';
-                    usernameSpan.textContent = user.username;
-                }
-                
-                // Update roster status message for authenticated users
-                updateRosterStatusForAuth();
-            } else {
-                if (userMenu && signInBtn) {
-                    userMenu.style.display = 'none';
-                    signInBtn.style.display = 'block';
-                }
-                
-                // Update roster message for non-authenticated users
-                updateRosterMessageForGuests();
-            }
-        }
-
-        // Load all tournament data
-        async function loadTournamentData() {
-            try {
-                console.log('📊 Loading tournament data...');
-                
-                // Load players, teams, and leaderboard in parallel
-                const [playersResult, teamsResult, leaderboardResult] = await Promise.allSettled([
-                    loadPlayers(),
-                    loadTeams(),
-                    loadLeaderboard()
-                ]);
-                
-                // Handle results
-                if (playersResult.status === 'fulfilled') {
-                    console.log('✅ Players loaded:', playersResult.value?.length || 0);
-                } else {
-                    console.error('❌ Failed to load players:', playersResult.reason);
-                }
-                
-                if (teamsResult.status === 'fulfilled') {
-                    console.log('✅ Teams loaded:', teamsResult.value?.length || 0);
-                } else {
-                    console.error('❌ Failed to load teams:', teamsResult.reason);
-                }
-                
-                if (leaderboardResult.status === 'fulfilled') {
-                    console.log('✅ Leaderboard loaded:', leaderboardResult.value?.length || 0);
-                } else {
-                    console.error('❌ Failed to load leaderboard:', leaderboardResult.reason);
-                }
-                
-                // Update UI with loaded data
-                updateTournamentStats();
-                
-            } catch (error) {
-                console.error('❌ Error loading tournament data:', error);
-            }
-        }
-
-        // Load players from API
-        async function loadPlayers() {
-            try {
-                const response = await api.getPlayers(tournamentId);
-                players = response.players || [];
-                
-                if (players.length === 0) {
-                    console.warn('⚠️ No players found from API, using fallback data');
-                    // Use fallback data
-                    players = [
-                        { player_name: 'bigtanker13', team_code: 'CRAKD', battles_played: '100%', total_points: 5714.7, average_points: 53.9, picked_percentage: '50.04%' },
-                        { player_name: 'Ferret', team_code: 'DOPA', battles_played: '99%', total_points: 5550.5, average_points: 48.7, picked_percentage: '57.61%' },
-                        { player_name: 'Poi', team_code: 'ARCANE', battles_played: '100%', total_points: 5298.5, average_points: 49.5, picked_percentage: '55.14%' },
-                        { player_name: 'Sadge', team_code: 'MVP', battles_played: '91%', total_points: 4868.7, average_points: 46.4, picked_percentage: '11.85%' },
-                        { player_name: 'pringle', team_code: 'DONER', battles_played: '97%', total_points: 4781.3, average_points: 45.8, picked_percentage: '29.86%' },
-                        { player_name: 'will', team_code: 'EMPLOY', battles_played: '90%', total_points: 4567.0, average_points: 43.9, picked_percentage: '17.93%' },
-                        { player_name: 'Charan', team_code: 'CINE', battles_played: '80%', total_points: 4513.9, average_points: 49.1, picked_percentage: '10.58%' },
-                        { player_name: 'Stored', team_code: 'FUMES', battles_played: '79%', total_points: 4492.0, average_points: 52.8, picked_percentage: '7.50%' }
-                    ];
-                }
-                
-                // Update players table
-                populatePlayersTable();
-                populateTeamFilter();
-                
-                return players;
-            } catch (error) {
-                console.error('❌ Error loading players:', error);
-                showErrorInPlayersTab('Failed to load player data. Please try refreshing the page.');
-                return [];
-            }
-        }
-
-        // Load teams from API
-        async function loadTeams() {
-            try {
-                const response = await api.getTeams(tournamentId);
-                teams = response.teams || [];
-                return teams;
-            } catch (error) {
-                console.error('❌ Error loading teams:', error);
-                showErrorInTeamsTab('Failed to load team data. Please try refreshing the page.');
-                return [];
-            }
-        }
-
-        // Load leaderboard from API
-        async function loadLeaderboard() {
-            try {
-                const response = await api.getLeaderboard(tournamentId);
-                leaderboard = response.leaderboard || [];
-                
-                if (leaderboard.length === 0) {
-                    console.warn('⚠️ No leaderboard data found from API, using fallback data');
-                    // Use fallback data
-                    leaderboard = [
-                        { username: 'pringle', total_points: 2847, rank: 1 },
-                        { username: 'Charan', total_points: 2739, rank: 2 },
-                        { username: 'Stored', total_points: 2681, rank: 3 },
-                        { username: 'will', total_points: 2594, rank: 4 },
-                        { username: 'Poi', total_points: 2512, rank: 5 }
-                    ];
-                }
-                
-                // Update leaderboard displays
-                populateTopTeams();
-                populateStandings();
-                
-                return leaderboard;
-            } catch (error) {
-                console.error('❌ Error loading leaderboard:', error);
-                showErrorInStandingsTab('Failed to load leaderboard data. Please try refreshing the page.');
-                return [];
-            }
-        }
-
-        // Load user's roster from API
-        async function loadUserRoster() {
-            if (!api.isAuthenticated()) return;
-            
-            try {
-                console.log('📋 Loading user roster...');
-                const response = await api.getRoster(tournamentId);
-                currentRoster = response.roster || [];
-                console.log('✅ User roster loaded:', currentRoster);
-                updateRosterDisplay();
-            } catch (error) {
-                console.error('❌ Error loading user roster:', error);
-                // Don't show error for missing roster, just use empty roster
-                currentRoster = [];
-                updateRosterDisplay();
-            }
-        }
-
-        // Save user's roster to API
-        async function saveUserRoster() {
-            if (!api.isAuthenticated()) {
-                console.log('👤 User not authenticated, skipping roster save');
-                return;
-            }
-            
-            try {
-                console.log('💾 Saving user roster...', currentRoster);
-                await api.saveRoster(tournamentId, currentRoster);
-                console.log('✅ User roster saved successfully');
-            } catch (error) {
-                console.error('❌ Error saving user roster:', error);
-                showNotification('Failed to save roster. Please try again.', 'error');
-            }
-        }
-
-        // Update tournament statistics
-        function updateTournamentStats() {
-            // Update total players count
-            const totalPlayersElements = document.querySelectorAll('#totalPlayers');
-            totalPlayersElements.forEach(el => {
-                el.textContent = players.length || '144';
-            });
-            
-            // Update fantasy team count
-            const fantasyTeamCount = leaderboard.length || 93;
-            const fantasyElements = document.querySelectorAll('#fantasyTeamCount, #fantasyTeamCountLarge, #totalFantasyTeams');
-            fantasyElements.forEach(el => {
-                el.textContent = `${fantasyTeamCount} Fantasy Teams`;
-            });
-            
-            // Update roster status
-            const rosterStatusEl = document.getElementById('rosterStatus');
-            if (rosterStatusEl) {
-                if (rostersUnlocked) {
-                    rosterStatusEl.textContent = 'Rosters Open';
-                    rosterStatusEl.classList.remove('locked');
-                } else {
-                    rosterStatusEl.textContent = 'Rosters Locked';
-                    rosterStatusEl.classList.add('locked');
-                }
-            }
-        }
-
-        // Populate players table
-        function populatePlayersTable() {
-            const playersContainer = document.getElementById('playersContainer');
-            if (!playersContainer) return;
-            
-            if (players.length === 0) {
-                playersContainer.innerHTML = `
-                    <div class="error-state">
-                        <span class="material-icons error-icon">error</span>
-                        <h3>No Player Data Available</h3>
-                        <p>Player data is currently being loaded. Please check back soon.</p>
-                        <button class="retry-btn" onclick="loadPlayers()">Retry Loading</button>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Filter players by team if selected
-            const teamFilter = document.getElementById('teamFilter');
-            const selectedTeam = teamFilter ? teamFilter.value : '';
-            const filteredPlayers = selectedTeam ? 
-                players.filter(p => p.team_code === selectedTeam) : 
-                players;
-            
-            playersContainer.innerHTML = `
-                <div class="players-table-container">
-                    <table class="players-table">
-                        <thead>
-                            <tr>
-                                <th class="action-column">Action</th>
-                                <th class="sortable" data-sort="player_name">
-                                    Name
-                                    <span class="material-icons sort-icon">expand_more</span>
-                                </th>
-                                <th class="sortable" data-sort="team_code">
-                                    Team
-                                </th>
-                                <th class="sortable" data-sort="battles_played">
-                                    Battles
-                                </th>
-                                <th class="sortable" data-sort="total_points">
-                                    Points
-                                    <span class="material-icons sort-icon">expand_more</span>
-                                </th>
-                                <th class="sortable" data-sort="average_points">
-                                    Avg. Points
-                                </th>
-                                <th class="sortable" data-sort="picked_percentage">
-                                    Picked By
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${filteredPlayers.map(player => {
-                                // Determine action button state
-                                let actionIcon = 'lock';
-                                let actionClass = '';
-                                let actionTitle = 'Sign in to manage roster';
-                                
-                                if (api.isAuthenticated()) {
-                                    if (rostersUnlocked) {
-                                        if (currentRoster.includes(player.player_name)) {
-                                            actionIcon = 'remove';
-                                            actionClass = 'remove';
-                                            actionTitle = 'Remove from roster';
-                                        } else if (currentRoster.length < maxRosterSize) {
-                                            actionIcon = 'add';
-                                            actionClass = 'add';
-                                            actionTitle = 'Add to roster';
-                                        } else {
-                                            actionIcon = 'lock';
-                                            actionClass = '';
-                                            actionTitle = 'Roster is full';
-                                        }
-                                    } else {
-                                        actionIcon = 'lock';
-                                        actionClass = '';
-                                        actionTitle = 'Rosters are locked';
-                                    }
-                                }
-
-                                return `
-                                    <tr>
-                                        <td class="action-column">
-                                            <button class="player-action-btn ${actionClass}" 
-                                                    data-player="${player.player_name}" 
-                                                    title="${actionTitle}">
-                                                <span class="material-icons">${actionIcon}</span>
-                                            </button>
-                                        </td>
-                                        <td class="player-name">${player.player_name}</td>
-                                        <td class="player-team">${player.team_code}</td>
-                                        <td class="player-battles">${player.battles_played || '0%'}</td>
-                                        <td class="player-points">${parseFloat(player.total_points || 0).toLocaleString()}</td>
-                                        <td class="player-avg">${player.average_points || '0.0'}</td>
-                                        <td class="player-picked">${player.picked_percentage || '0%'}</td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            // Add event listeners to action buttons
-            document.querySelectorAll('.player-action-btn').forEach(btn => {
-                btn.addEventListener('click', handlePlayerAction);
-            });
-            
-            // Add sorting functionality
-            document.querySelectorAll('.sortable').forEach(th => {
-                th.addEventListener('click', () => {
-                    const column = th.dataset.sort;
-                    const currentDirection = th.classList.contains('asc') ? 'desc' : 'asc';
+            navTabs.forEach((tab) => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
                     
-                    document.querySelectorAll('.sortable').forEach(header => {
-                        header.classList.remove('asc', 'desc');
-                    });
+                    const targetTab = this.dataset.tab;
                     
-                    th.classList.add(currentDirection);
-                    sortPlayers(column, currentDirection);
+                    // Removes active from all tabs and contents
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Adds active to current tab and content
+                    this.classList.add('active');
+                    
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                        handleTabSpecificLogic(targetTab);
+                    }
                 });
             });
         }
 
-        // Populate team filter dropdown
-        function populateTeamFilter() {
-            const teamFilter = document.getElementById('teamFilter');
-            if (!teamFilter) return;
-            
-            // Get unique teams from players
-            const uniqueTeams = [...new Set(players.map(p => p.team_code))].sort();
-            
-            // Keep the "All Teams" option and add unique teams
-            teamFilter.innerHTML = `
-                <option value="">All Teams</option>
-                ${uniqueTeams.map(team => `<option value="${team}">${team}</option>`).join('')}
-            `;
-            
-            // Add change event listener
-            teamFilter.addEventListener('change', populatePlayersTable);
+        function handleTabSpecificLogic(targetTab) {
+            switch(targetTab) {
+                case 'standings':
+                    loadFantasyLeaderboard();
+                    break;
+                case 'players':
+                    if (dataLoaded) {
+                        updateRosterDisplay();
+                        populatePlayersTable();
+                    }
+                    break;
+            }
         }
 
-        // Sort players
-        function sortPlayers(column, direction) {
-            players.sort((a, b) => {
-                let aVal = a[column];
-                let bVal = b[column];
+        // Auth functions
+        function redirectToLogin() {
+            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
+        }
+
+        function handleLogout() {
+            api.logout();
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function updateAuthUI() {
+            const signInBtn = document.getElementById('signInBtn');
+            const userMenu = document.getElementById('userMenu');
+            const authOverlay = document.getElementById('authOverlay');
+            
+            if (api.isAuthenticated()) {
+                isAuthenticated = true;
+                const user = api.getCurrentUser();
                 
-                if (column === 'total_points' || column === 'average_points') {
-                    aVal = parseFloat(aVal) || 0;
-                    bVal = parseFloat(bVal) || 0;
-                } else if (column === 'picked_percentage' || column === 'battles_played') {
-                    aVal = parseFloat((aVal || '0%').replace('%', ''));
-                    bVal = parseFloat((bVal || '0%').replace('%', ''));
-                }
+                signInBtn.style.display = 'none';
+                userMenu.style.display = 'block';
+                document.getElementById('username').textContent = user.username;
+                if (authOverlay) authOverlay.style.display = 'none';
                 
-                if (direction === 'asc') {
-                    return aVal > bVal ? 1 : -1;
+                loadAllUserRosters();
+            } else {
+                isAuthenticated = false;
+                signInBtn.style.display = 'block';
+                userMenu.style.display = 'none';
+                if (authOverlay) authOverlay.style.display = 'flex';
+                
+                loadRostersFromLocalStorage();
+                updateRosterDisplay();
+            }
+        }
+
+        // Match day functions
+        function isMatchDayLocked(matchDay) {
+            const now = new Date();
+            const cutoff = tournamentConfig.rosterCutoffs[matchDay];
+            return cutoff && now >= cutoff;
+        }
+
+        function getActiveMatchDay() {
+            for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
+                if (!isMatchDayLocked(i)) return i;
+            }
+            return 1;
+        }
+
+        function initializeMatchDayTabs() {
+            const tabs = document.querySelectorAll('.match-day-tab');
+            
+            tabs.forEach(tab => {
+                const matchDay = parseInt(tab.dataset.matchDay);
+                
+                if (isMatchDayLocked(matchDay)) {
+                    tab.classList.add('locked');
+                    tab.title = 'Roster deadline has passed';
                 } else {
-                    return aVal < bVal ? 1 : -1;
+                    tab.addEventListener('click', () => switchMatchDay(matchDay));
                 }
             });
+        }
+
+        function switchMatchDay(matchDay) {
+            if (isMatchDayLocked(matchDay)) {
+                showNotification(`Match Day ${matchDay} roster deadline has passed`, 'error');
+                return;
+            }
+
+            currentMatchDay = matchDay;
+            updateMatchDayUI();
+            updateRosterDisplay();
+            populatePlayersTable();
+        }
+
+        function updateMatchDayUI() {
+            document.querySelectorAll('.match-day-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (parseInt(tab.dataset.matchDay) === currentMatchDay) {
+                    tab.classList.add('active');
+                }
+            });
+
+            document.getElementById('currentMatchDayDisplay').textContent = `(Match Day ${currentMatchDay})`;
+            document.getElementById('sidebarMatchDay').textContent = currentMatchDay;
+            updateRosterStatusIndicator();
+        }
+
+        function updateRosterStatusIndicator() {
+            const currentRoster = getCurrentRoster();
+            const statusDot = document.getElementById('currentRosterStatusDot');
+            const statusText = document.getElementById('currentRosterStatusText');
+
+            if (!statusDot || !statusText) return;
+
+            if (currentRoster.length === 0) {
+                statusDot.className = 'roster-status-dot empty';
+                statusText.textContent = 'No roster set';
+            } else if (currentRoster.length < maxRosterSize) {
+                statusDot.className = 'roster-status-dot incomplete';
+                statusText.textContent = `${currentRoster.length}/${maxRosterSize} players`;
+            } else {
+                statusDot.className = 'roster-status-dot';
+                statusText.textContent = 'Roster complete';
+            }
+        }
+
+        // Roster functions
+        function getCurrentRoster() {
+            return userRosters[currentMatchDay] || [];
+        }
+
+        function setCurrentRoster(roster) {
+            userRosters[currentMatchDay] = [...roster];
+        }
+
+        async function loadAllUserRosters() {
+            if (!api.isAuthenticated()) {
+                loadRostersFromLocalStorage();
+                return;
+            }
+            
+            try {
+                for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
+                    userRosters[i] = [];
+                }
+                
+                for (let matchDay = 1; matchDay <= tournamentConfig.totalMatchDays; matchDay++) {
+                    try {
+                        const response = await api.getRoster('na-15v15-summer-series', matchDay);
+                        if (response && response.roster && response.roster.length > 0) {
+                            userRosters[matchDay] = response.roster;
+                        }
+                    } catch (error) {
+                        console.log(`Error loading Match Day ${matchDay} roster:`, error.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user rosters:', error);
+                loadRostersFromLocalStorage();
+            }
+            
+            updateRosterDisplay();
+            updateRosterStatusIndicator();
+        }
+
+        function loadRostersFromLocalStorage() {
+            for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
+                let saved = localStorage.getItem(`roster_na-15v15-summer-series_md${i}_demo`);
+                
+                if (!saved && i === 1) {
+                    saved = localStorage.getItem(`roster_na-15v15-summer-series_demo`);
+                    if (saved) {
+                        localStorage.setItem(`roster_na-15v15-summer-series_md1_demo`, saved);
+                    }
+                }
+                
+                if (saved) {
+                    try {
+                        userRosters[i] = JSON.parse(saved);
+                    } catch (error) {
+                        console.error(`Error parsing saved roster for match day ${i}:`, error);
+                        userRosters[i] = [];
+                    }
+                } else {
+                    userRosters[i] = [];
+                }
+            }
+        }
+
+        async function saveCurrentRoster() {
+            if (!isAuthenticated) return;
+
+            const currentRoster = getCurrentRoster();
+            
+            try {
+                await api.saveRoster('na-15v15-summer-series', currentRoster, currentMatchDay);
+            } catch (error) {
+                console.error('Error saving roster:', error);
+                const localKey = `roster_na-15v15-summer-series_md${currentMatchDay}_demo`;
+                localStorage.setItem(localKey, JSON.stringify(currentRoster));
+            }
+        }
+
+        // Fantasy Leaderboard Functions
+        async function loadFantasyLeaderboard() {
+            const loadingState = document.getElementById('standingsLoadingState');
+            const standingsTable = document.getElementById('fantasyStandingsTable');
+        
+            if (!loadingState) return;
+        
+            loadingState.style.display = 'block';
+            standingsTable.style.display = 'none';
+        
+            try {
+                const matchDayFilter = document.getElementById('standingsMatchDayFilter')?.value || '';
+                const endpoint = matchDayFilter 
+                    ? `/leaderboard/na-15v15-summer-series?matchDay=${matchDayFilter}`
+                    : `/leaderboard/na-15v15-summer-series`;
+                
+                const response = await api.request(endpoint);
+        
+                loadingState.style.display = 'none';
+                standingsTable.style.display = 'table';
+                
+                const tbody = document.getElementById('fantasyStandingsTableBody');
+                if (tbody && response.leaderboard) {
+                    tbody.innerHTML = response.leaderboard.map(entry => `
+                        <tr>
+                            <td class="rank-cell">${entry.rank}</td>
+                            <td class="username-cell">${entry.username}</td>
+                            <td class="score-cell">${entry.total_points}</td>
+                            <td>${entry.avg_points}</td>
+                            <td>${entry.match_days_played}</td>
+                        </tr>
+                    `).join('');
+                }
+        
+                // Updates metadata (if elements exist)
+                const participantsElement = document.getElementById('standingsTotalParticipants');
+                if (participantsElement) {
+                    participantsElement.textContent = `${response.metadata.complete_rosters} qualified fantasy teams`;
+                }
+                
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                loadingState.style.display = 'none';
+                // Shows error state
+            }
+        }
+
+        // Player table functions
+        function getFallbackPlayers() {
+            return [
+                { name: 'bigtanker13', team: 'CRAKD', battles: '100%', points: 5714.7, avg: 53.9, picked: '50.04%' },
+                { name: 'Ferret', team: 'DOPAMINE', battles: '99%', points: 5550.5, avg: 48.7, picked: '57.61%' },
+                { name: 'Poi', team: 'ARCANE', battles: '100%', points: 5298.5, avg: 49.5, picked: '55.14%' },
+                { name: 'Sadge', team: 'MVP', battles: '91%', points: 4868.7, avg: 46.4, picked: '11.85%' },
+                { name: 'will', team: 'Employed', battles: '97%', points: 4781.3, avg: 45.8, picked: '29.86%' }
+            ];
+        }
+
+        async function loadPlayersData() {
+            try {
+                const response = await api.getPlayers('na-15v15-summer-series');
+                
+                if (response && response.players && response.players.length > 0) {
+                    playersData = response.players.map(player => ({
+                        name: player.player_name,
+                        team: player.team_code,
+                        battles: player.battles_played || '0%',
+                        points: player.total_points || 0,
+                        avg: player.average_points || 0,
+                        picked: player.picked_percentage || '0%'
+                    }));
+                } else {
+                    playersData = getFallbackPlayers();
+                }
+            } catch (error) {
+                console.error('Error loading players:', error);
+                playersData = getFallbackPlayers();
+            }
             
             populatePlayersTable();
         }
 
-        // Handle player roster actions
+        function populatePlayersTable() {
+            const tbody = document.getElementById('playersTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if (playersData.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">
+                        <div style="font-size: 1.2rem; margin-bottom: 1rem;">🚫 No Players Found</div>
+                        <div>Either the database is empty or there's a connection issue.</div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                return;
+            }
+
+            const teamFilter = document.getElementById('teamFilter');
+            const selectedTeam = teamFilter ? teamFilter.value : '';
+            const filteredPlayers = selectedTeam ? 
+                  playersData.filter(p => p.team === selectedTeam) : 
+                  playersData;
+
+            const currentRoster = getCurrentRoster();
+
+            filteredPlayers.forEach(player => {
+                const row = document.createElement('tr');
+                
+                let actionIcon = 'lock';
+                let actionClass = '';
+                let actionTitle = 'Rosters are locked';
+                
+                if (!isAuthenticated) {
+                    actionIcon = 'lock';
+                    actionClass = '';
+                    actionTitle = 'Please sign in to add players';
+                } else if (!isMatchDayLocked(currentMatchDay)) {
+                    if (currentRoster.includes(player.name)) {
+                        actionIcon = 'remove';
+                        actionClass = 'remove';
+                        actionTitle = 'Remove from roster';
+                    } else if (currentRoster.length < maxRosterSize) {
+                        actionIcon = 'add';
+                        actionClass = 'add';
+                        actionTitle = 'Add to roster';
+                    } else {
+                        actionIcon = 'lock';
+                        actionClass = '';
+                        actionTitle = 'Roster is full';
+                    }
+                } else {
+                    actionIcon = 'lock';
+                    actionClass = '';
+                    actionTitle = `Match Day ${currentMatchDay} deadline has passed`;
+                }
+
+                row.innerHTML = `
+                    <td class="action-column">
+                        <button class="player-action-btn ${actionClass}" 
+                                data-player="${player.name}" 
+                                title="${actionTitle}">
+                            <span class="material-icons">${actionIcon}</span>
+                        </button>
+                    </td>
+                    <td class="player-name">${player.name}</td>
+                    <td class="player-team">${player.team}</td>
+                    <td class="player-battles">${player.battles}</td>
+                    <td class="player-points">${parseFloat(player.points).toLocaleString()}</td>
+                    <td class="player-avg">${player.avg}</td>
+                    <td class="player-picked">${player.picked}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+
+            document.querySelectorAll('.player-action-btn').forEach(btn => {
+                btn.addEventListener('click', handlePlayerAction);
+            });
+        }
+
         function handlePlayerAction(e) {
             const playerName = e.currentTarget.dataset.player;
             const button = e.currentTarget;
             
-            if (!api.isAuthenticated()) {
+            if (!isAuthenticated) {
                 showNotification('Please sign in to manage your roster', 'error');
-                setTimeout(() => redirectToLogin(), 1500);
                 return;
             }
             
-            if (!rostersUnlocked) {
-                showNotification('Rosters are currently locked for this tournament', 'error');
+            if (isMatchDayLocked(currentMatchDay)) {
+                showNotification(`Match Day ${currentMatchDay} roster deadline has passed`, 'error');
                 return;
             }
             
@@ -1940,8 +2377,14 @@
             }
         }
 
-        // Add player to roster
         function addPlayerToRoster(playerName) {
+            if (!isAuthenticated) {
+                showNotification('Please sign in to add players to your roster', 'error');
+                return;
+            }
+
+            const currentRoster = getCurrentRoster();
+
             if (currentRoster.length >= maxRosterSize) {
                 showNotification(`Roster is full (${maxRosterSize} players maximum)`, 'error');
                 return;
@@ -1953,27 +2396,34 @@
             }
             
             currentRoster.push(playerName);
+            setCurrentRoster(currentRoster);
             updateRosterDisplay();
             populatePlayersTable();
-            saveUserRoster();
+            saveCurrentRoster();
             
-            showNotification(`${playerName} added to roster`, 'success');
+            showNotification(`${playerName} added to Match Day ${currentMatchDay} roster`, 'success');
         }
 
-        // Remove player from roster
         function removePlayerFromRoster(playerName) {
+            if (!isAuthenticated) {
+                showNotification('Please sign in to manage your roster', 'error');
+                return;
+            }
+
+            const currentRoster = getCurrentRoster();
             const index = currentRoster.indexOf(playerName);
+            
             if (index > -1) {
                 currentRoster.splice(index, 1);
+                setCurrentRoster(currentRoster);
                 updateRosterDisplay();
                 populatePlayersTable();
-                saveUserRoster();
+                saveCurrentRoster();
                 
-                showNotification(`${playerName} removed from roster`, 'success');
+                showNotification(`${playerName} removed from Match Day ${currentMatchDay} roster`, 'success');
             }
         }
 
-        // Update roster display
         function updateRosterDisplay() {
             const rosterCount = document.getElementById('rosterCount');
             const rosterList = document.getElementById('rosterList');
@@ -1981,9 +2431,10 @@
             
             if (!rosterCount) return;
             
+            const currentRoster = getCurrentRoster();
             rosterCount.textContent = currentRoster.length;
             
-            if (currentRoster.length > 0) {
+            if (isAuthenticated && !isMatchDayLocked(currentMatchDay) && currentRoster.length > 0) {
                 if (rosterMessage) rosterMessage.style.display = 'none';
                 if (rosterList) {
                     rosterList.style.display = 'block';
@@ -2001,165 +2452,24 @@
             } else {
                 if (rosterMessage) {
                     rosterMessage.style.display = 'block';
-                    updateRosterMessage();
+                    if (!isAuthenticated) {
+                        rosterMessage.innerHTML = `Your roster is empty. Add players from the table above to build your fantasy team for Match Day ${currentMatchDay}.`;
+                    } else if (isMatchDayLocked(currentMatchDay)) {
+                        rosterMessage.innerHTML = `
+                            Match Day ${currentMatchDay} roster deadline has passed.
+                            <br><br>
+                            You can still set rosters for future match days using the tabs above.
+                        `;
+                    } else {
+                        rosterMessage.innerHTML = `Your roster is empty. Add players from the table above to build your fantasy team for Match Day ${currentMatchDay}.`;
+                    }
                 }
                 if (rosterList) rosterList.style.display = 'none';
             }
+
+            updateRosterStatusIndicator();
         }
 
-        // Update roster message based on auth status
-        function updateRosterMessage() {
-            const rosterMessage = document.getElementById('rosterMessage');
-            if (!rosterMessage) return;
-            
-            if (!api.isAuthenticated()) {
-                rosterMessage.innerHTML = `
-                    <strong>Sign in to build your fantasy roster!</strong>
-                    <br><br>
-                    Create an account or sign in to draft players and compete against other fantasy teams.
-                    <br><br>
-                    <button class="action-btn" onclick="redirectToLogin()" style="margin-top: 1rem;">
-                        <span class="material-icons">login</span>
-                        Sign In
-                    </button>
-                `;
-            } else if (!rostersUnlocked) {
-                rosterMessage.innerHTML = `
-                    Rosters are currently locked for this tournament.
-                    <br><br>
-                    Tournament administrators may be configuring the site or the tournament may be in progress.
-                `;
-            } else {
-                rosterMessage.innerHTML = 'Your roster is empty. Add players from the table above to build your fantasy team.';
-            }
-        }
-
-        // Update roster status for authenticated users
-        function updateRosterStatusForAuth() {
-            // This could be expanded to show more detailed roster status
-        }
-
-        // Update roster message for guest users
-        function updateRosterMessageForGuests() {
-            updateRosterMessage();
-        }
-
-        // Populate top teams in sidebar
-        function populateTopTeams() {
-            const topTeamsContainer = document.getElementById('topTeamsContainer');
-            if (!topTeamsContainer) return;
-            
-            if (leaderboard.length === 0) {
-                topTeamsContainer.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: rgba(255, 255, 255, 0.6);">
-                        <p>No leaderboard data available yet.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            const topTeams = leaderboard.slice(0, 5);
-            topTeamsContainer.innerHTML = `
-                <ul class="teams-list">
-                    ${topTeams.map(team => `
-                        <li class="team-item">
-                            <div class="team-info">
-                                <span class="team-rank">${team.rank}</span>
-                                <span class="team-name">${team.username}</span>
-                            </div>
-                            <span class="team-score">${team.total_points.toLocaleString()}</span>
-                        </li>
-                    `).join('')}
-                </ul>
-            `;
-        }
-
-        // Populate standings tab
-        function populateStandings() {
-            const standingsContainer = document.getElementById('standingsContainer');
-            if (!standingsContainer) return;
-            
-            if (leaderboard.length === 0) {
-                standingsContainer.innerHTML = `
-                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                        <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">leaderboard</span>
-                        <h3 style="margin-bottom: 1rem;">No Fantasy Teams Yet</h3>
-                        <p>Fantasy team rankings will appear here once teams start building rosters.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            standingsContainer.innerHTML = `
-                <div class="standings-table-container" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px);">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: rgba(255, 255, 255, 0.08);">
-                                <th style="padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Rank</th>
-                                <th style="padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Team Name</th>
-                                <th style="padding: 1rem; text-align: right; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Total Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${leaderboard.map((team, index) => `
-                                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); ${api.isAuthenticated() && api.getCurrentUser()?.username === team.username ? 'background: rgba(0, 212, 255, 0.1);' : ''}">
-                                    <td style="padding: 1rem; color: #00d4ff; font-weight: 700;">${team.rank}</td>
-                                    <td style="padding: 1rem; color: rgba(255, 255, 255, 0.9); font-weight: 600;">${team.username}</td>
-                                    <td style="padding: 1rem; text-align: right; color: #00d4ff; font-weight: 600;">${team.total_points.toLocaleString()}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        }
-
-        // Show error in players tab
-        function showErrorInPlayersTab(message) {
-            const playersContainer = document.getElementById('playersContainer');
-            if (playersContainer) {
-                playersContainer.innerHTML = `
-                    <div class="error-state">
-                        <span class="material-icons error-icon">error</span>
-                        <h3>Failed to Load Players</h3>
-                        <p>${message}</p>
-                        <button class="retry-btn" onclick="loadPlayers()">Retry</button>
-                    </div>
-                `;
-            }
-        }
-
-        // Show error in teams tab
-        function showErrorInTeamsTab(message) {
-            const teamsContainer = document.getElementById('teamsContainer');
-            if (teamsContainer) {
-                teamsContainer.innerHTML = `
-                    <div class="error-state">
-                        <span class="material-icons error-icon">error</span>
-                        <h3>Failed to Load Teams</h3>
-                        <p>${message}</p>
-                        <button class="retry-btn" onclick="loadTeams()">Retry</button>
-                    </div>
-                `;
-            }
-        }
-
-        // Show error in standings tab
-        function showErrorInStandingsTab(message) {
-            const standingsContainer = document.getElementById('standingsContainer');
-            if (standingsContainer) {
-                standingsContainer.innerHTML = `
-                    <div class="error-state">
-                        <span class="material-icons error-icon">error</span>
-                        <h3>Failed to Load Standings</h3>
-                        <p>${message}</p>
-                        <button class="retry-btn" onclick="loadLeaderboard()">Retry</button>
-                    </div>
-                `;
-            }
-        }
-
-        // Show notification messages
         function showNotification(message, type) {
             const notification = document.createElement('div');
             notification.innerHTML = `
@@ -2191,78 +2501,108 @@
             setTimeout(() => notification.remove(), 4000);
         }
 
-        // Auth functions
-        function redirectToLogin() {
-            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
-        }
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Tournament page loading...');
+            
+            try {
+                // Initialize basic components
+                currentMatchDay = getActiveMatchDay();
+                updateAuthUI();
+                initializeTabNavigation();
+                initializeMatchDayTabs();
+                updateMatchDayUI();
+                
+                // Loads data from backend
+                await loadPlayersData();
+                dataLoaded = true;
+                
+                // Updates displays
+                updateRosterDisplay();
+                
+                // Adds table sorting
+                document.querySelectorAll('.players-table .sortable').forEach(th => {
+                    th.addEventListener('click', () => {
+                        const column = th.dataset.sort;
+                        const currentDirection = th.classList.contains('asc') ? 'desc' : 'asc';
+                        
+                        document.querySelectorAll('.players-table .sortable').forEach(header => {
+                            header.classList.remove('asc', 'desc');
+                        });
+                        
+                        th.classList.add(currentDirection);
+                        sortTable(column, currentDirection);
+                    });
+                });
+                
+                // Adds filter functionality
+                const teamFilter = document.getElementById('teamFilter');
+                if (teamFilter) {
+                    teamFilter.addEventListener('change', () => {
+                        populatePlayersTable();
+                    });
+                }
 
-        function handleLogout() {
-            api.logout();
-        }
+                // Button actions
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (this.textContent.includes('Set My Roster')) {
+                            if (!isAuthenticated) {
+                                showNotification('Please sign in to set your roster', 'error');
+                                return;
+                            }
+                            const playersTab = document.querySelector('[data-tab="players"]');
+                            if (playersTab) {
+                                playersTab.click();
+                            }
+                        }
+                    });
+                });
 
-        function toggleUserDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            dropdown.classList.toggle('show');
-        }
-
-        // Navigation functions
-        function goToPlayersTab() {
-            const playersTab = document.querySelector('[data-tab="players"]');
-            if (playersTab) {
-                playersTab.click();
+                // Close dropdown listener
+                document.addEventListener('click', (e) => {
+                    const userMenu = document.getElementById('userMenu');
+                    if (userMenu && !userMenu.contains(e.target)) {
+                        document.getElementById('userDropdown').classList.remove('show');
+                    }
+                });
+                
+                console.log('Tournament page fully loaded!');
+                
+            } catch (error) {
+                console.error('Error during page initialization:', error);
             }
-        }
+        });
 
-        function goToStandingsTab() {
-            const standingsTab = document.querySelector('[data-tab="standings"]');
-            if (standingsTab) {
-                standingsTab.click();
-            }
-        }
-
-        // Tab navigation
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                e.preventDefault();
+        function sortTable(column, direction) {
+            playersData.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
                 
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                if (column === 'points' || column === 'avg') {
+                    aVal = parseFloat(aVal);
+                    bVal = parseFloat(bVal);
+                } else if (column === 'picked' || column === 'battles') {
+                    aVal = parseFloat(aVal.replace('%', ''));
+                    bVal = parseFloat(bVal.replace('%', ''));
+                }
                 
-                tab.classList.add('active');
-                
-                const targetTab = tab.dataset.tab;
-                const targetContent = document.getElementById(targetTab);
-                if (targetContent) {
-                    targetContent.classList.add('active');
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
                 }
             });
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            const userMenu = document.getElementById('userMenu');
-            const dropdown = document.getElementById('userDropdown');
             
-            if (userMenu && !userMenu.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
+            populatePlayersTable();
+        }
 
-        // Initialize page when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🎯 DOM loaded, initializing tournament page...');
-            initializePage();
-        });
-
-        // Add styles for animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
+        // Make functions globally accessible
+        window.loadFantasyLeaderboard = loadFantasyLeaderboard;
+        window.removePlayerFromRoster = removePlayerFromRoster;
+        window.toggleUserDropdown = toggleUserDropdown;
+        window.handleLogout = handleLogout;
+        window.redirectToLogin = redirectToLogin;
     </script>
 </body>
 </html>
