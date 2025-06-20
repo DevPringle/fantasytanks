@@ -239,7 +239,7 @@ async function initializeTables() {
         player_name VARCHAR(100) NOT NULL,
         tournament_id VARCHAR(100) NOT NULL,
         match_day INTEGER NOT NULL,
-        points DECIMAL(10,2) NOT NULL,
+        match_points points DECIMAL(10,2) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(player_name, tournament_id, match_day)
       )
