@@ -289,45 +289,6 @@ async function initializeTables() {
       ON CONFLICT (tournament_id) DO NOTHING
     `);
 
-    // Insert sample teams
-    const teams = [
-      { name: 'CRAKD', code: 'CRAKD' },
-      { name: 'DOPAMINE', code: 'DOPAMINE' },
-      { name: 'ARCANE', code: 'ARCANE' },
-      { name: 'MVP', code: 'MVP' },
-      { name: 'Dönerteller', code: 'DONER' },
-      { name: 'Employed', code: 'EMPLOY' },
-      { name: 'Cine Pa', code: 'CINE' },
-      { name: 'FUMES', code: 'FUMES' }
-    ];
-
-    for (const team of teams) {
-      await pool.query(`
-        INSERT INTO teams (team_name, team_code, tournament_id, region)
-        VALUES ($1, $2, 'na-15v15-summer-series', 'North America')
-        ON CONFLICT (tournament_id, team_code) DO NOTHING
-      `, [team.name, team.code]);
-    }
-
-    // Insert sample players
-    const samplePlayers = [
-      { name: 'bigtanker13', team: 'CRAKD', points: 5714.7, avg: 53.9, picked: '50.04%' },
-      { name: 'Ferret', team: 'DOPAMINE', points: 5550.5, avg: 48.7, picked: '57.61%' },
-      { name: 'Poi', team: 'ARCANE', points: 5298.5, avg: 49.5, picked: '55.14%' },
-      { name: 'Sadge', team: 'MVP', points: 4868.7, avg: 46.4, picked: '11.85%' },
-      { name: 'will', team: 'EMPLOY', points: 4781.3, avg: 45.8, picked: '29.86%' },
-      { name: 'pringle', team: 'CRAKD', points: 4567.0, avg: 43.9, picked: '17.93%' },
-      { name: 'Charan', team: 'DOPAMINE', points: 4513.9, avg: 49.1, picked: '10.58%' },
-      { name: 'Stored', team: 'ARCANE', points: 4492.0, avg: 52.8, picked: '7.50%' },
-      { name: 'Employed', team: 'EMPLOY', points: 4461.1, avg: 44.6, picked: '33.53%' },
-      { name: 'Player1', team: 'MVP', points: 4395.0, avg: 48.3, picked: '63.84%' },
-      { name: 'Player2', team: 'DONER', points: 4339.6, avg: 49.1, picked: '25.67%' },
-      { name: 'Player3', team: 'CINE', points: 4268.6, avg: 47.8, picked: '18.42%' },
-      { name: 'Player4', team: 'FUMES', points: 4036.9, avg: 44.2, picked: '22.15%' },
-      { name: 'Player5', team: 'CRAKD', points: 4029.7, avg: 40.3, picked: '15.78%' },
-      { name: 'Player6', team: 'DOPAMINE', points: 3998.4, avg: 45.7, picked: '31.25%' }
-    ];
-
     for (const player of samplePlayers) {
       await pool.query(`
         INSERT INTO players (player_name, tournament_id, team_code, battles_played, total_points, average_points, picked_percentage)
