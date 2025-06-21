@@ -263,9 +263,7 @@
 
         .tournament-info {
             flex: 1;
-            min-width: 260px;
-            max-width: 340px;
-            margin-bottom: 0.8rem;
+            min-width: 300px;
         }
 
         .tournament-breadcrumb {
@@ -1238,35 +1236,6 @@
             max-width: 400px;
         }
 
-        .info-row {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-            margin-top: 1.2rem;
-        }
-        .info-box {
-            background: #232e43;
-            border-radius: 8px;
-            padding: 0.8rem 1rem;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-            text-align: center;
-        }
-        .info-box h3 {
-            margin: 0 0 0.4rem 0;
-            font-size: 1.1rem;
-            color: #00d4ff;
-        }
-        .info-link {
-            display: inline-block;
-            margin-top: 0.5rem;
-            color: #00d4ff;
-            font-weight: 600;
-            text-decoration: underline;
-        }
-        .info-link:hover {
-            color: #fff;
-        }
-
         /* Responsive Design */
         @media (max-width: 1200px) {
             .roster-sidebar {
@@ -1474,6 +1443,7 @@
                                 </button>
                             </div>
 
+                            <!-- Added: WoT Fantasy Discord and Support boxes -->
                             <div class="info-row" style="margin-top:1.2rem;">
                                 <div class="info-box">
                                     <h3>WoT Fantasy Discord</h3>
@@ -1494,6 +1464,7 @@
                                     </a> 
                                 </div>
                             </div>
+                            <!-- End added boxes -->
                         </div>
                         <div class="fantasy-info">
                             <div class="fantasy-label">Fantasy Teams Competing</div>
@@ -2136,8 +2107,6 @@
             updateRosterDisplay();
             updateRosterStatusIndicator();
         }
-
-
 
         function loadRostersFromLocalStorage() {
             for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
