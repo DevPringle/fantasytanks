@@ -381,7 +381,7 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
         selectColumns = `
             u.id AS user_id,
             u.username,
-            SUM(pmp.match_points) AS fantasy_points,
+            SUM(pmp.match_points) AS points,
             COUNT(DISTINCT player_name_unnested) AS roster_count
         `;
         fromAndJoin = `
@@ -394,7 +394,7 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
             WHERE r.tournament_id = $1 AND r.match_day = $3
         `;
         queryParams.push(selectedMatchDayNum); // Add matchDay to params
-        orderBy = `fantasy_points DESC`; // Use consistent alias
+        orderBy = `points DESC`;
 
         query = `
             SELECT
@@ -410,9 +410,9 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
         selectColumns = `
             u.id AS user_id,
             u.username,
-            SUM(pmp.match_points) AS fantasy_points, -- Aliased for consistency
-            CAST(COUNT(DISTINCT r.match_day) AS INTEGER) AS roster_count, -- Aliased for consistency (days submitted)
-            (SUM(pmp.match_points) / NULLIF(COUNT(DISTINCT r.match_day), 0)) AS average_fantasy_points
+            SUM(pmp.match_points) AS points,
+            CAST(COUNT(DISTINCT r.match_day) AS INTEGER) AS roster_count,
+            (SUM(pmp.match_points) / NULLIF(COUNT(DISTINCT r.match_day), 0)) AS avg
         `;
         fromAndJoin = `
             FROM rosters r
@@ -423,7 +423,7 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
                                                 AND pmp.match_day = r.match_day
             WHERE r.tournament_id = $1
         `;
-        orderBy = `fantasy_points DESC`; // Use consistent alias
+        orderBy = `points DESC`;
 
         query = `
             SELECT
@@ -514,7 +514,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
                 SELECT
                     u.id AS user_id,
                     u.username,
-                    SUM(pmp.match_points) AS fantasy_points, -- Aliased for consistency
+                    SUM(pmp.match_points) AS points,
                     RANK() OVER (ORDER BY SUM(pmp.match_points) DESC) AS rank
                 ${fromAndJoin}
                 GROUP BY u.id, u.username
@@ -523,7 +523,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
             SELECT
                 user_id,
                 username,
-                fantasy_points, -- Use consistent alias
+                points,
                 rank
             FROM MatchDayLeaderboard
             WHERE user_id = $2;
@@ -545,7 +545,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
                 SELECT
                     u.id AS user_id,
                     u.username,
-                    SUM(pmp.match_points) AS fantasy_points, -- Aliased for consistency
+                    SUM(pmp.match_points) AS points,
                     RANK() OVER (ORDER BY SUM(pmp.match_points) DESC) AS rank
                 ${fromAndJoin}
                 GROUP BY u.id, u.username
@@ -554,7 +554,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
             SELECT
                 user_id,
                 username,
-                fantasy_points, -- Use consistent alias
+                points,
                 rank
             FROM OverallLeaderboard
             WHERE user_id = $2;
@@ -562,7 +562,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
     }
 
     const result = await pool.query(userRankingQuery, queryParams);
-    res.json(result.rows[0] || { rank: null, fantasy_points: 0 }); // Ensure consistent property name
+    res.json(result.rows[0] || { rank: null, points: 0 });
 
   } catch (error) {
     console.error('Error fetching user ranking:', error);
@@ -762,9 +762,7 @@ app.post('/api/admin/calculate-picks', authenticateToken, async (req, res) => {
   }
 });
 
-// Reset tournament data (for admin)
 app.post('/api/admin/reset', authenticateToken, async (req, res) => {
-  // IMPORTANT: Implement isAdmin middleware here for production
   try {
     const { tournamentId } = req.body;
     if (!tournamentId) {
@@ -772,18 +770,7 @@ app.post('/api/admin/reset', authenticateToken, async (req, res) => {
     }
 
     await pool.query('BEGIN');
-
-    // Delete related roster players first (if this table even exists/is used)
-    // Removed roster_players specific delete as it's not being populated
-    // If you have a separate roster_players table and it *is* populated by other means,
-    // you would uncomment and adjust this section. For now, assuming it's not.
-    /*
-    await pool.query(`
-      DELETE FROM roster_players
-      WHERE roster_id IN (SELECT id FROM rosters WHERE tournament_id = $1);
-    `, [tournamentId]);
-    */
-
+    
     // Then delete rosters
     await pool.query(`
       DELETE FROM rosters WHERE tournament_id = $1;
