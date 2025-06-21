@@ -524,6 +524,15 @@
             border-radius: 16px;
             padding: 2.5rem;
             backdrop-filter: blur(10px);
+            max-width: 480px; 
+            margin: 0 auto;
+        }
+
+        @media (max-width: 600px) {
+            .overview-main {
+                max-width: 100%;
+                padding: 1rem;
+            }
         }
 
         .overview-sidebar {
@@ -1357,37 +1366,21 @@
             border-radius: 16px;
             padding: 2rem;
             backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 0;
         }
 
-        .info-box h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 1rem;
-        }
-
-        .info-box p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .info-link {
-            display: inline-block;
-            padding: 0.8rem 1.5rem;
-            background: linear-gradient(135deg, #00d4ff, #00b8e6);
-            color: white;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .info-link:hover {
-            background: linear-gradient(135deg, #00b8e6, #00d4ff);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        @media (max-width: 900px) {
+            .overview-main {
+                max-width: 100%;
+            }
+            .info-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
         }
     </style>
 <script src="js/api.js"></script>
@@ -1586,6 +1579,26 @@
                                 <span class="quick-stat-number">4</span>
                                 <span class="quick-stat-label">Weeks Duration</span>
                             </div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-box">
+                            <h3>WoT Fantasy Discord</h3>
+                            <p>
+                                Join our community Discord for fantasy discussion, help, and updates!
+                            </p>
+                            <a href="https://discord.gg/FFrafPDRGx" target="_blank" rel="noopener" class="info-link">
+                                Join WoT Fantasy Discord
+                            </a>
+                        </div>
+                        <div class="info-box">
+                            <h3>Support the Site</h3>
+                            <p>
+                                Help cover hosting and development costs!
+                            </p>
+                            <a href="https://coff.ee/devpringle" target="_blank" rel="noopener" class="info-link">
+                                Buy DevPringle a Coffee
+                            </a>
                         </div>
                     </div>
 
@@ -1891,6 +1904,28 @@
                 </div>
             </div>
         </section>
+
+        <!-- Info Boxes -->
+        <div class="info-row">
+            <div class="info-box">
+                <h3>WoT Fantasy Discord</h3>
+                <p>
+                    Join our community Discord for fantasy discussion, help, and updates!
+                </p>
+                <a href="https://discord.gg/FFrafPDRGx" target="_blank" rel="noopener" class="info-link">
+                    Join WoT Fantasy Discord
+                </a>
+            </div>
+            <div class="info-box">
+                <h3>Support the Site</h3>
+                <p>
+                    Help cover hosting and development costs!
+                </p>
+                <a href="https://coff.ee/devpringle" target="_blank" rel="noopener" class="info-link">
+                    Buy DevPringle a Coffee
+                </a>
+            </div>
+        </div>
     </main>
 
     <footer class="footer">
