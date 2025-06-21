@@ -381,8 +381,8 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
         selectColumns = `
             u.id AS user_id,
             u.username,
-            SUM(pmp.match_points) AS points,
-            COUNT(DISTINCT player_name_unnested) AS roster_count
+            SUM(pmp.match_points) AS match_day_fantasy_points,
+            COUNT(DISTINCT player_name_unnested) AS roster_size_for_day
         `;
         fromAndJoin = `
             FROM rosters r
@@ -394,7 +394,7 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
             WHERE r.tournament_id = $1 AND r.match_day = $3
         `;
         queryParams.push(selectedMatchDayNum); // Add matchDay to params
-        orderBy = `points DESC`;
+        orderBy = `match_day_fantasy_points DESC`;
 
         query = `
             SELECT
@@ -410,9 +410,9 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
         selectColumns = `
             u.id AS user_id,
             u.username,
-            SUM(pmp.match_points) AS points,
-            CAST(COUNT(DISTINCT r.match_day) AS INTEGER) AS roster_count,
-            (SUM(pmp.match_points) / NULLIF(COUNT(DISTINCT r.match_day), 0)) AS avg
+            SUM(pmp.match_points) AS total_fp,
+            CAST(COUNT(DISTINCT r.match_day) AS INTEGER) AS rosters_submitted,
+            (SUM(pmp.match_points) / NULLIF(COUNT(DISTINCT r.match_day), 0)) AS avg_fp
         `;
         fromAndJoin = `
             FROM rosters r
@@ -423,7 +423,7 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
                                                 AND pmp.match_day = r.match_day
             WHERE r.tournament_id = $1
         `;
-        orderBy = `points DESC`;
+        orderBy = `total_fp DESC`;
 
         query = `
             SELECT
@@ -514,7 +514,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
                 SELECT
                     u.id AS user_id,
                     u.username,
-                    SUM(pmp.match_points) AS points,
+                    SUM(pmp.match_points) AS match_day_fantasy_points,
                     RANK() OVER (ORDER BY SUM(pmp.match_points) DESC) AS rank
                 ${fromAndJoin}
                 GROUP BY u.id, u.username
@@ -523,7 +523,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
             SELECT
                 user_id,
                 username,
-                points,
+                match_day_fantasy_points,
                 rank
             FROM MatchDayLeaderboard
             WHERE user_id = $2;
@@ -545,7 +545,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
                 SELECT
                     u.id AS user_id,
                     u.username,
-                    SUM(pmp.match_points) AS points,
+                    SUM(pmp.match_points) AS total_fp,
                     RANK() OVER (ORDER BY SUM(pmp.match_points) DESC) AS rank
                 ${fromAndJoin}
                 GROUP BY u.id, u.username
@@ -554,7 +554,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
             SELECT
                 user_id,
                 username,
-                points,
+                total_fp,
                 rank
             FROM OverallLeaderboard
             WHERE user_id = $2;
@@ -562,7 +562,8 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
     }
 
     const result = await pool.query(userRankingQuery, queryParams);
-    res.json(result.rows[0] || { rank: null, points: 0 });
+    // Adjust fallback to match expected column name for consistency
+    res.json(result.rows[0] || { rank: null, total_fp: 0 });
 
   } catch (error) {
     console.error('Error fetching user ranking:', error);
@@ -762,7 +763,9 @@ app.post('/api/admin/calculate-picks', authenticateToken, async (req, res) => {
   }
 });
 
+// Reset tournament data (for admin)
 app.post('/api/admin/reset', authenticateToken, async (req, res) => {
+  // IMPORTANT: Implement isAdmin middleware here for production
   try {
     const { tournamentId } = req.body;
     if (!tournamentId) {
@@ -770,7 +773,7 @@ app.post('/api/admin/reset', authenticateToken, async (req, res) => {
     }
 
     await pool.query('BEGIN');
-    
+
     // Then delete rosters
     await pool.query(`
       DELETE FROM rosters WHERE tournament_id = $1;
