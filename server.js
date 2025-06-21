@@ -848,16 +848,16 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 // Fixed leaderboard endpoint with proper table structure
-app.get('/api/leaderboard/:tournamentId', async (req, res) => {
+app.get('/api/leaderboard/:tournament_ID', async (req, res) => {
   try {
-    const { tournamentId } = req.params;
-    const { matchDay, minRosterSize = 10, limit, offset = 0 } = req.query;
+    const { tournament_ID } = req.params;
+    const { match_day, minRosterSize = 10, limit, offset = 0 } = req.query;
 
     // First check if we have any player scores data
     const scoresCheck = await pool.query(`
       SELECT COUNT(*) as count FROM player_match_performance
       WHERE tournament_id = $1
-    `, [tournamentId]);
+    `, [tournament_ID]);
 
     if (parseInt(scoresCheck.rows[0].count) === 0) {
       // No player scores yet, return empty leaderboard with metadata
@@ -871,7 +871,7 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
         WHERE r.tournament_id = $1
       `;
 
-      const metadataResult = await pool.query(metadataQuery, [tournamentId, minRosterSize]);
+      const metadataResult = await pool.query(metadataQuery, [tournament_ID, minRosterSize]);
 
       return res.json({
         leaderboard: [],
@@ -879,7 +879,7 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
           total_participants: parseInt(metadataResult.rows[0].total_participants) || 0,
           complete_rosters: parseInt(metadataResult.rows[0].complete_rosters) || 0,
           total_match_days: parseInt(metadataResult.rows[0].total_match_days) || 0,
-          showing_results_for: matchDay ? `Match Day ${matchDay}` : 'Overall Tournament',
+          showing_results_for: match_day ? `Match Day ${match_day}` : 'Overall Tournament',
           min_roster_size: parseInt(minRosterSize),
           message: 'No player performance data available yet'
         }
@@ -905,13 +905,13 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
           AND jsonb_array_length(r.roster) >= $2
     `;
 
-    let queryParams = [tournamentId, minRosterSize];
+    let queryParams = [tournament_ID, minRosterSize];
     let paramCount = 2;
 
-    if (matchDay) {
+    if (match_day) {
       paramCount++;
       query += ` AND r.match_day = ${paramCount}`;
-      queryParams.push(matchDay);
+      queryParams.push(match_day);
     }
 
     query += `
@@ -963,7 +963,7 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
       WHERE r.tournament_id = $1
     `;
 
-    const metadataResult = await pool.query(metadataQuery, [tournamentId, minRosterSize]);
+    const metadataResult = await pool.query(metadataQuery, [tournament_ID, minRosterSize]);
 
     res.json({
       leaderboard: result.rows,
@@ -971,7 +971,7 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
         total_participants: parseInt(metadataResult.rows[0].total_participants),
         complete_rosters: parseInt(metadataResult.rows[0].complete_rosters),
         total_match_days: parseInt(metadataResult.rows[0].total_match_days),
-        showing_results_for: matchDay ? `Match Day ${matchDay}` : 'Overall Tournament',
+        showing_results_for: match_day ? `Match Day ${match_day}` : 'Overall Tournament',
         min_roster_size: parseInt(minRosterSize)
       }
     });
@@ -982,10 +982,10 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
   }
 });
 
-app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async (req, res) => {
+app.get('/api/leaderboard/:tournament_ID/user/:userId', authenticateToken, async (req, res) => {
   try {
-    const { tournamentId, userId } = req.params;
-    const { matchDay } = req.query;
+    const { tournament_ID, userId } = req.params;
+    const { match_day } = req.query;
 
     if (req.user.userId !== parseInt(userId)) {
       return res.status(403).json({ error: 'Access denied' });
@@ -1008,11 +1008,11 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
         WHERE r.tournament_id = $1 AND u.id = $2
     `;
 
-    let queryParams = [tournamentId, userId];
+    let queryParams = [tournament_ID, userId];
 
-    if (matchDay) {
+    if (match_day) {
       query += ` AND r.match_day = $3`;
-      queryParams.push(matchDay);
+      queryParams.push(match_day);
     }
 
     query += `
@@ -1066,9 +1066,9 @@ app.get('/api/tournaments', async (req, res) => {
   }
 });
 
-app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
+app.get('/api/tournaments/:tournament_ID/players', async (req, res) => {
   try {
-    const { tournamentId } = req.params;
+    const { tournament_ID } = req.params;
     
     const result = await pool.query(`
       SELECT 
@@ -1081,7 +1081,7 @@ app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
       FROM players p
       WHERE p.tournament_id = $1
       ORDER BY p.total_points DESC
-    `, [tournamentId]);
+    `, [tournament_ID]);
     
     res.json({ players: result.rows });
   } catch (error) {
@@ -1092,16 +1092,16 @@ app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
 
 app.get('/api/roster', authenticateToken, async (req, res) => {
   try {
-    const { tournamentId, matchDay = 1 } = req.query;
+    const { tournament_ID, match_day = 1 } = req.query;
     const userId = req.user.userId;
 
-    if (!tournamentId) {
+    if (!tournament_ID) {
       return res.status(400).json({ error: 'Tournament ID is required' });
     }
 
     const result = await pool.query(
       'SELECT roster FROM rosters WHERE user_id = $1 AND tournament_id = $2 AND match_day = $3',
-      [userId, tournamentId, matchDay]
+      [userId, tournament_ID, match_day]
     );
 
     if (result.rows.length === 0) {
@@ -1118,10 +1118,10 @@ app.get('/api/roster', authenticateToken, async (req, res) => {
 
 app.post('/api/roster', authenticateToken, async (req, res) => {
   try {
-    const { tournamentId, roster, matchDay = 1 } = req.body;
+    const { tournament_ID, roster, match_day = 1 } = req.body;
     const userId = req.user.userId;
 
-    if (!tournamentId || !roster) {
+    if (!tournament_ID || !roster) {
       return res.status(400).json({ error: 'Tournament ID and roster are required' });
     }
 
@@ -1132,7 +1132,7 @@ app.post('/api/roster', authenticateToken, async (req, res) => {
       DO UPDATE SET 
         roster = EXCLUDED.roster,
         updated_at = CURRENT_TIMESTAMP
-    `, [userId, tournamentId, JSON.stringify(roster), matchDay]);
+    `, [userId, tournament_ID, JSON.stringify(roster), match_day]);
 
     res.json({ message: 'Roster saved successfully' });
 
@@ -1145,9 +1145,9 @@ app.post('/api/roster', authenticateToken, async (req, res) => {
 // Admin endpoint to add player match performance scores
 app.post('/api/admin/scores', async (req, res) => {
   try {
-    const { tournamentId, matchDay, playerData } = req.body;
+    const { tournament_ID, match_day, playerData } = req.body;
 
-    if (!tournamentId || !matchDay || !playerData) {
+    if (!tournament_ID || !match_day || !playerData) {
       return res.status(400).json({ error: 'Tournament ID, match day, and player data are required' });
     }
 
@@ -1164,7 +1164,7 @@ app.post('/api/admin/scores', async (req, res) => {
             battles_played = EXCLUDED.battles_played,
             total_battles = EXCLUDED.total_battles,
             updated_at = CURRENT_TIMESTAMP
-        `, [playerName, tournamentId, matchDay, data.points || 0, data.battlesPlayed || 0, data.totalBattles || 0]);
+        `, [playerName, tournament_ID, match_day, data.points || 0, data.battlesPlayed || 0, data.totalBattles || 0]);
       }
 
       await pool.query('COMMIT');
@@ -1182,9 +1182,9 @@ app.post('/api/admin/scores', async (req, res) => {
 });
 
 // Get player scores for a specific match day (for admin)
-app.get('/api/admin/scores/:tournamentId/:matchDay', async (req, res) => {
+app.get('/api/admin/scores/:tournament_ID/:match_day', async (req, res) => {
   try {
-    const { tournamentId, matchDay } = req.params;
+    const { tournament_ID, match_day } = req.params;
 
     const result = await pool.query(`
       SELECT 
@@ -1196,11 +1196,11 @@ app.get('/api/admin/scores/:tournamentId/:matchDay', async (req, res) => {
       FROM player_match_performance
       WHERE tournament_id = $1 AND match_day = $2
       ORDER BY match_points DESC
-    `, [tournamentId, matchDay]);
+    `, [tournament_ID, match_day]);
 
     res.json({ 
-      tournament_id: tournamentId,
-      match_day: parseInt(matchDay),
+      tournament_id: tournament_ID,
+      match_day: parseInt(match_day),
       player_scores: result.rows 
     });
 
