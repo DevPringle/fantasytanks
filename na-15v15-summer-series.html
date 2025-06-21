@@ -2164,17 +2164,6 @@
             }
         }
 
-        // Player table functions
-        function getFallbackPlayers() {
-            return [
-                { name: 'bigtanker13', team: 'CRAKD', battles: '100%', points: 5714.7, avg: 53.9, picked: '50.04%' },
-                { name: 'Ferret', team: 'DOPAMINE', battles: '99%', points: 5550.5, avg: 48.7, picked: '57.61%' },
-                { name: 'Poi', team: 'ARCANE', battles: '100%', points: 5298.5, avg: 49.5, picked: '55.14%' },
-                { name: 'Sadge', team: 'MVP', battles: '91%', points: 4868.7, avg: 46.4, picked: '11.85%' },
-                { name: 'will', team: 'Employed', battles: '97%', points: 4781.3, avg: 45.8, picked: '29.86%' }
-            ];
-        }
-
         async function loadPlayersData() {
             try {
                 const response = await api.getPlayers('na-15v15-summer-series');
