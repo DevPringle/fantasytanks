@@ -1236,6 +1236,35 @@
             max-width: 400px;
         }
 
+        .info-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+        }
+        .info-box {
+            background: #232e43;
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .info-box h3 {
+            margin: 0 0 0.4rem 0;
+            font-size: 1.1rem;
+            color: #00d4ff;
+        }
+        .info-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #00d4ff;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+        .info-link:hover {
+            color: #fff;
+        }
+
         /* Responsive Design */
         @media (max-width: 1200px) {
             .roster-sidebar {
@@ -1396,51 +1425,79 @@
         <section class="tournament-header">
             <div class="container">
                 <div class="tournament-header-content">
-                    <div class="tournament-info">
-                        <div class="tournament-breadcrumb">
-                            <a href="tournaments.html">Tournaments</a>
-                            <span class="material-icons" style="font-size: 1rem;">chevron_right</span>
-                            <span>NA 15v15 Summer Series</span>
-                        </div>
-                        
-                        <h1 class="tournament-name">NA 15v15 Summer Series</h1>
-                        
-                        <div class="tournament-meta">
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">public</span>
-                                <span>North America</span>
+                        <div class="tournament-info">
+                            <div class="tournament-breadcrumb">
+                                <a href="tournaments.html">Tournaments</a>
+                                <span class="material-icons" style="font-size: 1rem;">chevron_right</span>
+                                <span>NA 15v15 Summer Series</span>
                             </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">groups</span>
-                                <span>Pick 10 Players</span>
+                            
+                            <h1 class="tournament-name">NA 15v15 Summer Series</h1>
+                            
+                            <div class="tournament-meta">
+                                <div class="meta-item">
+                                    <span class="material-icons meta-icon">public</span>
+                                    <span>North America</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="material-icons meta-icon">groups</span>
+                                    <span>Pick 10 Players</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="material-icons meta-icon">schedule</span>
+                                    <span>22d 14h left</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="material-icons meta-icon">sports_esports</span>
+                                    <span>93 Fantasy Teams</span>
+                                </div>
                             </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">schedule</span>
-                                <span>22d 14h left</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons meta-icon">sports_esports</span>
-                                <span>93 Fantasy Teams</span>
-                            </div>
-                        </div>
 
-                        <div class="tournament-status-header">
-                            <span class="status-badge" id="rosterStatus">Rosters Open</span>
-                            <div class="cutoff-timer" id="cutoffTimer" style="display: none;">
-                                <span class="material-icons">schedule</span>
-                                <span id="timeRemaining">--:--:--</span>
+                            <div class="tournament-status-header">
+                                <span class="status-badge" id="rosterStatus">Rosters Open</span>
+                                <div class="cutoff-timer" id="cutoffTimer" style="display: none;">
+                                    <span class="material-icons">schedule</span>
+                                    <span id="timeRemaining">--:--:--</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="roster-actions">
-                            <button class="action-btn">
-                                <span class="material-icons">sports_esports</span>
-                                Set My Roster
-                            </button>
-                            <button class="action-btn secondary">
-                                <span class="material-icons">leaderboard</span>
-                                View Leaderboard
-                            </button>
+                            <div class="roster-actions">
+                                <button class="action-btn">
+                                    <span class="material-icons">sports_esports</span>
+                                    Set My Roster
+                                </button>
+                                <button class="action-btn secondary">
+                                    <span class="material-icons">leaderboard</span>
+                                    View Leaderboard
+                                </button>
+                            </div>
+
+                            <!-- Added: WoT Fantasy Discord and Support boxes -->
+                            <div class="info-row" style="margin-top:1.2rem;">
+                                <div class="info-box">
+                                    <h3>WoT Fantasy Discord</h3>
+                                    <p>
+                                        Join the community Discord for fantasy discussion, help, and updates!
+                                    </p>
+                                    <a href="https://discord.gg/FFrafPDRGx" target="_blank" rel="noopener" class="info-link">
+                                        Join WoT Fantasy Discord
+                                    </a>
+                                </div>
+                                <div class="info-box">
+                                    <h3>Support the Site</h3>
+                                    <p>
+                                        Help cover hosting and development costs!
+                                    </p>
+                                    <a href="https://coff.ee/devpringle" target="_blank" rel="noopener" class="info-link">
+                                        Support the site
+                                    </a> 
+                                </div>
+                            </div>
+                            <!-- End added boxes -->
+                        </div>
+                        <div class="fantasy-info">
+                            <div class="fantasy-label">Fantasy Teams Competing</div>
+                            <div class="fantasy-stat">93</div>
                         </div>
                     </div>
 
@@ -1503,7 +1560,7 @@
                             Fantasy points are awarded based on real-time performance metrics including kills, damage dealt, objectives captured, and overall team performance. Build your roster of 10 players strategically to maximize your fantasy points and climb the leaderboard against other fantasy teams.
                         </p>
                         <p class="tournament-description">
-                            NA Summer Series 15v15 League Official Discord server: https://discord.gg/FpjVpSBt8v
+                            NA Summer Series 15v15 League Official Discord server: <a href="https://discord.gg/FpjVpSBt8v" target="_blank" rel="noopener">https://discord.gg/FpjVpSBt8v</a>
                         </p>
                         
                         <div class="progress-section">
