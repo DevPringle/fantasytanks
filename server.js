@@ -46,7 +46,7 @@ const createEmailTransporter = () => {
     return null;
   }
 
-  return nodemailer.createTransporter(emailConfig);
+  return nodemailer.createTransport(emailConfig);
 };
 
 const emailTransporter = createEmailTransporter();
@@ -855,7 +855,7 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
 
     // First check if we have any player scores data
     const scoresCheck = await pool.query(`
-      SELECT COUNT(*) as count FROM player_scores 
+      SELECT COUNT(*) as count FROM player_match_performance
       WHERE tournament_id = $1
     `, [tournamentId]);
 
@@ -892,15 +892,15 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
           u.id as user_id,
           u.username,
           r.match_day,
-          SUM(COALESCE(ps.points, 0)) as match_day_points,
-          COUNT(CASE WHEN r.roster ? ps.player_name THEN 1 END) as players_with_scores,
+          SUM(COALESCE(pmp.match_points, 0)) as match_day_points,
+          COUNT(CASE WHEN r.roster ? pmp.player_name THEN 1 END) as players_with_scores,
           jsonb_array_length(r.roster) as roster_size
         FROM users u
         JOIN rosters r ON u.id = r.user_id
-        LEFT JOIN player_scores ps ON 
-          ps.tournament_id = r.tournament_id 
-          AND ps.match_day = r.match_day
-          AND r.roster ? ps.player_name
+        LEFT JOIN player_match_performance pmp ON 
+          pmp.tournament_id = r.tournament_id 
+          AND pmp.match_day = r.match_day
+          AND r.roster ? pmp.player_name
         WHERE r.tournament_id = $1
           AND jsonb_array_length(r.roster) >= $2
     `;
