@@ -1,7 +1,7 @@
 class FantasyAPI {
     constructor() {
         this.baseURL = 'https://fantasytanks-production.up.railway.app/api';
-        
+
         this.token = localStorage.getItem('authToken');
     }
 
@@ -15,8 +15,15 @@ class FantasyAPI {
             ...options
         };
 
-        if (this.token) {
+        if (this.isAuthenticated()) {
             config.headers.Authorization = `Bearer ${this.token}`;
+        } else {
+
+            if (endpoint.includes('/roster') || endpoint.includes('/leaderboard/')) {
+                console.warn('Attempted to make authenticated request with invalid/expired token. Clearing data.');
+                this._clearAuthData(); // Clear data and potentially redirect
+                throw new Error('Authentication required or session expired. Please log in again.');
+            }
         }
 
         try {
@@ -24,6 +31,11 @@ class FantasyAPI {
             const data = await response.json();
 
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    console.error('Server responded with 401/403. Token likely invalid/expired.');
+                    this._clearAuthData(); // Clear client-side data
+                    throw new Error(data.error || 'Authentication failed. Please log in again.');
+                }
                 throw new Error(data.error || 'API request failed');
             }
 
@@ -81,13 +93,13 @@ class FantasyAPI {
     async verifyEmail(token) {
         try {
             const response = await this.request(`/auth/verify-email/${token}`);
-            
+
             if (response.token) {
                 this.token = response.token;
                 localStorage.setItem('authToken', this.token);
                 localStorage.setItem('user', JSON.stringify(response.user));
             }
-            
+
             return response;
         } catch (error) {
             throw new Error(error.message || 'Email verification failed');
@@ -160,14 +172,32 @@ class FantasyAPI {
     }
 
     logout() {
-        this.token = null;
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
+        this._clearAuthData();
+        window.location.href = 'index.html'; // Redirect after logout
     }
 
     isAuthenticated() {
-        return !!this.token;
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            return false;
+        }
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Date.now() / 1000; // current time in seconds
+
+            if (payload.exp < currentTime) {
+                // Token is expired, clear it
+                console.warn('Authentication token expired. Clearing local data.');
+                this._clearAuthData();
+                return false;
+            }
+            this.token = token; // Ensure this.token is set if it was only from localStorage
+            return true;
+        } catch (error) {
+            console.error('Error decoding or checking token expiry:', error);
+            this._clearAuthData(); // Clear data if there's a parsing error
+            return false;
+        }
     }
 
     getCurrentUser() {
@@ -175,12 +205,15 @@ class FantasyAPI {
         if (!userStr) return null;
         try {
             const user = JSON.parse(userStr);
-            if (this.token) {
-                const payload = JSON.parse(atob(this.token.split('.')[1]));
+            if (this.isAuthenticated()) { // Use the updated isAuthenticated to validate token
+                const token = localStorage.getItem('authToken');
+                const payload = JSON.parse(atob(token.split('.')[1]));
                 return { ...user, username: payload.username, id: payload.userId };
             }
-            return user;
+            return null; // Token invalid or expired, return null
         } catch (error) {
+            console.error('Error parsing user data or token:', error);
+            this._clearAuthData(); // Clear data if there's a parsing error
             return null;
         }
     }
@@ -223,11 +256,11 @@ class FantasyAPI {
     async getPlayers(tournamentId) {
         return await this.request(`/tournaments/${tournamentId}/players`);
     }
-    
+
     async getTeams(tournamentId) {
         return await this.request(`/tournaments/${tournamentId}/teams`);
     }
-    
+
     async getTournament(tournamentId) {
         return await this.request(`/tournaments/${tournamentId}`);
     }
@@ -243,7 +276,7 @@ class FantasyAPI {
         } else {
             body.playerScores = playerScores;
         }
-        
+
         return await this.request('/admin/scores', {
             method: 'POST',
             body: JSON.stringify(body)
@@ -270,11 +303,11 @@ class FantasyAPI {
 
     async getCurrentUserStanding(tournamentId, matchDay = null) {
         if (!this.isAuthenticated()) return null;
-        
+
         try {
             const user = this.getCurrentUser();
             if (!user) return null;
-            
+
             return await this.getUserRanking(tournamentId, user.id, matchDay);
         } catch (error) {
             console.error('Error getting current user standing:', error);
@@ -291,11 +324,11 @@ class FantasyAPI {
         } = options;
 
         let endpoint = `/leaderboard/${tournamentId}?minRosterSize=${minRosterSize}&offset=${offset}`;
-        
+
         if (matchDay) {
             endpoint += `&matchDay=${matchDay}`;
         }
-        
+
         if (limit) {
             endpoint += `&limit=${limit}`;
         }
@@ -306,11 +339,11 @@ class FantasyAPI {
     async batchUpdateScores(tournamentId, matchDay, playersData) {
         const promises = [];
         const batchSize = 50;
-        
+
         for (let i = 0; i < playersData.length; i += batchSize) {
             const batch = playersData.slice(i, i + batchSize);
             const batchData = {};
-            
+
             batch.forEach(player => {
                 batchData[player.name] = {
                     points: player.points,
@@ -318,10 +351,10 @@ class FantasyAPI {
                     totalBattles: player.totalBattles
                 };
             });
-            
+
             promises.push(this.updatePlayerScores(tournamentId, matchDay, null, batchData));
         }
-        
+
         return await Promise.all(promises);
     }
 
@@ -343,44 +376,50 @@ class FantasyAPI {
         };
     }
 
-    clearLocalData() {
+    // Private helper method to clear authentication and related local data
+    _clearAuthData() {
+        this.token = null;
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
-        
+
+        // Also clear any roster data that might be tied to the old session
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
             if (key.startsWith('roster_')) {
                 localStorage.removeItem(key);
             }
         });
-        
-        this.token = null;
+
+        // Optionally, redirect to login page if not already there
+        // This is handled by the calling context, e.g., updateAuthUI in na-15v15-summer-series.html
+        // For example, updateAuthUI should check isAuthenticated and redirect if false.
     }
+
 
     validateRoster(roster, maxSize = 10) {
         if (!Array.isArray(roster)) {
             return { valid: false, error: 'Roster must be an array' };
         }
-        
+
         if (roster.length === 0) {
             return { valid: false, error: 'Roster cannot be empty' };
         }
-        
+
         if (roster.length > maxSize) {
             return { valid: false, error: `Roster cannot exceed ${maxSize} players` };
         }
-        
+
         const uniquePlayers = [...new Set(roster)];
         if (uniquePlayers.length !== roster.length) {
             return { valid: false, error: 'Roster cannot contain duplicate players' };
         }
-        
+
         for (const player of roster) {
             if (!player || typeof player !== 'string' || player.trim().length === 0) {
                 return { valid: false, error: 'All players must have valid names' };
             }
         }
-        
+
         return { valid: true };
     }
 
@@ -392,7 +431,7 @@ class FantasyAPI {
         try {
             const response = await this.getAllRosters(tournamentId);
             const rosters = response.rosters || {};
-            
+
             const status = {
                 authenticated: true,
                 totalMatchDays,
@@ -405,7 +444,7 @@ class FantasyAPI {
             for (let day = 1; day <= totalMatchDays; day++) {
                 const roster = rosters[day] || [];
                 const rosterSize = roster.length;
-                
+
                 if (rosterSize === 0) {
                     status.emptyDays++;
                     status.details[day] = { status: 'empty', size: 0 };
@@ -421,30 +460,34 @@ class FantasyAPI {
             return status;
         } catch (error) {
             console.error('Error getting roster completion status:', error);
+            // If there's an error, especially due to auth, treat as not authenticated for this purpose
+            if (error.message.includes('Authentication required') || error.message.includes('Authentication failed')) {
+                 return { authenticated: false, error: 'Authentication failed for roster status.' };
+            }
             return { authenticated: true, error: error.message };
         }
     }
 
     validatePassword(password) {
         const errors = [];
-        
+
         if (!password) {
             errors.push('Password is required');
             return { valid: false, errors };
         }
-        
+
         if (password.length < 6) {
             errors.push('Password must be at least 6 characters long');
         }
-        
+
         if (!/[A-Za-z]/.test(password)) {
             errors.push('Password must contain at least one letter');
         }
-        
+
         if (!/\d/.test(password)) {
             errors.push('Password should contain at least one number for better security');
         }
-        
+
         return {
             valid: errors.length === 0,
             errors,
@@ -454,14 +497,14 @@ class FantasyAPI {
 
     getPasswordStrength(password) {
         let score = 0;
-        
+
         if (password.length >= 8) score += 1;
         if (password.length >= 12) score += 1;
         if (/[a-z]/.test(password)) score += 1;
         if (/[A-Z]/.test(password)) score += 1;
         if (/\d/.test(password)) score += 1;
         if (/[^A-Za-z0-9]/.test(password)) score += 1;
-        
+
         if (score < 3) return 'weak';
         if (score < 5) return 'medium';
         return 'strong';
