@@ -381,8 +381,8 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
         selectColumns = `
             u.id AS user_id,
             u.username,
-            SUM(pmp.match_points) AS match_day_fantasy_points,
-            COUNT(DISTINCT player_name_unnested) AS roster_size_for_day
+            SUM(pmp.match_points) AS fantasy_points,
+            COUNT(DISTINCT player_name_unnested) AS roster_count
         `;
         fromAndJoin = `
             FROM rosters r
@@ -394,7 +394,7 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
             WHERE r.tournament_id = $1 AND r.match_day = $3
         `;
         queryParams.push(selectedMatchDayNum); // Add matchDay to params
-        orderBy = `match_day_fantasy_points DESC`;
+        orderBy = `fantasy_points DESC`; // Use consistent alias
 
         query = `
             SELECT
@@ -410,8 +410,8 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
         selectColumns = `
             u.id AS user_id,
             u.username,
-            SUM(pmp.match_points) AS total_fantasy_points,
-            CAST(COUNT(DISTINCT r.match_day) AS INTEGER) AS roster_days_submitted,
+            SUM(pmp.match_points) AS fantasy_points, -- Aliased for consistency
+            CAST(COUNT(DISTINCT r.match_day) AS INTEGER) AS roster_count, -- Aliased for consistency (days submitted)
             (SUM(pmp.match_points) / NULLIF(COUNT(DISTINCT r.match_day), 0)) AS average_fantasy_points
         `;
         fromAndJoin = `
@@ -423,7 +423,7 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
                                                 AND pmp.match_day = r.match_day
             WHERE r.tournament_id = $1
         `;
-        orderBy = `total_fantasy_points DESC`;
+        orderBy = `fantasy_points DESC`; // Use consistent alias
 
         query = `
             SELECT
@@ -514,7 +514,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
                 SELECT
                     u.id AS user_id,
                     u.username,
-                    SUM(pmp.match_points) AS match_day_fantasy_points,
+                    SUM(pmp.match_points) AS fantasy_points, -- Aliased for consistency
                     RANK() OVER (ORDER BY SUM(pmp.match_points) DESC) AS rank
                 ${fromAndJoin}
                 GROUP BY u.id, u.username
@@ -523,7 +523,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
             SELECT
                 user_id,
                 username,
-                match_day_fantasy_points AS total_fantasy_points, -- Use same column name for client consistency
+                fantasy_points, -- Use consistent alias
                 rank
             FROM MatchDayLeaderboard
             WHERE user_id = $2;
@@ -545,7 +545,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
                 SELECT
                     u.id AS user_id,
                     u.username,
-                    SUM(pmp.match_points) AS total_fantasy_points,
+                    SUM(pmp.match_points) AS fantasy_points, -- Aliased for consistency
                     RANK() OVER (ORDER BY SUM(pmp.match_points) DESC) AS rank
                 ${fromAndJoin}
                 GROUP BY u.id, u.username
@@ -554,7 +554,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
             SELECT
                 user_id,
                 username,
-                total_fantasy_points,
+                fantasy_points, -- Use consistent alias
                 rank
             FROM OverallLeaderboard
             WHERE user_id = $2;
@@ -562,7 +562,7 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
     }
 
     const result = await pool.query(userRankingQuery, queryParams);
-    res.json(result.rows[0] || { rank: null, total_fantasy_points: 0 });
+    res.json(result.rows[0] || { rank: null, fantasy_points: 0 }); // Ensure consistent property name
 
   } catch (error) {
     console.error('Error fetching user ranking:', error);
