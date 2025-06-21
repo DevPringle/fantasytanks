@@ -847,138 +847,66 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
-// Fixed leaderboard endpoint with proper table structure
 app.get('/api/leaderboard/:tournamentId', async (req, res) => {
+  const { tournamentId } = req.params;
+  const { matchDay } = req.query;
+
+  let query = `
+    SELECT username, match_day, match_day_points, total_points, players_in_roster
+    FROM fantasy_standings
+    WHERE tournament_id = $1
+  `;
+  let params = [tournamentId];
+
+  if (matchDay) {
+    query += ' AND match_day = $2';
+    params.push(matchDay);
+  }
+
+  query += ' ORDER BY total_points DESC';
+
   try {
-    const { tournamentId } = req.params;
-    const { matchDay, minRosterSize = 10, limit, offset = 0 } = req.query;
+    const { rows } = await pool.query(query, params);
 
-    // First check if we have any player scores data
-    const scoresCheck = await pool.query(`
-      SELECT COUNT(*) as count FROM player_match_performance
-      WHERE tournament_id = $1
-    `, [tournamentId]);
-
-    if (parseInt(scoresCheck.rows[0].count) === 0) {
-      // No player scores yet, return empty leaderboard with metadata
-      const metadataQuery = `
-        SELECT 
-          COUNT(DISTINCT u.id) as total_participants,
-          COUNT(DISTINCT CASE WHEN jsonb_array_length(r.roster) >= $2 THEN u.id END) as complete_rosters,
-          COUNT(DISTINCT r.match_day) as total_match_days
-        FROM users u
-        JOIN rosters r ON u.id = r.user_id
-        WHERE r.tournament_id = $1
-      `;
-
-      const metadataResult = await pool.query(metadataQuery, [tournamentId, minRosterSize]);
-
-      return res.json({
-        leaderboard: [],
-        metadata: {
-          total_participants: parseInt(metadataResult.rows[0].total_participants) || 0,
-          complete_rosters: parseInt(metadataResult.rows[0].complete_rosters) || 0,
-          total_match_days: parseInt(metadataResult.rows[0].total_match_days) || 0,
-          showing_results_for: matchDay ? `Match Day ${matchDay}` : 'Overall Tournament',
-          min_roster_size: parseInt(minRosterSize),
-          message: 'No player performance data available yet'
-        }
-      });
-    }
-
-    let query = `
-      WITH user_scores AS (
-        SELECT 
-          u.id as user_id,
-          u.username,
-          r.match_day,
-          SUM(COALESCE(pmp.match_points, 0)) as match_day_points,
-          COUNT(CASE WHEN r.roster ? pmp.player_name THEN 1 END) as players_with_scores,
-          jsonb_array_length(r.roster) as roster_size
-        FROM users u
-        JOIN rosters r ON u.id = r.user_id
-        LEFT JOIN player_match_performance pmp ON 
-          pmp.tournament_id = r.tournament_id 
-          AND pmp.match_day = r.match_day
-          AND r.roster ? pmp.player_name
-        WHERE r.tournament_id = $1
-          AND jsonb_array_length(r.roster) >= $2
-    `;
-
-    let queryParams = [tournamentId, minRosterSize];
-    let paramCount = 2;
-
-    if (matchDay) {
-      paramCount++;
-      query += ` AND r.match_day = ${paramCount}`;
-      queryParams.push(matchDay);
-    }
-
-    query += `
-        GROUP BY u.id, u.username, r.match_day, r.roster
-      ),
-      aggregated_scores AS (
-        SELECT 
-          user_id,
-          username,
-          SUM(match_day_points) as total_points,
-          AVG(match_day_points) as avg_points,
-          COUNT(DISTINCT match_day) as match_days_played,
-          MAX(match_day_points) as best_day_score
-        FROM user_scores
-        GROUP BY user_id, username
-      )
-      SELECT 
-        ROW_NUMBER() OVER (ORDER BY total_points DESC, avg_points DESC, username ASC) as rank,
-        username,
-        ROUND(total_points, 2) as total_points,
-        ROUND(avg_points, 2) as avg_points,
-        match_days_played,
-        ROUND(best_day_score, 2) as best_day_score
-      FROM aggregated_scores
-      ORDER BY total_points DESC, avg_points DESC, username ASC
-    `;
-
-    if (limit) {
-      paramCount++;
-      query += ` LIMIT ${paramCount}`;
-      queryParams.push(limit);
-    }
-
-    if (offset > 0) {
-      paramCount++;
-      query += ` OFFSET ${paramCount}`;
-      queryParams.push(offset);
-    }
-
-    const result = await pool.query(query, queryParams);
-
-    const metadataQuery = `
-      SELECT 
-        COUNT(DISTINCT u.id) as total_participants,
-        COUNT(DISTINCT CASE WHEN jsonb_array_length(r.roster) >= $2 THEN u.id END) as complete_rosters,
-        COUNT(DISTINCT r.match_day) as total_match_days
-      FROM users u
-      JOIN rosters r ON u.id = r.user_id
-      WHERE r.tournament_id = $1
-    `;
-
-    const metadataResult = await pool.query(metadataQuery, [tournamentId, minRosterSize]);
-
-    res.json({
-      leaderboard: result.rows,
-      metadata: {
-        total_participants: parseInt(metadataResult.rows[0].total_participants),
-        complete_rosters: parseInt(metadataResult.rows[0].complete_rosters),
-        total_match_days: parseInt(metadataResult.rows[0].total_match_days),
-        showing_results_for: matchDay ? `Match Day ${matchDay}` : 'Overall Tournament',
-        min_roster_size: parseInt(minRosterSize)
+    // Add ranking and aggregation
+    let leaderboard = [];
+    if (rows.length > 0) {
+      leaderboard = rows.map((row, idx) => ({
+        rank: idx + 1,
+        username: row.username,
+        total_points: parseFloat(row.total_points),
+        avg_points: parseFloat(row.match_day_points), // For single day, avg = day points
+        match_days_played: 1 // For single day
+      }));
+      // If not filtering by matchDay, aggregate by username
+      if (!matchDay) {
+        const grouped = {};
+        rows.forEach(row => {
+          if (!grouped[row.username]) {
+            grouped[row.username] = {
+              username: row.username,
+              total_points: 0,
+              match_days_played: 0
+            };
+          }
+          grouped[row.username].total_points += parseFloat(row.match_day_points);
+          grouped[row.username].match_days_played += 1;
+        });
+        leaderboard = Object.values(grouped)
+          .sort((a, b) => b.total_points - a.total_points)
+          .map((row, idx) => ({
+            rank: idx + 1,
+            username: row.username,
+            total_points: row.total_points,
+            avg_points: (row.total_points / row.match_days_played).toFixed(2),
+            match_days_played: row.match_days_played
+          }));
       }
-    });
+    }
 
-  } catch (error) {
-    console.error('Leaderboard error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.json({ leaderboard });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
   }
 });
 
