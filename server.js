@@ -368,12 +368,8 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
     let queryParams = [tournamentId, parseInt(minRosterSize)];
     let selectColumns;
     let groupBy = `u.username, u.id`; // Group by user ID for uniqueness
-    let joinConditions = `
-        JOIN users u ON r.user_id = u.id
-        JOIN roster_players rp ON r.id = rp.roster_id
-        JOIN player_match_performance pmp ON rp.player_name = pmp.player_name AND pmp.tournament_id = r.tournament_id
-    `;
-    let orderBy = `total_fantasy_points DESC`; // Default for total
+    let fromAndJoin;
+    let orderBy;
 
     if (matchDay && matchDay !== 'total') {
         // Logic for a specific match day
@@ -386,34 +382,31 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
             u.id AS user_id,
             u.username,
             SUM(pmp.match_points) AS match_day_fantasy_points,
-            CAST(COUNT(DISTINCT rp.player_name) AS INTEGER) AS roster_size_for_day
+            COUNT(DISTINCT player_name_unnested) AS roster_size_for_day
         `;
-        // Filter `rosters` and `player_match_performance` by the specific matchDay
-        joinConditions = `
+        fromAndJoin = `
+            FROM rosters r
             JOIN users u ON r.user_id = u.id
-            JOIN roster_players rp ON r.id = rp.roster_id
-            JOIN player_match_performance pmp ON rp.player_name = pmp.player_name
+            JOIN LATERAL jsonb_array_elements_text(r.roster) AS player_name_unnested ON TRUE
+            JOIN player_match_performance pmp ON player_name_unnested = pmp.player_name
                                                 AND pmp.tournament_id = r.tournament_id
-                                                AND pmp.match_day = r.match_day -- Ensure performance is for the same match_day as roster
+                                                AND pmp.match_day = r.match_day
             WHERE r.tournament_id = $1 AND r.match_day = $3
         `;
         queryParams.push(selectedMatchDayNum); // Add matchDay to params
-
         orderBy = `match_day_fantasy_points DESC`;
 
         query = `
             SELECT
                 ${selectColumns}
-            FROM
-                rosters r
-            ${joinConditions}
+            ${fromAndJoin}
             GROUP BY ${groupBy}
-            HAVING COUNT(DISTINCT rp.player_name) >= $2
+            HAVING COUNT(DISTINCT player_name_unnested) >= $2
             ORDER BY ${orderBy}
             ${limit ? `LIMIT ${parseInt(limit)}` : ''} OFFSET ${parseInt(offset)};
         `;
     } else {
-        // Original logic for total standings
+        // Original logic for total standings, adapted for JSONB roster
         selectColumns = `
             u.id AS user_id,
             u.username,
@@ -421,21 +414,23 @@ app.get('/api/leaderboard/:tournamentId', authenticateToken, async (req, res) =>
             CAST(COUNT(DISTINCT r.match_day) AS INTEGER) AS roster_days_submitted,
             (SUM(pmp.match_points) / NULLIF(COUNT(DISTINCT r.match_day), 0)) AS average_fantasy_points
         `;
-        joinConditions = `
+        fromAndJoin = `
+            FROM rosters r
             JOIN users u ON r.user_id = u.id
-            JOIN roster_players rp ON r.id = rp.roster_id
-            JOIN player_match_performance pmp ON rp.player_name = pmp.player_name AND pmp.tournament_id = r.tournament_id AND pmp.match_day = r.match_day
+            JOIN LATERAL jsonb_array_elements_text(r.roster) AS player_name_unnested ON TRUE
+            JOIN player_match_performance pmp ON player_name_unnested = pmp.player_name
+                                                AND pmp.tournament_id = r.tournament_id
+                                                AND pmp.match_day = r.match_day
             WHERE r.tournament_id = $1
         `;
+        orderBy = `total_fantasy_points DESC`;
 
         query = `
             SELECT
                 ${selectColumns}
-            FROM
-                rosters r
-            ${joinConditions}
+            ${fromAndJoin}
             GROUP BY ${groupBy}
-            HAVING COUNT(DISTINCT rp.player_name) >= $2
+            HAVING COUNT(DISTINCT player_name_unnested) >= $2
             ORDER BY ${orderBy}
             ${limit ? `LIMIT ${parseInt(limit)}` : ''} OFFSET ${parseInt(offset)};
         `;
@@ -462,12 +457,12 @@ app.get('/api/leaderboard/:tournamentId/stats', authenticateToken, async (req, r
         AVG(total_points.sum_points) AS average_user_score
       FROM rosters r
       JOIN (
-        SELECT user_id, SUM(pmp.match_points) AS sum_points
+        SELECT r_sub.user_id, SUM(pmp.match_points) AS sum_points
         FROM rosters r_sub
-        JOIN roster_players rp ON r_sub.id = rp.roster_id
-        JOIN player_match_performance pmp ON rp.player_name = pmp.player_name AND pmp.tournament_id = r_sub.tournament_id AND pmp.match_day = r_sub.match_day
+        JOIN LATERAL jsonb_array_elements_text(r_sub.roster) AS player_name_unnested ON TRUE
+        JOIN player_match_performance pmp ON player_name_unnested = pmp.player_name AND pmp.tournament_id = r_sub.tournament_id AND pmp.match_day = r_sub.match_day
         WHERE r_sub.tournament_id = $1
-        GROUP BY user_id
+        GROUP BY r_sub.user_id
       ) AS total_points ON r.user_id = total_points.user_id
       WHERE r.tournament_id = $1;
       `, [tournamentId]);
@@ -492,6 +487,8 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
 
     let userRankingQuery;
     let queryParams = [tournamentId, userId];
+    let fromAndJoin;
+    let havingClause;
 
     if (matchDay && matchDay !== 'total') {
         // Ranking for a specific match day
@@ -501,6 +498,17 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
         }
         queryParams.push(selectedMatchDayNum);
 
+        fromAndJoin = `
+            FROM
+                rosters r
+            JOIN users u ON r.user_id = u.id
+            JOIN LATERAL jsonb_array_elements_text(r.roster) AS player_name_unnested ON TRUE
+            JOIN player_match_performance pmp ON player_name_unnested = pmp.player_name
+                                                AND pmp.tournament_id = r.tournament_id
+                                                AND pmp.match_day = r.match_day
+            WHERE r.tournament_id = $1 AND r.match_day = $3
+        `;
+        havingClause = `HAVING COUNT(DISTINCT player_name_unnested) >= 10`; // Assuming min 10 players for ranking
         userRankingQuery = `
             WITH MatchDayLeaderboard AS (
                 SELECT
@@ -508,16 +516,9 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
                     u.username,
                     SUM(pmp.match_points) AS match_day_fantasy_points,
                     RANK() OVER (ORDER BY SUM(pmp.match_points) DESC) AS rank
-                FROM
-                    rosters r
-                JOIN users u ON r.user_id = u.id
-                JOIN roster_players rp ON r.id = rp.roster_id
-                JOIN player_match_performance pmp ON rp.player_name = pmp.player_name
-                                                    AND pmp.tournament_id = r.tournament_id
-                                                    AND pmp.match_day = r.match_day
-                WHERE r.tournament_id = $1 AND r.match_day = $3
+                ${fromAndJoin}
                 GROUP BY u.id, u.username
-                HAVING COUNT(DISTINCT rp.player_name) >= 10 -- Assuming min 10 players for ranking
+                ${havingClause}
             )
             SELECT
                 user_id,
@@ -528,7 +529,17 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
             WHERE user_id = $2;
         `;
     } else {
-        // Ranking for total fantasy points (original logic)
+        // Ranking for total fantasy points (original logic), adapted for JSONB roster
+        fromAndJoin = `
+            FROM
+                rosters r
+            JOIN users u ON r.user_id = u.id
+            JOIN LATERAL jsonb_array_elements_text(r.roster) AS player_name_unnested ON TRUE
+            JOIN player_match_performance pmp ON player_name_unnested = pmp.player_name AND pmp.tournament_id = r.tournament_id AND pmp.match_day = r.match_day
+            WHERE r.tournament_id = $1
+        `;
+        havingClause = `HAVING COUNT(DISTINCT player_name_unnested) >= 10`; // Assuming min 10 players for ranking
+
         userRankingQuery = `
             WITH OverallLeaderboard AS (
                 SELECT
@@ -536,14 +547,9 @@ app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async 
                     u.username,
                     SUM(pmp.match_points) AS total_fantasy_points,
                     RANK() OVER (ORDER BY SUM(pmp.match_points) DESC) AS rank
-                FROM
-                    rosters r
-                JOIN users u ON r.user_id = u.id
-                JOIN roster_players rp ON r.id = rp.roster_id
-                JOIN player_match_performance pmp ON rp.player_name = pmp.player_name AND pmp.tournament_id = r.tournament_id AND pmp.match_day = r.match_day
-                WHERE r.tournament_id = $1
+                ${fromAndJoin}
                 GROUP BY u.id, u.username
-                HAVING COUNT(DISTINCT rp.player_name) >= 10 -- Assuming min 10 players for ranking
+                ${havingClause}
             )
             SELECT
                 user_id,
@@ -708,9 +714,13 @@ app.post('/api/admin/calculate-picks', authenticateToken, async (req, res) => {
 
     await pool.query('BEGIN');
 
-    // Step 1: Get total number of rosters submitted for the tournament
+    // Step 1: Get total number of unique rosters submitted for the tournament
+    // Adapted to use jsonb_array_elements_text for roster data
     const totalRostersResult = await pool.query(
-      'SELECT COUNT(DISTINCT id) AS total_rosters FROM rosters WHERE tournament_id = $1',
+      `SELECT COUNT(DISTINCT r.id) AS total_rosters
+       FROM rosters r
+       JOIN LATERAL jsonb_array_elements_text(r.roster) AS player_name_unnested ON TRUE
+       WHERE r.tournament_id = $1`,
       [tournamentId]
     );
     const totalRosters = parseInt(totalRostersResult.rows[0].total_rosters);
@@ -721,14 +731,15 @@ app.post('/api/admin/calculate-picks', authenticateToken, async (req, res) => {
     }
 
     // Step 2: Calculate how many times each player was picked across all rosters for this tournament
+    // Adapted to use jsonb_array_elements_text for roster data
     const playerPickCountsResult = await pool.query(
       `SELECT
-          rp.player_name,
-          COUNT(rp.player_name) AS pick_count
-      FROM roster_players rp
-      JOIN rosters r ON rp.roster_id = r.id
+          player_name_unnested AS player_name,
+          COUNT(player_name_unnested) AS pick_count
+      FROM rosters r
+      JOIN LATERAL jsonb_array_elements_text(r.roster) AS player_name_unnested ON TRUE
       WHERE r.tournament_id = $1
-      GROUP BY rp.player_name`,
+      GROUP BY player_name_unnested`,
       [tournamentId]
     );
 
@@ -762,11 +773,16 @@ app.post('/api/admin/reset', authenticateToken, async (req, res) => {
 
     await pool.query('BEGIN');
 
-    // Delete related roster players first
+    // Delete related roster players first (if this table even exists/is used)
+    // Removed roster_players specific delete as it's not being populated
+    // If you have a separate roster_players table and it *is* populated by other means,
+    // you would uncomment and adjust this section. For now, assuming it's not.
+    /*
     await pool.query(`
       DELETE FROM roster_players
       WHERE roster_id IN (SELECT id FROM rosters WHERE tournament_id = $1);
     `, [tournamentId]);
+    */
 
     // Then delete rosters
     await pool.query(`
