@@ -191,7 +191,7 @@ class FantasyAPI {
                 this._clearAuthData();
                 return false;
             }
-            this.token = token; // Ensure this.token is set if it was only from localStorage
+            this.token = token;
             return true;
         } catch (error) {
             console.error('Error decoding or checking token expiry:', error);
@@ -205,7 +205,7 @@ class FantasyAPI {
         if (!userStr) return null;
         try {
             const user = JSON.parse(userStr);
-            if (this.isAuthenticated()) { // Use the updated isAuthenticated to validate token
+            if (this.isAuthenticated()) { 
                 const token = localStorage.getItem('authToken');
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 return { ...user, username: payload.username, id: payload.userId };
@@ -376,7 +376,6 @@ class FantasyAPI {
         };
     }
 
-    // Private helper method to clear authentication and related local data
     _clearAuthData() {
         this.token = null;
         localStorage.removeItem('authToken');
@@ -390,9 +389,9 @@ class FantasyAPI {
             }
         });
 
-        // Optionally, redirect to login page if not already there
-        // This is handled by the calling context, e.g., updateAuthUI in na-15v15-summer-series.html
-        // For example, updateAuthUI should check isAuthenticated and redirect if false.
+        // optionally redirect to login page if not already there
+        // this is handled by the calling context 'ex: updateAuthUI in na-15v15-summer-series.html'
+        // for example, updateAuthUI should check isAuthenticated and redirect if false.
     }
 
 
@@ -460,7 +459,7 @@ class FantasyAPI {
             return status;
         } catch (error) {
             console.error('Error getting roster completion status:', error);
-            // If there's an error, especially due to auth, treat as not authenticated for this purpose
+            // if there's an error especially due to auth treat as not authenticated for this purpose
             if (error.message.includes('Authentication required') || error.message.includes('Authentication failed')) {
                  return { authenticated: false, error: 'Authentication failed for roster status.' };
             }
