@@ -861,6 +861,19 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
   if (matchDay) {
     query += ' AND match_day = $2';
     params.push(matchDay);
+
+    // Exclude users with empty rosters for this match day
+    query += `
+      AND username IN (
+        SELECT u.username
+        FROM rosters r
+        JOIN users u ON u.id = r.user_id
+        WHERE r.tournament_id = $1
+          AND r.match_day = $2
+          AND r.roster IS NOT NULL
+          AND r.roster::text <> '[]'
+      )
+    `;
   }
 
   query += ' ORDER BY total_points DESC';
