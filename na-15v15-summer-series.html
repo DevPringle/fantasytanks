@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -2490,6 +2490,20 @@
                         document.getElementById('userDropdown').classList.remove('show');
                     }
                 });
+
+                const matchDayFilter = document.getElementById('standingsMatchDayFilter');
+                if (matchDayFilter) {
+                    matchDayFilter.addEventListener('change', () => {
+                        loadFantasyLeaderboard();
+                    });
+                }
+                const bracketFilter = document.getElementById('standingsBracketFilter');
+                if (bracketFilter) {
+                    bracketFilter.addEventListener('change', () => {
+                        // Optionally, you can show/hide the match day filter based on bracketFilter value
+                        loadFantasyLeaderboard();
+                    });
+                }
                 
                 console.log('Tournament page fully loaded!');
                 
