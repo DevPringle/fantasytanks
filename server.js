@@ -809,79 +809,57 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 app.get('/api/leaderboard/:tournamentId', async (req, res) => {
-  const { tournamentId } = req.params;
-  const { matchDay } = req.query;
+    try {
+        const { tournamentId } = req.params;
+        const { matchDay, minRosterSize } = req.query;
 
-  let query = `
-    SELECT username, match_day, match_day_points, total_points, players_in_roster
-    FROM fantasy_standings
-    WHERE tournament_id = $1
-  `;
-  let params = [tournamentId];
+        let query = `
+            SELECT
+                username,
+                match_day_points,
+                total_points,
+                players_in_roster,
+                match_day
+            FROM
+                fantasy_standings
+            WHERE
+                fantasy_standings.tournament_id = $1
+        `;
+        const queryParams = [tournamentId];
 
-  if (matchDay) {
-    query += ' AND match_day = $2';
-    params.push(matchDay);
+        if (matchDay) {
+            query += ` AND fantasy_standings.match_day = $${queryParams.length + 1}`;
+            queryParams.push(parseInt(matchDay));
+        }
 
-    // Exclude users with empty rosters for this match day
-    query += `
-      AND username IN (
-        SELECT u.username
-        FROM rosters r
-        JOIN users u ON u.id = r.user_id
-        WHERE r.tournament_id = $1
-          AND r.match_day = $2
-          AND r.roster IS NOT NULL
-          AND r.roster::text <> '[]'
-      )
-    `;
-  }
+        if (minRosterSize) {
+            query += ` AND fantasy_standings.players_in_roster >= $${queryParams.length + 1}`;
+            queryParams.push(parseInt(minRosterSize));
+        }
 
-  query += ' ORDER BY total_points DESC';
+        // Determine the column to order by based on whether matchDay is present
+        const orderByColumn = matchDay ? 'match_day_points' : 'total_points';
+        query += ` ORDER BY ${orderByColumn} DESC;`;
 
-  try {
-    const { rows } = await pool.query(query, params);
+        const result = await pool.query(query, queryParams);
 
-    // Add ranking and aggregation
-    let leaderboard = [];
-    if (rows.length > 0) {
-      leaderboard = rows.map((row, idx) => ({
-        rank: idx + 1,
-        username: row.username,
-        total_points: parseFloat(row.total_points),
-        avg_points: parseFloat(row.match_day_points), // For single day, avg = day points
-        match_days_played: 1 // For single day
-      }));
-      // If not filtering by matchDay, aggregate by username
-      if (!matchDay) {
-        const grouped = {};
-        rows.forEach(row => {
-          if (!grouped[row.username]) {
-            grouped[row.username] = {
-              username: row.username,
-              total_points: 0,
-              match_days_played: 0
-            };
-          }
-          grouped[row.username].total_points += parseFloat(row.match_day_points);
-          grouped[row.username].match_days_played += 1;
-        });
-        leaderboard = Object.values(grouped)
-          .sort((a, b) => b.total_points - a.total_points)
-          .map((row, idx) => ({
-            rank: idx + 1,
+        // Map the results to include the 'points' and 'avg' fields as desired
+        const leaderboardData = result.rows.map(row => ({
             username: row.username,
-            total_points: row.total_points,
-            avg_points: (row.total_points / row.match_days_played).toFixed(2),
-            match_days_played: row.match_days_played
-          }));
-      }
-    }
+            // When matchDay is present, 'points' and 'avg' show match_day_points
+            // Otherwise, 'points' shows total_points, and 'avg' shows total_points / match_day
+            points: matchDay ? parseFloat(row.match_day_points).toFixed(2) : parseFloat(row.total_points).toFixed(2),
+            avg: matchDay ? parseFloat(row.match_day_points).toFixed(2) : (parseFloat(row.total_points) / row.match_day).toFixed(2),
+            playersInRoster: row.players_in_roster,
+            matchDay: row.match_day
+        }));
 
-    res.json({ leaderboard });
-  } catch (err) {
-    res.status(500).json({ error: 'Database error' });
-  }
+        res.json(leaderboardData);
+
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async (req, res) => {
