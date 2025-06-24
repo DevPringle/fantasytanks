@@ -1968,20 +1968,23 @@
             }
         }
 
+        // Global flag to indicate if the current match day is in view-only mode
+        let isViewOnlyMode = false; 
+        
         // Match day functions
         function isMatchDayLocked(matchDay) {
             const now = new Date();
-            const cutoff = tournamentConfig.rosterCutoffs[matchDay];
+            const cutoff = tournamentConfig && tournamentConfig.rosterCutoffs ? tournamentConfig.rosterCutoffs[matchDay] : null;
             return cutoff && now >= cutoff;
         }
-
+        
         function getActiveMatchDay() {
             for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
                 if (!isMatchDayLocked(i)) return i;
             }
             return 1;
         }
-
+        
         function initializeMatchDayTabs() {
             const tabs = document.querySelectorAll('.match-day-tab');
             
@@ -1990,25 +1993,24 @@
                 
                 if (isMatchDayLocked(matchDay)) {
                     tab.classList.add('locked');
-                    tab.title = 'Roster deadline has passed';
-                } else {
-                    tab.addEventListener('click', () => switchMatchDay(matchDay));
+                    tab.title = 'Roster deadline has passed (View Only)';
                 }
+                tab.addEventListener('click', () => switchMatchDay(matchDay));
             });
         }
-
+        
         function switchMatchDay(matchDay) {
-            if (isMatchDayLocked(matchDay)) {
-                showNotification(`Match Day ${matchDay} roster deadline has passed`, 'error');
-                return;
-            }
-
             currentMatchDay = matchDay;
             updateMatchDayUI();
             updateRosterDisplay();
-            populatePlayersTable();
-        }
+            populatePlayersTable(); 
+        
 
+            isViewOnlyMode = isMatchDayLocked(matchDay); 
+        
+            updateRosterModificationUI(isViewOnlyMode); 
+        }
+        
         function updateMatchDayUI() {
             document.querySelectorAll('.match-day-tab').forEach(tab => {
                 tab.classList.remove('active');
@@ -2016,19 +2018,19 @@
                     tab.classList.add('active');
                 }
             });
-
+        
             document.getElementById('currentMatchDayDisplay').textContent = `(Match Day ${currentMatchDay})`;
             document.getElementById('sidebarMatchDay').textContent = currentMatchDay;
             updateRosterStatusIndicator();
         }
-
+        
         function updateRosterStatusIndicator() {
-            const currentRoster = getCurrentRoster();
+            const currentRoster = getCurrentRoster(); // 
             const statusDot = document.getElementById('currentRosterStatusDot');
             const statusText = document.getElementById('currentRosterStatusText');
-
+        
             if (!statusDot || !statusText) return;
-
+        
             if (currentRoster.length === 0) {
                 statusDot.className = 'roster-status-dot empty';
                 statusText.textContent = 'No roster set';
@@ -2038,6 +2040,59 @@
             } else {
                 statusDot.className = 'roster-status-dot';
                 statusText.textContent = 'Roster complete';
+            }
+        }
+        
+
+        function updateRosterModificationUI(isViewOnly) {
+            const addPlayerButton = document.getElementById('addPlayerButton'); // 
+            const saveRosterButton = document.getElementById('saveRosterButton'); // 
+            const rosterModificationArea = document.getElementById('rosterModificationArea'); //
+        
+            if (addPlayerButton) {
+                addPlayerButton.disabled = isViewOnly;
+                addPlayerButton.classList.toggle('disabled', isViewOnly); //
+            }
+            if (saveRosterButton) {
+                saveRosterButton.disabled = isViewOnly;
+                saveRosterButton.classList.toggle('disabled', isViewOnly);
+            }
+            if (rosterModificationArea) {
+                rosterModificationArea.classList.toggle('view-only', isViewOnly);
+            }
+        
+            document.querySelectorAll('.roster-player-item').forEach(playerItem => {
+                if (isViewOnly) {
+                    playerItem.draggable = false;
+                    const deleteIcon = playerItem.querySelector('.delete-icon');
+                    if (deleteIcon) deleteIcon.style.display = 'none';
+                } else {
+                    playerItem.draggable = true;
+                    const deleteIcon = playerItem.querySelector('.delete-icon');
+                    if (deleteIcon) deleteIcon.style.display = ''; 
+                }
+            });
+        }
+        
+        
+        function addPlayerToRoster(player) {
+            if (isViewOnlyMode) {
+                showNotification('Cannot modify roster for past match days.', 'warning');
+                return;
+            }
+        }
+        
+        function removePlayerFromRoster(player) {
+            if (isViewOnlyMode) {
+                showNotification('Cannot modify roster for past match days.', 'warning');
+                return;
+            }
+        }
+        
+        function saveRoster() {
+            if (isViewOnlyMode) {
+                showNotification('Cannot save changes for past match days.', 'warning');
+                return;
             }
         }
 
