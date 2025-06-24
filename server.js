@@ -809,236 +809,79 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 app.get('/api/leaderboard/:tournamentId', async (req, res) => {
-    try {
-        const { tournamentId } = req.params;
-        const { matchDay, minRosterSize } = req.query;
+  const { tournamentId } = req.params;
+  const { matchDay } = req.query;
 
-        // Base CTE to unnest rosters and calculate match day points for each user and player
-        let query = `
-            WITH UnnestedRosterPlayers AS (
-                SELECT
-                    r.user_id,
-                    r.tournament_id,
-                    r.match_day,
-                    jsonb_array_elements_text(r.roster) AS roster_player_name,
-                    jsonb_array_length(r.roster) AS roster_size
-                FROM
-                    rosters r
-                WHERE
-                    r.tournament_id = $1
-            ),
-            UserPerformancePerMatchDay AS (
-                SELECT
-                    urp.user_id,
-                    u.username,
-                    urp.tournament_id,
-                    urp.match_day,
-                    urp.roster_size,
-                    COALESCE(SUM(pmp.match_points), 0) AS calculated_match_day_points
-                FROM
-                    UnnestedRosterPlayers urp
-                JOIN
-                    users u ON urp.user_id = u.id
-                LEFT JOIN
-                    player_match_performance pmp ON
-                        urp.roster_player_name = pmp.player_name AND
-                        urp.tournament_id = pmp.tournament_id AND
-                        urp.match_day = pmp.match_day
-                GROUP BY
-                    urp.user_id, u.username, urp.tournament_id, urp.match_day, urp.roster_size
-            ),
-            UserOverallScores AS (
-                SELECT
-                    user_id,
-                    username,
-                    tournament_id,
-                    match_day,
-                    roster_size,
-                    calculated_match_day_points,
-                    SUM(calculated_match_day_points) OVER (PARTITION BY user_id ORDER BY match_day) AS total_points_up_to_day
-                FROM
-                    UserPerformancePerMatchDay
-            )
-            SELECT
-                uos.username,
-                uos.roster_size AS players_in_roster,
-                uos.match_day,
-                uos.calculated_match_day_points,
-                uos.total_points_up_to_day
-            FROM
-                UserOverallScores uos
-            WHERE 1=1 -- Placeholder for conditional WHERE clauses
-        `;
+  let query = `
+    SELECT username, match_day, match_day_points, total_points, players_in_roster
+    FROM fantasy_standings
+    WHERE tournament_id = $1
+  `;
+  let params = [tournamentId];
 
-        const queryParams = [tournamentId];
-        let whereClauses = [];
+  if (matchDay) {
+    query += ' AND match_day = $2';
+    params.push(matchDay);
 
-        // If a specific matchDay is requested, filter the main query results by it.
-        // This will make the final result set only contain entries for that specific match day.
-        if (matchDay) {
-            whereClauses.push(`uos.match_day = $${queryParams.length + 1}`);
-            queryParams.push(parseInt(matchDay));
-        } else {
-            // If no matchDay is specified, we want the *latest* overall scores for each user.
-            // This requires an additional subquery/CTE to find the max match_day for each user.
-            // We apply this filter *only* when matchDay is NOT specified.
-            query = `
-                WITH RankedUserScores AS (
-                    ${query} -- Use the base query with matchDay and minRosterSize filters applied below
-                ),
-                LatestUserScores AS (
-                    SELECT
-                        *,
-                        ROW_NUMBER() OVER (PARTITION BY username ORDER BY match_day DESC) as rn
-                    FROM
-                        RankedUserScores
-                )
-                SELECT
-                    username,
-                    players_in_roster,
-                    match_day,
-                    calculated_match_day_points,
-                    total_points_up_to_day
-                FROM
-                    LatestUserScores
-                WHERE rn = 1
-            `;
-        }
+    // Exclude users with empty rosters for this match day
+    query += `
+      AND username IN (
+        SELECT u.username
+        FROM rosters r
+        JOIN users u ON u.id = r.user_id
+        WHERE r.tournament_id = $1
+          AND r.match_day = $2
+          AND r.roster IS NOT NULL
+          AND r.roster::text <> '[]'
+      )
+    `;
+  }
 
-        // Apply minRosterSize filter if provided
-        if (minRosterSize) {
-            whereClauses.push(`uos.roster_size >= $${queryParams.length + 1}`);
-            queryParams.push(parseInt(minRosterSize));
-        }
+  query += ' ORDER BY total_points DESC';
 
-        // Add dynamically generated WHERE clauses to the query
-        if (whereClauses.length > 0) {
-            // If matchDay is NOT specified, the `query` variable has already been wrapped
-            // so we need to insert the WHERE clause into the `RankedUserScores` CTE.
-            // If matchDay IS specified, we append directly to the initial query.
-            if (!matchDay) {
-                // This is a bit tricky with the CTE wrapping.
-                // A simpler approach for the minRosterSize is to apply it in the final SELECT,
-                // or ensure the base query's WHERE clause handles it for both cases.
-                // Let's refine the query construction for clarity.
+  try {
+    const { rows } = await pool.query(query, params);
 
-                // Reset query to rebuild it with proper filtering for both cases.
-                query = `
-                    WITH UnnestedRosterPlayers AS (
-                        SELECT
-                            r.user_id,
-                            r.tournament_id,
-                            r.match_day,
-                            jsonb_array_elements_text(r.roster) AS roster_player_name,
-                            jsonb_array_length(r.roster) AS roster_size
-                        FROM
-                            rosters r
-                        WHERE
-                            r.tournament_id = $1
-                    ),
-                    UserPerformancePerMatchDay AS (
-                        SELECT
-                            urp.user_id,
-                            u.username,
-                            urp.tournament_id,
-                            urp.match_day,
-                            urp.roster_size,
-                            COALESCE(SUM(pmp.match_points), 0) AS calculated_match_day_points
-                        FROM
-                            UnnestedRosterPlayers urp
-                        JOIN
-                            users u ON urp.user_id = u.id
-                        LEFT JOIN
-                            player_match_performance pmp ON
-                                urp.roster_player_name = pmp.player_name AND
-                                urp.tournament_id = pmp.tournament_id AND
-                                urp.match_day = pmp.match_day
-                        GROUP BY
-                            urp.user_id, u.username, urp.tournament_id, urp.match_day, urp.roster_size
-                    ),
-                    UserOverallScores AS (
-                        SELECT
-                            user_id,
-                            username,
-                            tournament_id,
-                            match_day,
-                            roster_size,
-                            calculated_match_day_points,
-                            SUM(calculated_match_day_points) OVER (PARTITION BY user_id ORDER BY match_day) AS total_points_up_to_day
-                        FROM
-                            UserPerformancePerMatchDay
-                        WHERE 1=1
-                            ${matchDay ? `AND match_day = $${queryParams.indexOf(parseInt(matchDay)) + 1}` : ''}
-                            ${minRosterSize ? `AND roster_size >= $${queryParams.indexOf(parseInt(minRosterSize)) + 1}` : ''}
-                    )
-                `;
-
-                // If no matchDay, we take the latest overall score for each user
-                if (!matchDay) {
-                    query += `
-                        , RankedFinalScores AS (
-                            SELECT
-                                *,
-                                ROW_NUMBER() OVER (PARTITION BY username ORDER BY match_day DESC) as rn
-                            FROM
-                                UserOverallScores
-                        )
-                        SELECT
-                            username,
-                            roster_size AS players_in_roster,
-                            match_day,
-                            calculated_match_day_points,
-                            total_points_up_to_day
-                        FROM
-                            RankedFinalScores
-                        WHERE rn = 1
-                    `;
-                } else {
-                    // If matchDay IS specified, we just select from UserOverallScores directly
-                    query += `
-                        SELECT
-                            username,
-                            roster_size AS players_in_roster,
-                            match_day,
-                            calculated_match_day_points,
-                            total_points_up_to_day
-                        FROM
-                            UserOverallScores
-                    `;
-                }
-
-            } else {
-                // If matchDay IS specified from the start, we can apply minRosterSize directly.
-                query += ' AND ' + whereClauses.join(' AND ');
-            }
-        }
-        
-        // Always order by the relevant score for display
-        const orderByColumn = matchDay ? 'calculated_match_day_points' : 'total_points_up_to_day';
-        query += ` ORDER BY ${orderByColumn} DESC;`;
-
-
-        console.log("SQL Query:", query); // For debugging
-        console.log("Query Params:", queryParams); // For debugging
-
-        const result = await pool.query(query, queryParams);
-
-        const leaderboardData = result.rows.map(row => ({
+    // Add ranking and aggregation
+    let leaderboard = [];
+    if (rows.length > 0) {
+      leaderboard = rows.map((row, idx) => ({
+        rank: idx + 1,
+        username: row.username,
+        total_points: parseFloat(row.total_points),
+        avg_points: parseFloat(row.match_day_points), // For single day, avg = day points
+        match_days_played: 1 // For single day
+      }));
+      // If not filtering by matchDay, aggregate by username
+      if (!matchDay) {
+        const grouped = {};
+        rows.forEach(row => {
+          if (!grouped[row.username]) {
+            grouped[row.username] = {
+              username: row.username,
+              total_points: 0,
+              match_days_played: 0
+            };
+          }
+          grouped[row.username].total_points += parseFloat(row.match_day_points);
+          grouped[row.username].match_days_played += 1;
+        });
+        leaderboard = Object.values(grouped)
+          .sort((a, b) => b.total_points - a.total_points)
+          .map((row, idx) => ({
+            rank: idx + 1,
             username: row.username,
-            // Conditionally assign 'points' based on matchDay presence
-            points: matchDay ? parseFloat(row.calculated_match_day_points).toFixed(2) : parseFloat(row.total_points_up_to_day).toFixed(2),
-            // 'avg' will mirror 'points' for simplicity, as per previous discussion
-            avg: matchDay ? parseFloat(row.calculated_match_day_points).toFixed(2) : parseFloat(row.total_points_up_to_day).toFixed(2),
-            playersInRoster: row.players_in_roster,
-            matchDay: row.match_day
-        }));
-
-        res.json(leaderboardData);
-
-    } catch (error) {
-        console.error('Error fetching leaderboard:', error);
-        res.status(500).json({ error: 'Internal server error', details: error.message });
+            total_points: row.total_points,
+            avg_points: (row.total_points / row.match_days_played).toFixed(2),
+            match_days_played: row.match_days_played
+          }));
+      }
     }
+
+    res.json({ leaderboard });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 app.get('/api/leaderboard/:tournamentId/user/:userId', authenticateToken, async (req, res) => {
