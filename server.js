@@ -814,42 +814,107 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
         const { matchDay, minRosterSize } = req.query;
 
         let query = `
+            WITH UserRosterPerformance AS (
+                SELECT
+                    u.id AS user_id,
+                    u.username,
+                    r.match_day,
+                    jsonb_array_length(r.roster) AS players_in_roster,
+                    SUM(COALESCE(pmp.match_points, 0)) AS current_match_day_points
+                FROM
+                    users u
+                JOIN
+                    rosters r ON u.id = r.user_id
+                LEFT JOIN
+                    player_match_performance pmp ON
+                        pmp.tournament_id = r.tournament_id AND pmp.match_day = r.match_day
+                        AND (r.roster ?? pmp.player_name) -- Check if player_name exists in the roster JSONB array
+                WHERE
+                    r.tournament_id = $1
+            ),
+            AggregatedUserScores AS (
+                SELECT
+                    user_id,
+                    username,
+                    players_in_roster,
+                    match_day,
+                    current_match_day_points,
+                    SUM(current_match_day_points) OVER (PARTITION BY user_id ORDER BY match_day) AS total_points_up_to_match_day,
+                    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY match_day DESC) as rn
+                FROM
+                    UserRosterPerformance
+            )
             SELECT
                 username,
-                match_day_points,
-                total_points,
+                -- Select match_day_points or total_points based on whether matchDay filter is applied
+                CASE
+                    WHEN $2 IS NOT NULL THEN current_match_day_points
+                    ELSE total_points_up_to_match_day
+                END AS points_display,
                 players_in_roster,
                 match_day
             FROM
-                fantasy_standings
-            WHERE
-                fantasy_standings.tournament_id = $1
+                AggregatedUserScores
+            WHERE rn = 1 -- Get the latest overall scores for each user
         `;
+
         const queryParams = [tournamentId];
 
+      
         if (matchDay) {
-            query += ` AND fantasy_standings.match_day = $${queryParams.length + 1}`;
+            query = `
+                WITH UserRosterPerformance AS (
+                    SELECT
+                        u.id AS user_id,
+                        u.username,
+                        r.match_day,
+                        jsonb_array_length(r.roster) AS players_in_roster,
+                        SUM(COALESCE(pmp.match_points, 0)) AS current_match_day_points
+                    FROM
+                        users u
+                    JOIN
+                        rosters r ON u.id = r.user_id
+                    LEFT JOIN
+                        player_match_performance pmp ON
+                            pmp.tournament_id = r.tournament_id AND pmp.match_day = r.match_day
+                            AND (r.roster ?? pmp.player_name)
+                    WHERE
+                        r.tournament_id = $1 AND r.match_day = $2
+                )
+                SELECT
+                    username,
+                    current_match_day_points AS points_display, -- Always show match_day_points when filtered by matchDay
+                    players_in_roster,
+                    match_day
+                FROM
+                    UserRosterPerformance
+            `;
             queryParams.push(parseInt(matchDay));
         }
 
+      
         if (minRosterSize) {
-            query += ` AND fantasy_standings.players_in_roster >= $${queryParams.length + 1}`;
+
+            if (matchDay) {
+                query += ` AND players_in_roster >= $${queryParams.length + 1}`;
+            } else {
+
+                query += ` AND players_in_roster >= $${queryParams.length + 1}`;
+            }
             queryParams.push(parseInt(minRosterSize));
         }
 
-        // Determine the column to order by based on whether matchDay is present
-        const orderByColumn = matchDay ? 'match_day_points' : 'total_points';
+
+        const orderByColumn = matchDay ? 'points_display' : 'points_display'; // 
         query += ` ORDER BY ${orderByColumn} DESC;`;
 
         const result = await pool.query(query, queryParams);
 
-        // Map the results to include the 'points' and 'avg' fields as desired
         const leaderboardData = result.rows.map(row => ({
             username: row.username,
-            // When matchDay is present, 'points' and 'avg' show match_day_points
-            // Otherwise, 'points' shows total_points, and 'avg' shows total_points / match_day
-            points: matchDay ? parseFloat(row.match_day_points).toFixed(2) : parseFloat(row.total_points).toFixed(2),
-            avg: matchDay ? parseFloat(row.match_day_points).toFixed(2) : (parseFloat(row.total_points) / row.match_day).toFixed(2),
+            points: parseFloat(row.points_display).toFixed(2),
+
+            avg: parseFloat(row.points_display).toFixed(2), 
             playersInRoster: row.players_in_roster,
             matchDay: row.match_day
         }));
