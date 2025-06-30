@@ -26,7 +26,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
   console.error('FATAL ERROR: JWT_SECRET environment variable is not set');
-  console.error('Please set JWT_SECRET in your Railway environment variables');
+  console.error('Please set JWT_SECRET in Railway');
   process.exit(1);
 }
 
@@ -849,7 +849,7 @@ app.get('/api/leaderboard/:tournamentId', async (req, res) => {
         rank: idx + 1,
         username: row.username,
         total_points: parseFloat(row.total_points),
-        avg_points: parseFloat(row.match_day_points), // For single day, avg = day points
+        avg_points: parseFloat(row.match_day_points), // For single day avg = day points
         match_days_played: 1 // For single day
       }));
       // If not filtering by matchDay, aggregate by username
@@ -1083,7 +1083,7 @@ app.post('/api/admin/scores', async (req, res) => {
   }
 });
 
-// Get player scores for a specific match day (for admin)
+// Get player scores for a specific match day (admin)
 app.get('/api/admin/scores/:tournamentId/:matchDay', async (req, res) => {
   try {
     const { tournamentId, matchDay } = req.params;
