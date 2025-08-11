@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NA 15v15 Summer Series - WoT Fantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
+    <style>
+        /* Material Icons fallback */
+        .material-icons {
+            font-family: 'Material Icons', 'Material Icons Outlined', sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 36px;
+            width: auto;
+            max-width: 220px;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-link:hover {
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: rgba(15, 20, 25, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.5rem;
+            min-width: 200px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-dropdown.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0.5rem 0;
+        }
+
+        .sign-in-btn {
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .sign-in-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+            background: linear-gradient(135deg, #00b8e6, #00d4ff);
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        /* Tournament Header */
+        .tournament-header {
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(0, 212, 255, 0.15), transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(0, 184, 230, 0.1), transparent 50%),
+                linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(26, 35, 50, 0.2));
+            padding: 3rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tournament-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .tournament-header-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tournament-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .tournament-breadcrumb {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tournament-breadcrumb a {
+            color: #00d4ff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .tournament-breadcrumb a:hover {
+            color: #ffffff;
+        }
+
+        .tournament-name {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #00b8e6 50%, #0099cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .tournament-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+
+        .meta-icon {
+            color: #00d4ff;
+            font-size: 1.2rem;
+        }
+
+        .tournament-status-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.locked {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .cutoff-timer {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .timer-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 25px rgba(255, 193, 7, 0.4);
+            }
+        }
+
+        .fantasy-info {
+            text-align: right;
+        }
+
+        .fantasy-stat {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .fantasy-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .roster-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        /* Tournament Navigation */
+        .tournament-nav {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 80px;
+            z-index: 999;
+        }
+
+        .tournament-nav-container {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .tournament-nav-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+            list-style: none;
+            min-width: max-content;
+        }
+
+        .nav-tab {
+            padding: 1.2rem 2rem;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 3px solid transparent;
+            position: relative;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-tab:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-tab.active {
+            color: #00d4ff;
+            border-bottom-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        /* Main Content Area */
+        .tournament-content {
+            padding: 3rem 0;
+            min-height: 60vh;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Overview Tab */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .overview-main {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .overview-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tournament-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .quick-stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .quick-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Top Teams List */
+        .teams-list {
+            list-style: none;
+        }
+
+        .team-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .team-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .team-rank {
+            font-weight: 700;
+            color: #00d4ff;
+            min-width: 2rem;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .team-score {
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            color: #00d4ff;
+            font-size: 1.2rem;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .activity-time {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+        }
+
+        /* Match Day Selector */
+        .match-day-selector {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .match-day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .match-day-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .match-day-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .match-day-tab {
+            padding: 0.6rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .match-day-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .match-day-tab.active {
+            background: linear-gradient(135deg, #00d4ff, #00b8e6);
+            border-color: #00d4ff;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .match-day-tab.locked {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+            cursor: not-allowed;
+        }
+
+        .match-day-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .roster-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .roster-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .roster-status-dot.incomplete {
+            background: #ffc107;
+        }
+
+        .roster-status-dot.empty {
+            background: #6b7280;
+        }
+
+        /* Players Tab Styles */
+        .players-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .players-filters {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .filter-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 120px;
+        }
+
+        .filter-select option {
+            background: #1a2332;
+            color: #ffffff;
+        }
+
+        .show-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .players-table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+
+        .players-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .players-table th {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1rem;
+            text-align: left;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .players-table th.sortable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .players-table th.sortable:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #00d4ff;
+        }
+
+        .players-table th.action-column {
+            width: 80px;
+            text-align: center;
+        }
+
+        .sort-icon {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .players-table th.sortable.asc .sort-icon {
+            transform: translateY(-50%) rotate(180deg);
+            opacity: 1;
+            color: #00d4ff;
+        }
+
+        .players-table th.sortable.desc .sort-icon {
+            opacity: 1;
+            color: #00d4ff;
+        }
+
+        .players-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }
+
+        .players-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .player-action-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+        }
+
+        .player-action-btn.add {
+            border-color: rgba(34, 197, 94, 0.5);
+            color: #22c55e;
+            cursor: pointer;
+        }
+
+        .player-action-btn.add:hover {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            transform: scale(1.05);
+        }
+
+        .player-action-btn.remove {
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+            cursor: pointer;
+        }
+
+        .player-action-btn.remove:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            transform: scale(1.05);
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .player-team {
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .player-battles {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .player-points {
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .player-avg {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .player-picked {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .roster-sidebar {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 300px;
+            z-index: 1000;
+        }
+
+        .roster-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .roster-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .roster-status {
+            text-align: center;
+            color: #00d4ff;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .roster-message {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .auth-message {
+            background: rgba(15, 20, 25, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+            max-width: 280px;
+        }
+
+        .auth-message h4 {
+            color: #00d4ff;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .auth-message p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .roster-list {
+            display: none;
+        }
+
+        .roster-player {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .roster-player-name {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .roster-player-remove {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .roster-player-remove:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Standings Styles */
+        .standings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .standings-filters {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .standings-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .standings-table th {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1rem;
+            text-align: left;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .standings-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .rank-cell {
+            text-align: center;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .username-cell {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .score-cell {
+            text-align: right;
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(15, 20, 25, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 0 2rem;
+            margin-top: 5rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .footer-note {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .roster-sidebar {
+                position: static;
+                transform: none;
+                width: 100%;
+                margin-top: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(15, 20, 25, 0.98);
+                flex-direction: column;
+                padding: 2rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .tournament-name {
+                font-size: 2rem;
+            }
+
+            .tournament-header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .tournament-meta {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-tab {
+                padding: 1rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .roster-actions {
+                flex-direction: column;
+            }
+
+            .players-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .players-filters {
+                justify-content: space-between;
+            }
+
+            .players-table-container {
+                overflow-x: auto;
+            }
+
+            .players-table {
+                min-width: 600px;
+            }
+
+            .players-table th,
+            .players-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .match-day-tabs {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+
+            .match-day-tab {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+                min-width: 60px;
+            }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+<script src="js/api.js"></script>
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="index.html" class="logo">
+                <img src="images/WotFan200x36.png" alt="Fantasy Tanks Logo">
+            </a>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="tournaments.html" class="nav-link">Tournaments</a></li>
+                <li><a href="index.html#groups" class="nav-link">Groups</a></li>
+                <li><a href="index.html#guide" class="nav-link">Guide</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="auth-section">
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <button class="user-btn" onclick="toggleUserDropdown()">
+                        <span class="material-icons">person</span>
+                        <span id="username"></span>
+                        <span class="material-icons">expand_more</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#profile" class="dropdown-item">
+                            <span class="material-icons">person</span>
+                            Profile
+                        </a>
+                        <a href="#settings" class="dropdown-item">
+                            <span class="material-icons">settings</span>
+                            Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#logout" class="dropdown-item" onclick="handleLogout()">
+                            <span class="material-icons">logout</span>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+                <button class="sign-in-btn" id="signInBtn" aria-label="Sign in to your account" onclick="redirectToLogin()">Sign In</button>
+                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle mobile menu">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Tournament Header -->
+        <section class="tournament-header">
+            <div class="container">
+                <div class="tournament-header-content">
+                    <div class="tournament-info">
+                        <div class="tournament-breadcrumb">
+                            <a href="tournaments.html">Tournaments</a>
+                            <span class="material-icons" style="font-size: 1rem;">chevron_right</span>
+                            <span>NA 15v15 Summer Series</span>
+                        </div>
+                        
+                        <h1 class="tournament-name">NA 15v15 Summer Series</h1>
+                        
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                <span>North America</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                <span>Pick 10 Players</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                <span>Tournament Finished</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-symbols-outlined">trophy</span>
+                                <span>Winner: CRAKD</span>
+                            </div>
+                        </div>
+
+                        <div class="tournament-status-header">
+                            <span class="status-badge" id="rosterStatus">Rosters Open</span>
+                            <div class="cutoff-timer" id="cutoffTimer" style="display: none;">
+                                <span class="material-icons">schedule</span>
+                                <span id="timeRemaining">--:--:--</span>
+                            </div>
+                        </div>
+
+                        <div class="roster-actions">
+                            <button class="action-btn">
+                                <span class="material-icons">sports_esports</span>
+                                Set My Roster
+                            </button>
+                            <button class="action-btn secondary">
+                                <span class="material-icons">leaderboard</span>
+                                View Leaderboard
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="fantasy-info">
+                        <div class="fantasy-label">Fantasy Teams Competing</div>
+                        <div class="fantasy-stat">93</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tournament Navigation -->
+        <nav class="tournament-nav">
+            <div class="container">
+                <div class="tournament-nav-container">
+                    <ul class="nav-tabs">
+                        <li><a href="#overview" class="nav-tab active" data-tab="overview">
+                            <span class="material-icons" style="font-size: 1rem;">home</span>
+                            Overview
+                        </a></li>
+                        <li><a href="#schedule" class="nav-tab" data-tab="schedule">
+                            <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                            Schedule
+                        </a></li>
+                        <li><a href="#standings" class="nav-tab" data-tab="standings">
+                            <span class="material-icons" style="font-size: 1rem;">leaderboard</span>
+                            Standings
+                        </a></li>
+                        <li><a href="#players" class="nav-tab" data-tab="players">
+                            <span class="material-icons" style="font-size: 1rem;">people</span>
+                            Players
+                        </a></li>
+                        <li><a href="#teams" class="nav-tab" data-tab="teams">
+                            <span class="material-icons" style="font-size: 1rem;">groups</span>
+                            Teams
+                        </a></li>
+                        <li><a href="#stats" class="nav-tab" data-tab="stats">
+                            <span class="material-icons" style="font-size: 1rem;">analytics</span>
+                            Stats
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Tournament Content -->
+        <section class="tournament-content container">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="overview-grid">
+                    <div class="overview-main">
+                        <h2 class="section-title">
+                            <span class="material-icons">info</span>
+                            Tournament Information
+                        </h2>
+                        <p class="tournament-description">
+                            Welcome to the fantasy tournament based on the NA 15v15 Summer Series league hosted by Stored and Charan. Draft your ultimate fantasy lineup from the players competing and earn points based on their performance.
+                        </p>
+                        <p class="tournament-description">
+                            Fantasy points are awarded based on real-time performance metrics including kills, damage dealt, damage assisted, damage blocked, accuracy, and overall team performance. Build your roster of 10 players strategically to maximize your fantasy points and climb the leaderboard against other fantasy teams.
+                        </p>
+                        <p class="tournament-description">
+                            NA Summer Series 15v15 League Official Discord server: <a href="https://discord.gg/FpjVpSBt8v" target="_blank" rel="noopener">https://discord.gg/FpjVpSBt8v</a>
+                        </p>
+                        
+                        <div class="progress-section">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">timeline</span>
+                                Tournament Progress
+                            </h3>
+                            <div class="progress-label">
+                                <span>Tournament Phase: Group Stage</span>
+                                <span>40%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 40%;"></div>
+                            </div>
+                            <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 0.5rem;">
+                                Teams are currently competing in the group stage. 
+                            </p>
+                        </div>
+
+                        <div class="quick-stats">
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">7</span>
+                                <span class="quick-stat-label">Match Days</span>
+                            </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">144</span>
+                                <span class="quick-stat-label">Available Players</span>
+                            </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">93</span>
+                                <span class="quick-stat-label">Fantasy Teams</span>
+                            </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number">4</span>
+                                <span class="quick-stat-label">Weeks Duration</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overview-sidebar">
+                        <div class="sidebar-card">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">emoji_events</span>
+                                Top Fantasy Teams
+                            </h3>
+                            <ul class="teams-list">
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">1</span>
+                                        <span class="team-name">PM_</span>
+                                    </div>
+                                    <span class="team-score">1549.21</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">2</span>
+                                        <span class="team-name">Jim</span>
+                                    </div>
+                                    <span class="team-score">1292.92</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">3</span>
+                                        <span class="team-name">pringle</span>
+                                    </div>
+                                    <span class="team-score">920.78</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">4</span>
+                                        <span class="team-name">Stored</span>
+                                    </div>
+                                    <span class="team-score">751.46</span>
+                                </li>
+                                <li class="team-item">
+                                    <div class="team-info">
+                                        <span class="team-rank">5</span>
+                                        <span class="team-name">Charan</span>
+                                    </div>
+                                    <span class="team-score">673.69</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="sidebar-card">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">notifications</span>
+                                Recent Activity
+                            </h3>
+                            <ul class="activity-list">
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">person_add</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">New roster change: CRAKD drops Lilac, picks up Gater!</div>
+                                        <div class="activity-time">June 24, 2025 - 4:00 PM</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">swap_horiz</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Popular pick: Melly drafted by 29 fantasy teams</div>
+                                        <div class="activity-time">June 24, 2025 - 4:00 PM</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">star</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Fantasy leader: Munia most valuable pick</div>
+                                        <div class="activity-time">June 24, 2025 - 4:00 PM</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="material-icons activity-icon">schedule</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Group Stage Phase 2 begins tonight!</div>
+                                        <div class="activity-time">June 24, 2025 - 4:00 PM</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Tab -->
+            <div id="schedule" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">schedule</span>
+                    Pro Tournament Schedule
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">schedule</span>
+                    <h3 style="margin-bottom: 1rem;">Pro Match Schedule Coming Soon</h3>
+                    <p>Pro tournament match schedules will be available here to help you track when your fantasy players compete.</p>
+                </div>
+            </div>
+
+            <!-- Standings Tab -->
+            <div id="standings" class="tab-content">
+                <div class="standings-header">
+                    <h2 class="section-title">
+                        <span class="material-icons">leaderboard</span>
+                        Fantasy Leaderboard
+                    </h2>
+                    <div class="standings-filters">
+                        <div class="filter-group">
+                            <label for="standingsBracketFilter">View:</label>
+                            <select id="standingsBracketFilter" class="filter-select">
+                                <option value="">Overall Tournament</option>
+                                <option value="match-day">Single Match Day</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="standingsMatchDayFilter">Match Day:</label>
+                            <select id="standingsMatchDayFilter" class="filter-select">
+                                <option value="">All Match Days</option>
+                                <option value="1">Match Day 1</option>
+                                <option value="2">Match Day 2</option>
+                                <option value="3">Match Day 3</option>
+                                <option value="4">Match Day 4</option>
+                                <option value="5">Match Day 5</option>
+                                <option value="6">Match Day 6</option>
+                                <option value="7">Match Day 7</option>
+                            </select>
+                        </div>
+                        <button class="action-btn secondary">
+                            <span class="material-icons">refresh</span>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="standings-container">
+                    <div id="standingsLoadingState" class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <div>Loading fantasy standings...</div>
+                    </div>
+
+                    <table class="standings-table" id="fantasyStandingsTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th class="rank-column">Rank</th>
+                                <th class="name-column">Name</th>
+                                <th class="score-column">Score</th>
+                                <th class="avg-column">Avg. Score</th>
+                                <th class="days-column">Days</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fantasyStandingsTableBody">
+                            <!-- Standings populate here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Players Tab -->
+            <div id="players" class="tab-content">
+                <!-- Match Day Selector -->
+                <div class="match-day-selector">
+                    <div class="match-day-header">
+                        <div class="match-day-title">
+                            <span class="material-icons">event</span>
+                            Select Match Day for Roster
+                        </div>
+                        <div class="roster-status-indicator">
+                            <div class="roster-status-dot" id="currentRosterStatusDot"></div>
+                            <span id="currentRosterStatusText">No roster set</span>
+                        </div>
+                    </div>
+                    
+                    <div class="match-day-tabs" id="matchDayTabs">
+                        <button class="match-day-tab active" data-match-day="1">Day 1</button>
+                        <button class="match-day-tab" data-match-day="2">Day 2</button>
+                        <button class="match-day-tab" data-match-day="3">Day 3</button>
+                        <button class="match-day-tab" data-match-day="4">Day 4</button>
+                        <button class="match-day-tab" data-match-day="5">Day 5</button>
+                        <button class="match-day-tab" data-match-day="6">Day 6</button>
+                        <button class="match-day-tab" data-match-day="7">Day 7</button>
+                    </div>
+                    
+                    <div class="match-day-info">
+                        <span id="matchDayDescription">Select a match day to set your roster for that specific tournament round.</span>
+                        <span id="rosterDeadlineInfo"></span>
+                    </div>
+                </div>
+
+                <div class="players-header">
+                    <h2 class="section-title">
+                        <span class="material-icons">people</span>
+                        Fantasy Player Pool
+                        <span id="currentMatchDayDisplay" style="color: #00d4ff; font-size: 1rem; margin-left: 1rem;">
+                            (Match Day 1)
+                        </span>
+                    </h2>
+                    <div class="players-filters">
+                        <div class="filter-group">
+                            <label for="teamFilter">Team:</label>
+                            <select id="teamFilter" class="filter-select">
+                                <option value="">All Teams</option>
+                                <option value="CRAKD">CRAKD</option>
+                                <option value="DOPA">DOPAMINE</option>
+                                <option value="ARCANE">ARCANE</option>
+                                <option value="MVP">MVP</option>
+                                <option value="DONER">Dönerteller</option>
+                                <option value="EMPLOY">Employed</option>
+                                <option value="CINE">Cine Pa</option>
+                                <option value="FUMES">FUMES</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <span class="show-label">SHOW</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="players-table-container">
+                    <table class="players-table">
+                        <thead>
+                            <tr>
+                                <th class="action-column">Action</th>
+                                <th class="sortable" data-sort="name">
+                                    Name
+                                    <span class="material-icons sort-icon">expand_more</span>
+                                </th>
+                                <th class="sortable" data-sort="team">
+                                    Team
+                                </th>
+                                <th class="sortable" data-sort="battles">
+                                    Battles
+                                </th>
+                                <th class="sortable" data-sort="points">
+                                    Points
+                                    <span class="material-icons sort-icon">expand_more</span>
+                                </th>
+                                <th class="sortable" data-sort="avg">
+                                    Avg. Points
+                                </th>
+                                <th class="sortable" data-sort="picked">
+                                    Picked By
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="playersTableBody">
+                            <!-- Players populated by js -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="roster-sidebar">
+                    <div class="roster-card">
+                        <h3 class="roster-title">
+                            Your Fantasy Roster
+                            <div style="font-size: 0.9rem; font-weight: 500; color: #00d4ff; margin-top: 0.5rem;">
+                                Match Day <span id="sidebarMatchDay">1</span>
+                            </div>
+                        </h3>
+                        <div class="roster-status">
+                            <span id="rosterCount">0</span>/10 Players Selected
+                        </div>
+                        <div class="roster-message" id="rosterMessage">
+                            Your roster is empty. Add players from the table above to build your fantasy team.
+                        </div>
+                        <div class="roster-list" id="rosterList">
+                            <!-- Selected players appear here -->
+                        </div>
+                        <div class="auth-overlay" id="authOverlay" style="display: none;">
+                            <div class="auth-message">
+                                <h4>Sign In Required</h4>
+                                <p>Please sign in to start building your Fantasy Roster. Click the Sign In button in the top-right of the page.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teams Tab -->
+            <div id="teams" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">groups</span>
+                    Pro Team Rosters
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
+                    <h3 style="margin-bottom: 1rem;">Pro Team Rosters Loading</h3>
+                    <p>Professional team rosters showing which players are available for fantasy drafting will be displayed here.</p>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="stats" class="tab-content">
+                <h2 class="section-title">
+                    <span class="material-icons">analytics</span>
+                    Fantasy Statistics
+                </h2>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">analytics</span>
+                    <h3 style="margin-bottom: 1rem;">Fantasy Stats Coming Soon</h3>
+                    <p>Detailed fantasy performance analytics, player trends, and optimal drafting insights will be available during the tournament.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <ul class="footer-links">
+                    <li><a href="#resources">Resources</a></li>
+                    <li><a href="terms-of-service.html" class="nav-link">Terms of Service</a></li>
+                    <li><a href="privacy-policy.html" class="nav-link">Privacy Policy</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <div class="footer-note">
+                    <p>Original concept by Hypnotik • Created by pringle</p>
+                    <p>This website is not affiliated with Wargaming.net or World of Tanks</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let playersData = [];
+        let teamsData = [];
+        let userRosters = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
+        let currentMatchDay = 1;
+        let maxRosterSize = 10;
+        let isAuthenticated = false;
+        let dataLoaded = false;
+
+        // Tournament configuration
+        const tournamentConfig = {
+            totalMatchDays: 7,
+            rosterCutoffs: {
+                1: new Date('2025-06-11T00:00:00Z'),
+                2: new Date('2025-06-15T00:00:00Z'),
+                3: new Date('2025-06-18T00:00:00Z'),
+                4: new Date('2025-06-22T00:00:00Z'),
+                5: new Date('2025-06-25T00:00:00Z'),
+                6: new Date('2025-06-29T00:00:00Z'),
+                7: new Date('2025-06-30T00:00:00Z')
+            }
+        };
+
+        // Tab Navigation System
+        function initializeTabNavigation() {
+            const navTabs = document.querySelectorAll('.nav-tab');
+            
+            navTabs.forEach((tab) => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetTab = this.dataset.tab;
+                    
+                    // Removes active from all tabs and contents
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Adds active to current tab and content
+                    this.classList.add('active');
+                    
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                        handleTabSpecificLogic(targetTab);
+                    }
+                });
+            });
+        }
+
+        function handleTabSpecificLogic(targetTab) {
+            switch(targetTab) {
+                case 'standings':
+                    loadFantasyLeaderboard();
+                    break;
+                case 'players':
+                    if (dataLoaded) {
+                        updateRosterDisplay();
+                        populatePlayersTable();
+                    }
+                    break;
+            }
+        }
+
+        // Auth functions
+        function redirectToLogin() {
+            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
+        }
+
+        function handleLogout() {
+            api.logout();
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function updateAuthUI() {
+            const signInBtn = document.getElementById('signInBtn');
+            const userMenu = document.getElementById('userMenu');
+            const authOverlay = document.getElementById('authOverlay');
+            
+            if (api.isAuthenticated()) {
+                isAuthenticated = true;
+                const user = api.getCurrentUser();
+                
+                signInBtn.style.display = 'none';
+                userMenu.style.display = 'block';
+                document.getElementById('username').textContent = user.username;
+                if (authOverlay) authOverlay.style.display = 'none';
+                
+                loadAllUserRosters();
+            } else {
+                isAuthenticated = false;
+                signInBtn.style.display = 'block';
+                userMenu.style.display = 'none';
+                if (authOverlay) authOverlay.style.display = 'flex';
+                
+                loadRostersFromLocalStorage();
+                updateRosterDisplay();
+            }
+        }
+
+        // Match day functions
+        function isMatchDayLocked(matchDay) {
+            const now = new Date();
+            const cutoff = tournamentConfig.rosterCutoffs[matchDay];
+            return cutoff && now >= cutoff;
+        }
+
+        function getActiveMatchDay() {
+            for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
+                if (!isMatchDayLocked(i)) return i;
+            }
+            return 1;
+        }
+
+        function initializeMatchDayTabs() {
+            const tabs = document.querySelectorAll('.match-day-tab');
+            
+            tabs.forEach(tab => {
+                const matchDay = parseInt(tab.dataset.matchDay);
+                
+                if (isMatchDayLocked(matchDay)) {
+                    tab.classList.add('locked');
+                    tab.title = 'Roster deadline has passed';
+                } else {
+                    tab.addEventListener('click', () => switchMatchDay(matchDay));
+                }
+            });
+        }
+
+        function switchMatchDay(matchDay) {
+            if (isMatchDayLocked(matchDay)) {
+                showNotification(`Match Day ${matchDay} roster deadline has passed`, 'error');
+                return;
+            }
+
+            currentMatchDay = matchDay;
+            updateMatchDayUI();
+            updateRosterDisplay();
+            populatePlayersTable();
+        }
+
+        function updateMatchDayUI() {
+            document.querySelectorAll('.match-day-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (parseInt(tab.dataset.matchDay) === currentMatchDay) {
+                    tab.classList.add('active');
+                }
+            });
+
+            document.getElementById('currentMatchDayDisplay').textContent = `(Match Day ${currentMatchDay})`;
+            document.getElementById('sidebarMatchDay').textContent = currentMatchDay;
+            updateRosterStatusIndicator();
+        }
+
+        function updateRosterStatusIndicator() {
+            const currentRoster = getCurrentRoster();
+            const statusDot = document.getElementById('currentRosterStatusDot');
+            const statusText = document.getElementById('currentRosterStatusText');
+
+            if (!statusDot || !statusText) return;
+
+            if (currentRoster.length === 0) {
+                statusDot.className = 'roster-status-dot empty';
+                statusText.textContent = 'No roster set';
+            } else if (currentRoster.length < maxRosterSize) {
+                statusDot.className = 'roster-status-dot incomplete';
+                statusText.textContent = `${currentRoster.length}/${maxRosterSize} players`;
+            } else {
+                statusDot.className = 'roster-status-dot';
+                statusText.textContent = 'Roster complete';
+            }
+        }
+
+        // Roster functions
+        function getCurrentRoster() {
+            return userRosters[currentMatchDay] || [];
+        }
+
+        function setCurrentRoster(roster) {
+            userRosters[currentMatchDay] = [...roster];
+        }
+
+        async function loadAllUserRosters() {
+            if (!api.isAuthenticated()) {
+                loadRostersFromLocalStorage();
+                return;
+            }
+            
+            try {
+                for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
+                    userRosters[i] = [];
+                }
+                
+                for (let matchDay = 1; matchDay <= tournamentConfig.totalMatchDays; matchDay++) {
+                    try {
+                        const response = await api.getRoster('na-15v15-summer-series', matchDay);
+                        if (response && response.roster && response.roster.length > 0) {
+                            userRosters[matchDay] = response.roster;
+                        }
+                    } catch (error) {
+                        console.log(`Error loading Match Day ${matchDay} roster:`, error.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user rosters:', error);
+                loadRostersFromLocalStorage();
+            }
+            
+            updateRosterDisplay();
+            updateRosterStatusIndicator();
+        }
+
+        function loadRostersFromLocalStorage() {
+            for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
+                let saved = localStorage.getItem(`roster_na-15v15-summer-series_md${i}_demo`);
+                
+                if (!saved && i === 1) {
+                    saved = localStorage.getItem(`roster_na-15v15-summer-series_demo`);
+                    if (saved) {
+                        localStorage.setItem(`roster_na-15v15-summer-series_md1_demo`, saved);
+                    }
+                }
+                
+                if (saved) {
+                    try {
+                        userRosters[i] = JSON.parse(saved);
+                    } catch (error) {
+                        console.error(`Error parsing saved roster for match day ${i}:`, error);
+                        userRosters[i] = [];
+                    }
+                } else {
+                    userRosters[i] = [];
+                }
+            }
+        }
+
+        async function saveCurrentRoster() {
+            if (!isAuthenticated) return;
+
+            const currentRoster = getCurrentRoster();
+            
+            try {
+                await api.saveRoster('na-15v15-summer-series', currentRoster, currentMatchDay);
+            } catch (error) {
+                console.error('Error saving roster:', error);
+                const localKey = `roster_na-15v15-summer-series_md${currentMatchDay}_demo`;
+                localStorage.setItem(localKey, JSON.stringify(currentRoster));
+            }
+        }
+
+        // Fantasy Leaderboard Functions
+        async function loadFantasyLeaderboard() {
+            const loadingState = document.getElementById('standingsLoadingState');
+            const standingsTable = document.getElementById('fantasyStandingsTable');
+        
+            if (!loadingState) return;
+        
+            loadingState.style.display = 'block';
+            standingsTable.style.display = 'none';
+        
+            try {
+                const matchDayFilter = document.getElementById('standingsMatchDayFilter')?.value || '';
+                const response = await api.getLeaderboard('na-15v15-summer-series', matchDayFilter || null);
+        
+                loadingState.style.display = 'none';
+                standingsTable.style.display = 'table';
+                
+                const tbody = document.getElementById('fantasyStandingsTableBody');
+                if (tbody && response.leaderboard) {
+                    tbody.innerHTML = response.leaderboard.map(entry => `
+                        <tr>
+                            <td class="rank-cell">${entry.rank}</td>
+                            <td class="username-cell">${entry.username}</td>
+                            <td class="score-cell">${entry.total_points}</td>
+                            <td>${entry.avg_points}</td>
+                            <td>${entry.match_days_played}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                loadingState.style.display = 'none';
+                
+                const tbody = document.getElementById('fantasyStandingsTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">
+                                <div style="font-size: 1.2rem; margin-bottom: 1rem;">⚠️ No Leaderboard Data</div>
+                                <div>No fantasy scores available yet. Player performance data needs to be added to calculate standings.</div>
+                            </td>
+                        </tr>
+                    `;
+                }
+                standingsTable.style.display = 'table';
+            }
+        }
+
+        // Player table functions
+        async function loadPlayersData() {
+            try {
+                const response = await api.getPlayers('na-15v15-summer-series');
+                
+                if (response && response.players && response.players.length > 0) {
+                    playersData = response.players.map(player => ({
+                        name: player.player_name,
+                        team: player.team_code,
+                        battles: player.battles_played || '0%',
+                        points: player.total_points || 0,
+                        avg: player.average_points || 0,
+                        picked: player.picked_percentage || '0%'
+                    }));
+                } else {
+                    playersData = getFallbackPlayers();
+                }
+            } catch (error) {
+                console.error('Error loading players:', error);
+                playersData = getFallbackPlayers();
+            }
+            
+            populatePlayersTable();
+        }
+
+        function populatePlayersTable() {
+            const tbody = document.getElementById('playersTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if (playersData.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">
+                        <div style="font-size: 1.2rem; margin-bottom: 1rem;">🚫 No Players Found</div>
+                        <div>Either the database is empty or there's a connection issue.</div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                return;
+            }
+
+            const teamFilter = document.getElementById('teamFilter');
+            const selectedTeam = teamFilter ? teamFilter.value : '';
+            const filteredPlayers = selectedTeam ? 
+                  playersData.filter(p => p.team === selectedTeam) : 
+                  playersData;
+
+            const currentRoster = getCurrentRoster();
+
+            filteredPlayers.forEach(player => {
+                const row = document.createElement('tr');
+                
+                let actionIcon = 'lock';
+                let actionClass = '';
+                let actionTitle = 'Rosters are locked';
+                
+                if (!isAuthenticated) {
+                    actionIcon = 'lock';
+                    actionClass = '';
+                    actionTitle = 'Please sign in to add players';
+                } else if (!isMatchDayLocked(currentMatchDay)) {
+                    if (currentRoster.includes(player.name)) {
+                        actionIcon = 'remove';
+                        actionClass = 'remove';
+                        actionTitle = 'Remove from roster';
+                    } else if (currentRoster.length < maxRosterSize) {
+                        actionIcon = 'add';
+                        actionClass = 'add';
+                        actionTitle = 'Add to roster';
+                    } else {
+                        actionIcon = 'lock';
+                        actionClass = '';
+                        actionTitle = 'Roster is full';
+                    }
+                } else {
+                    actionIcon = 'lock';
+                    actionClass = '';
+                    actionTitle = `Match Day ${currentMatchDay} deadline has passed`;
+                }
+
+                row.innerHTML = `
+                    <td class="action-column">
+                        <button class="player-action-btn ${actionClass}" 
+                                data-player="${player.name}" 
+                                title="${actionTitle}">
+                            <span class="material-icons">${actionIcon}</span>
+                        </button>
+                    </td>
+                    <td class="player-name">${player.name}</td>
+                    <td class="player-team">${player.team}</td>
+                    <td class="player-battles">${player.battles}</td>
+                    <td class="player-points">${parseFloat(player.points).toLocaleString()}</td>
+                    <td class="player-avg">${player.avg}</td>
+                    <td class="player-picked">${player.picked}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+
+            document.querySelectorAll('.player-action-btn').forEach(btn => {
+                btn.addEventListener('click', handlePlayerAction);
+            });
+        }
+
+        function handlePlayerAction(e) {
+            const playerName = e.currentTarget.dataset.player;
+            const button = e.currentTarget;
+            
+            if (!isAuthenticated) {
+                showNotification('Please sign in to manage your roster', 'error');
+                return;
+            }
+            
+            if (isMatchDayLocked(currentMatchDay)) {
+                showNotification(`Match Day ${currentMatchDay} roster deadline has passed`, 'error');
+                return;
+            }
+            
+            if (button.classList.contains('add')) {
+                addPlayerToRoster(playerName);
+            } else if (button.classList.contains('remove')) {
+                removePlayerFromRoster(playerName);
+            }
+        }
+
+        function addPlayerToRoster(playerName) {
+            if (!isAuthenticated) {
+                showNotification('Please sign in to add players to your roster', 'error');
+                return;
+            }
+
+            const currentRoster = getCurrentRoster();
+
+            if (currentRoster.length >= maxRosterSize) {
+                showNotification(`Roster is full (${maxRosterSize} players maximum)`, 'error');
+                return;
+            }
+            
+            if (currentRoster.includes(playerName)) {
+                showNotification('Player is already in your roster', 'error');
+                return;
+            }
+            
+            currentRoster.push(playerName);
+            setCurrentRoster(currentRoster);
+            updateRosterDisplay();
+            populatePlayersTable();
+            saveCurrentRoster();
+            
+            showNotification(`${playerName} added to Match Day ${currentMatchDay} roster`, 'success');
+        }
+
+        function removePlayerFromRoster(playerName) {
+            if (!isAuthenticated) {
+                showNotification('Please sign in to manage your roster', 'error');
+                return;
+            }
+
+            const currentRoster = getCurrentRoster();
+            const index = currentRoster.indexOf(playerName);
+            
+            if (index > -1) {
+                currentRoster.splice(index, 1);
+                setCurrentRoster(currentRoster);
+                updateRosterDisplay();
+                populatePlayersTable();
+                saveCurrentRoster();
+                
+                showNotification(`${playerName} removed from Match Day ${currentMatchDay} roster`, 'success');
+            }
+        }
+
+        function updateRosterDisplay() {
+            const rosterCount = document.getElementById('rosterCount');
+            const rosterList = document.getElementById('rosterList');
+            const rosterMessage = document.getElementById('rosterMessage');
+            
+            if (!rosterCount) return;
+            
+            const currentRoster = getCurrentRoster();
+            rosterCount.textContent = currentRoster.length;
+            
+            if (isAuthenticated && !isMatchDayLocked(currentMatchDay) && currentRoster.length > 0) {
+                if (rosterMessage) rosterMessage.style.display = 'none';
+                if (rosterList) {
+                    rosterList.style.display = 'block';
+                    rosterList.innerHTML = currentRoster.map(playerName => `
+                        <div class="roster-player">
+                            <span class="roster-player-name">${playerName}</span>
+                            <button class="roster-player-remove" 
+                                    onclick="removePlayerFromRoster('${playerName}')"
+                                    title="Remove player">
+                                <span class="material-icons" style="font-size: 1rem;">close</span>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                if (rosterMessage) {
+                    rosterMessage.style.display = 'block';
+                    if (!isAuthenticated) {
+                        rosterMessage.innerHTML = `Your roster is empty. Add players from the table above to build your fantasy team for Match Day ${currentMatchDay}.`;
+                    } else if (isMatchDayLocked(currentMatchDay)) {
+                        rosterMessage.innerHTML = `
+                            Match Day ${currentMatchDay} roster deadline has passed.
+                            <br><br>
+                            You can still set rosters for future match days using the tabs above.
+                        `;
+                    } else {
+                        rosterMessage.innerHTML = `Your roster is empty. Add players from the table above to build your fantasy team for Match Day ${currentMatchDay}.`;
+                    }
+                }
+                if (rosterList) rosterList.style.display = 'none';
+            }
+
+            updateRosterStatusIndicator();
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">
+                    <span class="material-icons">close</span>
+                </button>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: ${type === 'success' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)'};
+                color: white;
+                padding: 1rem;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                z-index: 10000;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(10px);
+                animation: slideInRight 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 4000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Tournament page loading...');
+            
+            try {
+                // Initialize basic components
+                currentMatchDay = getActiveMatchDay();
+                updateAuthUI();
+                initializeTabNavigation();
+                initializeMatchDayTabs();
+                updateMatchDayUI();
+                
+                // Loads data from backend
+                await loadPlayersData();
+                dataLoaded = true;
+                
+                // Updates displays
+                updateRosterDisplay();
+                
+                // Adds table sorting
+                document.querySelectorAll('.players-table .sortable').forEach(th => {
+                    th.addEventListener('click', () => {
+                        const column = th.dataset.sort;
+                        const currentDirection = th.classList.contains('asc') ? 'desc' : 'asc';
+                        
+                        document.querySelectorAll('.players-table .sortable').forEach(header => {
+                            header.classList.remove('asc', 'desc');
+                        });
+                        
+                        th.classList.add(currentDirection);
+                        sortTable(column, currentDirection);
+                    });
+                });
+                
+                // Adds filter functionality
+                const teamFilter = document.getElementById('teamFilter');
+                if (teamFilter) {
+                    teamFilter.addEventListener('change', () => {
+                        populatePlayersTable();
+                    });
+                }
+
+                // Button actions
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (this.textContent.includes('Set My Roster')) {
+                            if (!isAuthenticated) {
+                                showNotification('Please sign in to set your roster', 'error');
+                                return;
+                            }
+                            const playersTab = document.querySelector('[data-tab="players"]');
+                            if (playersTab) {
+                                playersTab.click();
+                            }
+                        }
+                    });
+                });
+
+                // Close dropdown listener
+                document.addEventListener('click', (e) => {
+                    const userMenu = document.getElementById('userMenu');
+                    if (userMenu && !userMenu.contains(e.target)) {
+                        document.getElementById('userDropdown').classList.remove('show');
+                    }
+                });
+
+                const matchDayFilter = document.getElementById('standingsMatchDayFilter');
+                if (matchDayFilter) {
+                    matchDayFilter.addEventListener('change', () => {
+                        loadFantasyLeaderboard();
+                    });
+                }
+                const bracketFilter = document.getElementById('standingsBracketFilter');
+                if (bracketFilter) {
+                    bracketFilter.addEventListener('change', () => {
+                        // Optionally, you can show/hide the match day filter based on bracketFilter value
+                        loadFantasyLeaderboard();
+                    });
+                }
+                
+                console.log('Tournament page fully loaded!');
+                
+            } catch (error) {
+                console.error('Error during page initialization:', error);
+            }
+        });
+
+        function sortTable(column, direction) {
+            playersData.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+                
+                if (column === 'points' || column === 'avg') {
+                    aVal = parseFloat(aVal);
+                    bVal = parseFloat(bVal);
+                } else if (column === 'picked' || column === 'battles') {
+                    aVal = parseFloat(aVal.replace('%', ''));
+                    bVal = parseFloat(bVal.replace('%', ''));
+                }
+                
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+            
+            populatePlayersTable();
+        }
+
+        // Make functions globally accessible
+        window.loadFantasyLeaderboard = loadFantasyLeaderboard;
+        window.removePlayerFromRoster = removePlayerFromRoster;
+        window.toggleUserDropdown = toggleUserDropdown;
+        window.handleLogout = handleLogout;
+        window.redirectToLogin = redirectToLogin;
+    </script>
+</body>
+</html>
