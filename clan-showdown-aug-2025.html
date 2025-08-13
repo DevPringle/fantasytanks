@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NA 15v15 Summer Series - WoT Fantasy</title>
+    <title>Clan Showdown - August 2025</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
     <style>
@@ -2063,7 +2063,7 @@
                 
                 for (let matchDay = 1; matchDay <= tournamentConfig.totalMatchDays; matchDay++) {
                     try {
-                        const response = await api.getRoster('na-15v15-summer-series', matchDay);
+                        const response = await api.getRoster('clan-showdown-aug-2025', matchDay);
                         if (response && response.roster && response.roster.length > 0) {
                             userRosters[matchDay] = response.roster;
                         }
@@ -2082,12 +2082,12 @@
 
         function loadRostersFromLocalStorage() {
             for (let i = 1; i <= tournamentConfig.totalMatchDays; i++) {
-                let saved = localStorage.getItem(`roster_na-15v15-summer-series_md${i}_demo`);
+                let saved = localStorage.getItem(`roster_clan-showdown-aug-2025_md${i}_demo`);
                 
                 if (!saved && i === 1) {
-                    saved = localStorage.getItem(`roster_na-15v15-summer-series_demo`);
+                    saved = localStorage.getItem(`roster_clan-showdown-aug-2025_demo`);
                     if (saved) {
-                        localStorage.setItem(`roster_na-15v15-summer-series_md1_demo`, saved);
+                        localStorage.setItem(`roster_clan-showdown-aug-2025_md1_demo`, saved);
                     }
                 }
                 
@@ -2110,10 +2110,10 @@
             const currentRoster = getCurrentRoster();
             
             try {
-                await api.saveRoster('na-15v15-summer-series', currentRoster, currentMatchDay);
+                await api.saveRoster('clan-showdown-aug-2025', currentRoster, currentMatchDay);
             } catch (error) {
                 console.error('Error saving roster:', error);
-                const localKey = `roster_na-15v15-summer-series_md${currentMatchDay}_demo`;
+                const localKey = `roster_clan-showdown-aug-2025_md${currentMatchDay}_demo`;
                 localStorage.setItem(localKey, JSON.stringify(currentRoster));
             }
         }
@@ -2130,7 +2130,7 @@
         
             try {
                 const matchDayFilter = document.getElementById('standingsMatchDayFilter')?.value || '';
-                const response = await api.getLeaderboard('na-15v15-summer-series', matchDayFilter || null);
+                const response = await api.getLeaderboard('clan-showdown-aug-2025', matchDayFilter || null);
         
                 loadingState.style.display = 'none';
                 standingsTable.style.display = 'table';
@@ -2170,7 +2170,7 @@
         // Player table functions
         async function loadPlayersData() {
             try {
-                const response = await api.getPlayers('na-15v15-summer-series');
+                const response = await api.getPlayers('clan-showdown-aug-2025');
                 
                 if (response && response.players && response.players.length > 0) {
                     playersData = response.players.map(player => ({
