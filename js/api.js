@@ -218,6 +218,13 @@ class FantasyAPI {
         }
     }
 
+    async getTournamentDetails(tournamentId) {
+        if (!tournamentId) {
+            throw new Error('Tournament ID is required');
+        }
+        return this.request(`/tournament/${tournamentId}`);
+    }
+    
     async getRoster(tournamentId, matchDay = 1) {
         return await this.request(`/roster?tournamentId=${tournamentId}&matchDay=${matchDay}`);
     }
