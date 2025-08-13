@@ -968,6 +968,22 @@ app.get('/api/tournaments', async (req, res) => {
   }
 });
 
+app.get('/api/tournament/:tournamentId', async (req, res) => {
+    const { tournamentId } = req.params;
+
+    try {
+        const result = await pool.query('SELECT * FROM tournaments WHERE id = $1', [tournamentId]);
+        if (result.rows.length > 0) {
+            res.json(result.rows[0]);
+        } else {
+            res.status(404).send('Tournament not found');
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
 app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
   try {
     const { tournamentId } = req.params;

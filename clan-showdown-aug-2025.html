@@ -2535,5 +2535,46 @@
         window.handleLogout = handleLogout;
         window.redirectToLogin = redirectToLogin;
     </script>
+    
+        <script type="text/javascript" src="api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to extract the tournament ID from the filename
+            function getTournamentIdFromUrl() {
+                const pathSegments = window.location.pathname.split('/');
+                const filename = pathSegments[pathSegments.length - 1];
+                return filename.replace('.html', '');
+            }
+
+            const tournamentId = getTournamentIdFromUrl();
+            const api = new FantasyAPI();
+
+            async function fetchAndRenderTournamentData(id) {
+                try {
+                    const tournamentData = await api.getTournamentDetails(id);
+                    console.log('Fetched data:', tournamentData);
+
+                    // Update the title and tournament name with the fetched data
+                    document.title = `${tournamentData.name} - WoT Fantasy`;
+                    document.querySelector('.tournament-name').textContent = tournamentData.name;
+                    
+                    // Update other tournament-specific data here.
+                    // For example:
+                    // document.getElementById('start-date').textContent = tournamentData.start_date;
+
+                } catch (error) {
+                    console.error('Error fetching tournament data:', error);
+                    // Handle the error by showing a default or not-found message
+                    document.querySelector('.tournament-name').textContent = "Tournament Not Found";
+                }
+            }
+
+            if (tournamentId) {
+                fetchAndRenderTournamentData(tournamentId);
+            } else {
+                console.error("Could not determine tournament ID from URL.");
+            }
+        });
+    </script>
 </body>
 </html>
