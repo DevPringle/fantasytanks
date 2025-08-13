@@ -282,23 +282,46 @@ async function initializeTables() {
       )
     `);
 
-    // Insert default tournament data
-    await pool.query(`
-      INSERT INTO tournaments (tournament_id, tournament_name, region, status, max_roster_size)
-      VALUES ('na-15v15-summer-series', 'NA 15v15 Summer Series', 'North America', 'active', 10)
-      ON CONFLICT (tournament_id) DO NOTHING
-    `);
-
-    for (const player of samplePlayers) {
-      await pool.query(`
-        INSERT INTO players (player_name, tournament_id, team_code, battles_played, total_points, average_points, picked_percentage)
-        VALUES ($1, 'na-15v15-summer-series', $2, '100%', $3, $4, $5)
-        ON CONFLICT (tournament_id, player_name) DO UPDATE SET
-          total_points = EXCLUDED.total_points,
-          average_points = EXCLUDED.average_points,
-          picked_percentage = EXCLUDED.picked_percentage
-      `, [player.name, player.team, player.points, player.avg, player.picked]);
+const tournamentsToSeed = [
+    {
+        id: 'na-15v15-summer-series',
+        name: 'NA 15v15 Summer Series',
+        region: 'North America',
+        status: 'active',
+        maxRosterSize: 10
+    },
+    {
+        id: 'clan-showdown-aug-2025',
+        name: 'Clan Showdown August 2025',
+        region: 'Global',
+        status: 'active',
+        maxRosterSize: 10
     }
+];
+
+// Loop through each tournament and insert it
+for (const tournament of tournamentsToSeed) {
+    await pool.query(`
+        INSERT INTO tournaments (tournament_id, tournament_name, region, status, max_roster_size)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (tournament_id) DO NOTHING
+    `, [tournament.id, tournament.name, tournament.region, tournament.status, tournament.maxRosterSize]);
+
+    // For the sample players, you'll need to decide which tournament they belong to.
+    // Assuming the sample players belong to the 'na-15v15-summer-series' for this example.
+    if (tournament.id === 'na-15v15-summer-series') {
+        for (const player of samplePlayers) {
+            await pool.query(`
+                INSERT INTO players (player_name, tournament_id, team_code, battles_played, total_points, average_points, picked_percentage)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                ON CONFLICT (tournament_id, player_name) DO UPDATE SET
+                    total_points = EXCLUDED.total_points,
+                    average_points = EXCLUDED.average_points,
+                    picked_percentage = EXCLUDED.picked_percentage
+            `, [player.name, tournament.id, player.team, '100%', player.points, player.avg, player.picked]);
+        }
+    }
+}
 
     console.log('Database tables initialized successfully');
   } catch (error) {
