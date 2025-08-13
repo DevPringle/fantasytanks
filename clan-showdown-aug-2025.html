@@ -2535,8 +2535,8 @@
                     console.log('Fetched data:', tournamentData);
 
                     // Update the title and tournament name with the fetched data
-                    document.title = `${tournamentData.name} - WoT Fantasy`;
-                    document.querySelector('.tournament-name').textContent = tournamentData.name;
+                    document.title = `${tournamentData.tournament_name} - WoT Fantasy`;
+                    document.querySelector('.tournament-name').textContent = tournamentData.tournament_name;
                     
                     // Update other tournament-specific data here.
                     // For example:
