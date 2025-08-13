@@ -445,10 +445,10 @@ app.post('/api/auth/register', async (req, res) => {
       });
     }
 
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' }); // This is the correct way
+}
 });
 
 app.get('/api/auth/verify-email/:token', async (req, res) => {
