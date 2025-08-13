@@ -1894,18 +1894,165 @@
 
             <!-- Teams Tab -->
             <div id="teams" class="tab-content">
-                <h2 class="section-title">
-                    <span class="material-icons">groups</span>
-                    Pro Team Rosters
-                </h2>
-                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">groups</span>
-                    <h3 style="margin-bottom: 1rem;">Pro Team Rosters Loading</h3>
-                    <p>Professional team rosters showing which players are available for fantasy drafting will be displayed here.</p>
+              <h2 class="section-title">
+                <span class="material-icons">groups</span>
+                Pro Team Rosters
+              </h2>
+              <div id="teamsContainer" class="teams-list-card-grid">
+                <!-- Example Team Card -->
+                <div class="team-card">
+                  <div class="team-header" onclick="toggleTeam('crakd')">
+                    <img src="images/teams/crakd.png" class="team-logo" alt="CRAKD logo">
+                    <div class="team-header-info">
+                      <div class="team-title">CRAKD</div>
+                      <div class="team-region">North America</div>
+                      <div class="team-qualification">Qualified from: NA Fantasy Cup</div>
+                    </div>
+                    <span class="material-icons team-expand-icon" id="expand-crakd">expand_more</span>
+                  </div>
+                  <div class="team-players-list" id="players-crakd">
+                    <ul>
+                      <li>Player1</li>
+                      <li>Player2</li>
+                      <li>Player3</li>
+                      <li>Player4</li>
+                      <li>Player5</li>
+                    </ul>
+                  </div>
                 </div>
+
+                <div class="team-card">
+                  <div class="team-header" onclick="toggleTeam('fines')">
+                    <img src="images/teams/fines.png" class="team-logo" alt="FINES logo">
+                    <div class="team-header-info">
+                      <div class="team-title">FINES</div>
+                      <div class="team-region">Europe</div>
+                      <div class="team-qualification">Qualified from: EU Closed Tournament</div>
+                    </div>
+                    <span class="material-icons team-expand-icon" id="expand-fines">expand_more</span>
+                  </div>
+                  <div class="team-players-list" id="players-fines">
+                    <ul>
+                      <li>PlayerA</li>
+                      <li>PlayerB</li>
+                      <li>PlayerC</li>
+                      <li>PlayerD</li>
+                      <li>PlayerE</li>
+                    </ul>
+                  </div>
+                </div>
+                <!-- Add more teams as needed -->
+              </div>
+              <style>
+                .teams-list-card-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+                  gap: 2.5rem;
+                  margin: 3rem 0 0;
+                }
+                .team-card {
+                  background: rgba(255,255,255,0.08);
+                  border: 1px solid rgba(255,255,255,0.09);
+                  border-radius: 18px;
+                  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+                  padding: 0;
+                  margin:0;
+                  overflow:hidden;
+                  transition: box-shadow 0.23s, border-color 0.23s;
+                }
+                .team-card:hover {
+                  box-shadow: 0 6px 28px rgba(0,212,255,0.13);
+                  border-color: #00bdd5;
+                }
+                .team-header {
+                  display: flex;
+                  align-items: center;
+                  gap: 1.75rem;
+                  padding: 1.6rem 2rem;
+                  cursor: pointer;
+                  user-select: none;
+                }
+                .team-logo {
+                  width: 54px;
+                  height: 54px;
+                  object-fit: contain;
+                  border-radius: 12px;
+                  box-shadow: 0 2px 12px rgba(0,212,255,0.10);
+                  background:#101620;
+                  flex-shrink:0;
+                  margin-right:.5rem;
+                  border: 1.5px solid rgba(0,212,255,0.13);
+                }
+                .team-header-info {
+                  flex: 1;
+                }
+                .team-title {
+                  font-weight: 700;
+                  font-size: 1.5rem;
+                  color: #fff;
+                  margin-bottom: 0.25rem;
+                }
+                .team-region {
+                  font-size: 1.06rem;
+                  color: #00d4ff;
+                  font-weight: 600;
+                }
+                .team-qualification {
+                  color: rgba(255,255,255,0.7);
+                  font-size:0.93rem;
+                  margin-top: 0.11rem;
+                }
+                .team-expand-icon {
+                  font-size: 2.75rem;
+                  color: #00d4ff;
+                  transition: transform 0.29s cubic-bezier(0.76,0,0.24,1);
+                  margin-left: 0.75rem;
+                }
+                .team-card.open .team-expand-icon {
+                  transform: rotate(180deg);
+                }
+                .team-players-list {
+                  display: none;
+                  background: rgba(20, 26, 37, 0.96);
+                  border-top: 1px solid rgba(0,212,255,0.09);
+                  padding: 1.4rem 2.2rem;
+                  animation: fadeIn 0.27s ease;
+                }
+                .team-card.open .team-players-list {
+                  display: block;
+                }
+                .team-players-list ul {
+                  margin:0;
+                  padding:0;
+                  list-style:none;
+                  columns: 2;
+                  column-gap:2rem;
+                  font-size:1.07rem;
+                }
+                .team-players-list li {
+                  padding: 0.25rem 0.15rem;
+                  color: #fff;
+                  margin-bottom:3px;
+                  border-radius: 4px;
+                  font-weight: 500;
+                }
+              </style>
+              <script>
+                function toggleTeam(teamId) {
+                  var card = document.querySelector('.team-card .team-header[onclick*="' + teamId + '"]').parentElement;
+                  card.classList.toggle('open');
+                  var expandIcon = document.getElementById('expand-'+teamId);
+                  if (card.classList.contains('open')) {
+                    expandIcon.textContent = 'expand_less';
+                  } else {
+                    expandIcon.textContent = 'expand_more';
+                  }
+                }
+              </script>
             </div>
 
             <!-- Stats Tab -->
+>
             <div id="stats" class="tab-content">
                 <h2 class="section-title">
                     <span class="material-icons">analytics</span>
