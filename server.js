@@ -1007,6 +1007,7 @@ app.get('/api/tournament/:tournamentId', async (req, res) => {
     }
 });
 
+
 app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
   try {
     const { tournamentId } = req.params;
