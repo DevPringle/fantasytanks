@@ -995,7 +995,7 @@ app.get('/api/tournament/:tournamentId', async (req, res) => {
     const { tournamentId } = req.params;
 
     try {
-        const result = await pool.query('SELECT * FROM tournaments WHERE id = $1', [tournamentId]);
+        const result = await pool.query('SELECT * FROM tournaments WHERE tournament_id = $1', [tournamentId]);
         if (result.rows.length > 0) {
             res.json(result.rows[0]);
         } else {
