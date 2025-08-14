@@ -396,9 +396,6 @@ class FantasyAPI {
             }
         });
 
-        // optionally redirect to login page if not already there
-        // this is handled by the calling context 'ex: updateAuthUI in na-15v15-summer-series.html'
-        // for example, updateAuthUI should check isAuthenticated and redirect if false.
     }
 
 
