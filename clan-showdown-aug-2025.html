@@ -1675,7 +1675,7 @@
                                     <td><span class="series-length">BO7</span></td>
                                     <td><span class="match-status upcoming">Upcoming</span></td>
                                 </tr>
-                                <!-- Add more matches as needed -->
+                              
                             </tbody>
                         </table>
                     </div>
@@ -1717,7 +1717,7 @@
                                     <td><span class="series-length">BO9</span></td>
                                     <td><span class="match-status upcoming">Upcoming</span></td>
                                 </tr>
-                                <!-- Add more matches as needed -->
+                          
                             </tbody>
                         </table>
                     </div>
@@ -1771,7 +1771,7 @@
                             </tr>
                         </thead>
                         <tbody id="fantasyStandingsTableBody">
-                            <!-- Standings populate here -->
+                         
                         </tbody>
                     </table>
                 </div>
@@ -2938,7 +2938,7 @@
                 const bracketFilter = document.getElementById('standingsBracketFilter');
                 if (bracketFilter) {
                     bracketFilter.addEventListener('change', () => {
-                        // Optionally, you can show/hide the match day filter based on bracketFilter value
+                    
                         loadFantasyLeaderboard();
                     });
                 }
@@ -3003,9 +3003,6 @@
                     document.title = `${tournamentData.tournament_name} - WoT Fantasy`;
                     document.querySelector('.tournament-name').textContent = tournamentData.tournament_name;
                     
-                    // Update other tournament-specific data here.
-                    // For example:
-                    // document.getElementById('start-date').textContent = tournamentData.start_date;
 
                 } catch (error) {
                     console.error('Error fetching tournament data:', error);
