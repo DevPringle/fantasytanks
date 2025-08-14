@@ -2428,22 +2428,19 @@
             
             tabs.forEach(tab => {
                 const matchDay = parseInt(tab.dataset.matchDay);
-                
+                // Always allow switching, just adjust UI for locked tabs
+                tab.onclick = () => switchMatchDay(matchDay);
                 if (isMatchDayLocked(matchDay)) {
                     tab.classList.add('locked');
                     tab.title = 'Roster deadline has passed';
                 } else {
-                    tab.addEventListener('click', () => switchMatchDay(matchDay));
+                    tab.classList.remove('locked');
+                    tab.title = '';
                 }
             });
         }
 
         function switchMatchDay(matchDay) {
-            if (isMatchDayLocked(matchDay)) {
-                showNotification(`Match Day ${matchDay} roster deadline has passed`, 'error');
-                return;
-            }
-
             currentMatchDay = matchDay;
             updateMatchDayUI();
             updateRosterDisplay();
