@@ -307,8 +307,6 @@ for (const tournament of tournamentsToSeed) {
         ON CONFLICT (tournament_id) DO NOTHING
     `, [tournament.id, tournament.name, tournament.region, tournament.status, tournament.maxRosterSize]);
 
-    // For the sample players, you'll need to decide which tournament they belong to.
-    // Assuming the sample players belong to the 'na-15v15-summer-series' for this example.
     if (tournament.id === 'na-15v15-summer-series') {
         for (const player of samplePlayers) {
             await pool.query(`
@@ -447,7 +445,7 @@ app.post('/api/auth/register', async (req, res) => {
 
 } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Internal server error' }); // This is the correct way
+    res.status(500).json({ error: 'Internal server error' }); 
 }
 });
 
