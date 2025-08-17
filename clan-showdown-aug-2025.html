@@ -2323,7 +2323,7 @@
                     statusClass: 'upcoming'
                 },
                 {
-                    utcTime: '2025-08-17T17:00:00Z', // Estimated time
+                    utcTime: '2025-08-16T16:15:00Z', // Estimated time
                     teams: ['MOTIVACIYA', 'INVIL'],
                     round: 'Semifinals',
                     seriesLength: 'BO9',
@@ -2331,7 +2331,7 @@
                     statusClass: 'upcoming'
                 },
                 {
-                    utcTime: '2025-08-17T19:00:00Z', // Estimated time
+                    utcTime: 'TBD', // Estimated time
                     teams: ['TBD', 'TBD'],
                     round: 'Grand Finals',
                     seriesLength: 'BO9',
@@ -2945,6 +2945,15 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('Tournament page loading...');
+
+            initializeLocalTimeDisplay();
+            
+            const scheduleTab = document.querySelector('[data-tab="schedule"]');
+            if (scheduleTab) {
+                scheduleTab.addEventListener('click', function() {
+                    setTimeout(initializeLocalTimeDisplay, 100);
+                });
+            }
             
             try {
                 // Initialize basic components
