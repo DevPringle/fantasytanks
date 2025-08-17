@@ -2383,29 +2383,7 @@
         }
 
         function initializeLocalTimeDisplay() {
-            // Add timezone info box to schedule section
-            const scheduleContent = document.getElementById('schedule');
-            if (scheduleContent) {
-                const timezoneInfo = document.createElement('div');
-                timezoneInfo.className = 'timezone-info';
-                timezoneInfo.style.cssText = `
-                    background: rgba(0, 212, 255, 0.1);
-                    border: 1px solid rgba(0, 212, 255, 0.3);
-                    border-radius: 8px;
-                    padding: 1rem;
-                    margin-bottom: 2rem;
-                    color: rgba(255, 255, 255, 0.9);
-                    font-size: 0.95rem;
-                    text-align: center;
-                `;
-                
-                // Insert after the section title
-                const sectionTitle = scheduleContent.querySelector('.section-title');
-                if (sectionTitle) {
-                    sectionTitle.insertAdjacentElement('afterend', timezoneInfo);
-                }
-            }
-            
+
             // Render matches for both days
             renderMatches('day1', 'day1-matches');
             renderMatches('day2', 'day2-matches');
