@@ -1640,36 +1640,8 @@
                                     <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>10:00 AM EST</td>
-                                    <td><span class="team-name">VORTEX</span> vs <span class="team-name">VULGUS</span></td>
-                                    <td>Quarterfinals</td>
-                                    <td><span class="series-length">BO9</span></td>
-                                    <td><span class="match-status upcoming">Final (4-2)</span></td>
-                                </tr>
-                                <tr>
-                                    <td>11:15 AM EST</td>
-                                    <td><span class="team-name">KYLIE</span> vs <span class="team-name">AURORA</span></td>
-                                    <td>Quarterfinals</td>
-                                    <td><span class="series-length">BO9</span></td>
-                                    <td><span class="match-status upcoming">Final (2-4)</span></td>
-                                </tr>
-                                <tr>
-                                    <td>12:30 PM EST</td>
-                                    <td><span class="team-name">CRAKD</span> vs <span class="team-name">MOTIVACIYA</span></td>
-                                    <td>Quarterfinals</td>
-                                    <td><span class="series-length">BO9</span></td>
-                                    <td><span class="match-status upcoming">Final (0-4)</span></td>
-                                </tr>
-                                <tr>
-                                    <td>1:45 PM EST</td>
-                                    <td><span class="team-name">INVIL</span> vs <span class="team-name">FINES</span></td>
-                                    <td>Quarterfinals</td>
-                                    <td><span class="series-length">BO9</span></td>
-                                    <td><span class="match-status upcoming">Final (4-0)</span></td>
-                                </tr>
-                              
+                            <tbody id="day1-matches">
+
                             </tbody>
                         </table>
                     </div>
@@ -1689,29 +1661,8 @@
                                     <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>10:00 AM EST</td>
-                                    <td><span class="team-name">VORTEX</span> vs <span class="team-name">AURORA</span></td>
-                                    <td>Semifinals</td>
-                                    <td><span class="series-length">BO9</span></td>
-                                    <td><span class="match-status upcoming">Upcoming</span></td>
-                                </tr>
-                                <tr>
-                                    <td>TBD</td>
-                                    <td><span class="team-name">MOTIVACIYA</span> vs <span class="team-name">INVIL</span></td>
-                                    <td>Semifinals</td>
-                                    <td><span class="series-length">BO9</span></td>
-                                    <td><span class="match-status upcoming">Upcoming</span></td>
-                                </tr>
-                                 <tr>
-                                    <td>TBD</td>
-                                    <td><span class="team-name">TBD</span> vs <span class="team-name">TBD</span></td>
-                                    <td>Grand Finals</td>
-                                    <td><span class="series-length">BO9</span></td>
-                                    <td><span class="match-status upcoming">Upcoming</span></td>
-                                </tr>
-                          
+                            <tbody id="day2-matches">
+
                             </tbody>
                         </table>
                     </div>
@@ -2326,6 +2277,144 @@
             }
         };
 
+                // Match schedule data with UTC timestamps
+        const matchSchedule = {
+            day1: [
+                {
+                    utcTime: '2025-08-16T15:00:00Z', // 10:00 AM EST = 15:00 UTC
+                    teams: ['VORTEX', 'VULGUS'],
+                    round: 'Quarterfinals',
+                    seriesLength: 'BO9',
+                    status: 'Final (4-2)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-08-16T16:15:00Z', // 11:15 AM EST = 16:15 UTC
+                    teams: ['KYLIE', 'AURORA'],
+                    round: 'Quarterfinals',
+                    seriesLength: 'BO9',
+                    status: 'Final (2-4)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-08-16T17:30:00Z', // 12:30 PM EST = 17:30 UTC
+                    teams: ['CRAKD', 'MOTIVACIYA'],
+                    round: 'Quarterfinals',
+                    seriesLength: 'BO9',
+                    status: 'Final (0-4)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-08-16T18:45:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['INVIL', 'FINES'],
+                    round: 'Quarterfinals',
+                    seriesLength: 'BO9',
+                    status: 'Final (4-0)',
+                    statusClass: 'completed'
+                }
+            ],
+            day2: [
+                {
+                    utcTime: '2025-08-17T15:00:00Z', // 10:00 AM EST = 15:00 UTC
+                    teams: ['VORTEX', 'AURORA'],
+                    round: 'Semifinals',
+                    seriesLength: 'BO9',
+                    status: 'Upcoming',
+                    statusClass: 'upcoming'
+                },
+                {
+                    utcTime: '2025-08-17T17:00:00Z', // Estimated time
+                    teams: ['MOTIVACIYA', 'INVIL'],
+                    round: 'Semifinals',
+                    seriesLength: 'BO9',
+                    status: 'Upcoming',
+                    statusClass: 'upcoming'
+                },
+                {
+                    utcTime: '2025-08-17T19:00:00Z', // Estimated time
+                    teams: ['TBD', 'TBD'],
+                    round: 'Grand Finals',
+                    seriesLength: 'BO9',
+                    status: 'Upcoming',
+                    statusClass: 'upcoming'
+                }
+            ]
+        }
+
+        function formatLocalTime(utcTimeString) {
+            if (utcTimeString === 'TBD') {
+                return 'TBD';
+            }
+            
+            const date = new Date(utcTimeString);
+            const options = {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+                timeZoneName: 'short'
+            };
+            return date.toLocaleTimeString([], options);
+        }
+
+        // Function to get user's timezone
+        function getUserTimezone() {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone;
+        }
+
+        // Function to render matches for a day
+        function renderMatches(dayKey, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const matches = matchSchedule[dayKey];
+            
+            container.innerHTML = matches.map(match => `
+                <tr>
+                    <td style="font-weight: 600; color: #00d4ff;">${formatLocalTime(match.utcTime)}</td>
+                    <td>
+                        <span class="team-name">${match.teams[0]}</span> vs 
+                        <span class="team-name">${match.teams[1]}</span>
+                    </td>
+                    <td>${match.round}</td>
+                    <td><span class="series-length">${match.seriesLength}</span></td>
+                    <td><span class="match-status ${match.statusClass}">${match.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function initializeLocalTimeDisplay() {
+            // Add timezone info box to schedule section
+            const scheduleContent = document.getElementById('schedule');
+            if (scheduleContent) {
+                const timezoneInfo = document.createElement('div');
+                timezoneInfo.className = 'timezone-info';
+                timezoneInfo.style.cssText = `
+                    background: rgba(0, 212, 255, 0.1);
+                    border: 1px solid rgba(0, 212, 255, 0.3);
+                    border-radius: 8px;
+                    padding: 1rem;
+                    margin-bottom: 2rem;
+                    color: rgba(255, 255, 255, 0.9);
+                    font-size: 0.95rem;
+                    text-align: center;
+                `;
+                timezoneInfo.innerHTML = `
+                    <span class="material-icons" style="font-size: 1.2rem; vertical-align: middle; margin-right: 0.5rem; color: #00d4ff;">schedule</span>
+                    All times shown in your local timezone: <strong>${getUserTimezone()}</strong>
+                `;
+                
+                // Insert after the section title
+                const sectionTitle = scheduleContent.querySelector('.section-title');
+                if (sectionTitle) {
+                    sectionTitle.insertAdjacentElement('afterend', timezoneInfo);
+                }
+            }
+            
+            // Render matches for both days
+            renderMatches('day1', 'day1-matches');
+            renderMatches('day2', 'day2-matches');
+        }
+        
         // Tab Navigation System
         function initializeTabNavigation() {
             const navTabs = document.querySelectorAll('.nav-tab');
