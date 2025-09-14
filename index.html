@@ -301,7 +301,8 @@
             display: flex;
             height: 100%;
             width: 100%;
-            transition: transform 14000ms cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform: translate3d(0, 0, 0);
+            transition: transform 1600ms cubic-bezier(0.16, 1, 0.3, 1);
             will-change: transform;
         }
 
@@ -313,6 +314,8 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
         }
 
         .hero-slide.active,
@@ -1671,42 +1674,66 @@
         function initHeroSlideshow() {
             const track = document.querySelector('.hero-track');
             const slides = track ? track.querySelectorAll('.hero-slide') : null;
-            if (!track || !slides || slides.length === 0) return;
+            const hero = document.querySelector('.hero');
+            if (!track || !slides || slides.length === 0 || !hero) return;
 
             let index = 0;
             let timer = null;
             let isSliding = false;
-            const DURATION = 1400; // keep in sync with CSS
-            const interval = 4000; // ms
+            let slideWidth = hero.getBoundingClientRect().width;
+            const DURATION = 1600; // keep in sync with CSS
+            const interval = 7000; // ms
 
-            function goTo(i) {
+            function applyTransform(immediate = false) {
+                const value = `translate3d(-${index * slideWidth}px, 0, 0)`;
+                if (immediate) {
+                    const prev = track.style.transition;
+                    track.style.transition = 'none';
+                    track.style.transform = value;
+                    void track.offsetWidth; // reflow
+                    track.style.transition = prev || '';
+                } else {
+                    track.style.transform = value;
+                }
+            }
+
+            function goTo(i, immediate = false) {
                 index = (i + slides.length) % slides.length;
-                track.style.transform = `translate3d(-${index * 100}%, 0, 0)`;
+                applyTransform(immediate);
             }
 
             function next() {
                 if (isSliding) return;
                 isSliding = true;
                 goTo(index + 1);
-                // Fallback in case transitionend is missed
                 setTimeout(() => { isSliding = false; }, DURATION + 120);
             }
-            function start() { stop(); timer = setInterval(next, interval); }
+
+            function start() {
+                stop();
+                if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                timer = setInterval(next, interval);
+            }
             function stop() { if (timer) { clearInterval(timer); timer = null; } }
 
-            // Initialize position
-            track.style.transform = 'translate3d(0, 0, 0)';
-
-            // Reset sliding flag on transition end to avoid abrupt jumps
+            // Initialize
+            goTo(0, true);
             track.addEventListener('transitionend', () => { isSliding = false; });
+
+            // Handle resize to keep pixel-based translation accurate
+            let resizeTO;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTO);
+                resizeTO = setTimeout(() => {
+                    slideWidth = hero.getBoundingClientRect().width;
+                    goTo(index, true);
+                }, 120);
+            });
 
             start();
 
-            const hero = document.querySelector('.hero');
-            if (hero) {
-                hero.addEventListener('mouseenter', stop);
-                hero.addEventListener('mouseleave', start);
-            }
+            hero.addEventListener('mouseenter', stop);
+            hero.addEventListener('mouseleave', start);
         }
 
         // Add some sample data loading simulation
