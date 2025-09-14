@@ -1711,7 +1711,6 @@
 
             function start() {
                 stop();
-                if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
                 timer = setInterval(next, interval);
             }
             function stop() { if (timer) { clearInterval(timer); timer = null; } }
@@ -1731,6 +1730,8 @@
             });
 
             start();
+            // Kick off a first visible slide shortly after load
+            setTimeout(next, 1200);
 
             hero.addEventListener('mouseenter', stop);
             hero.addEventListener('mouseleave', start);
