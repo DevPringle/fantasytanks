@@ -296,6 +296,13 @@ const tournamentsToSeed = [
         region: 'Global',
         status: 'active',
         maxRosterSize: 10
+    },
+    {
+        id: 'draft-cup-sept-2025',
+        name: 'Draft Cup - September 2025',
+        region: 'North America',
+        status: 'active',
+        maxRosterSize: 7
     }
 ];
 
