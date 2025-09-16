@@ -590,7 +590,12 @@ class FantasyAPI {
     }
 }
 
-const api = new FantasyAPI();
+(function (global) {
+    global.FantasyAPI = global.FantasyAPI || FantasyAPI;
+    if (!global.api) {
+        global.api = new FantasyAPI();
+    }
+})(typeof window !== 'undefined' ? window : globalThis);
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = FantasyAPI;
