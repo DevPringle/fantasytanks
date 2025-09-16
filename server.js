@@ -272,7 +272,7 @@ async function initializeTables() {
       CREATE TABLE IF NOT EXISTS players (
         player_name VARCHAR(100) NOT NULL,
         tournament_id VARCHAR(100) NOT NULL,
-        team_code VARCHAR(10) NOT NULL,
+        team_name VARCHAR(10) NOT NULL,
         battles_played VARCHAR(10) DEFAULT '0%',
         total_points DECIMAL(10,2) DEFAULT 0.00,
         average_points DECIMAL(10,2) DEFAULT 0.00,
@@ -317,7 +317,7 @@ for (const tournament of tournamentsToSeed) {
     if (tournament.id === 'na-15v15-summer-series') {
         for (const player of samplePlayers) {
             await pool.query(`
-                INSERT INTO players (player_name, tournament_id, team_code, battles_played, total_points, average_points, picked_percentage)
+                INSERT INTO players (player_name, tournament_id, team_name, battles_played, total_points, average_points, picked_percentage)
                 VALUES ($1, $2, $3, $4, $5, $6, $7)
                 ON CONFLICT (tournament_id, player_name) DO UPDATE SET
                     total_points = EXCLUDED.total_points,
@@ -1020,7 +1020,7 @@ app.get('/api/tournaments/:tournamentId/players', async (req, res) => {
     const result = await pool.query(`
       SELECT 
         p.player_name,
-        p.team_code,
+        p.team_name,
         p.battles_played,
         p.total_points,
         p.average_points,
