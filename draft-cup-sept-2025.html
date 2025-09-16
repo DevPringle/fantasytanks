@@ -2678,7 +2678,7 @@
                 if (response && response.players && response.players.length > 0) {
                     playersData = response.players.map(player => ({
                         name: player.player_name,
-                        team: player.team_code,
+                        team: player.team_name,
                         battles: player.battles_played || '0%',
                         points: player.total_points || 0,
                         avg: player.average_points || 0,
