@@ -21,7 +21,7 @@ class FantasyAPI {
 
             if (endpoint.includes('/roster') || endpoint.includes('/leaderboard/')) {
                 console.warn('Attempted to make authenticated request with invalid/expired token. Clearing data.');
-                this._clearAuthData(); // Clear data and potentially redirect
+                this._clearAuthData();
                 throw new Error('Authentication required or session expired. Please log in again.');
             }
         }
@@ -33,7 +33,7 @@ class FantasyAPI {
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
                     console.error('Server responded with 401/403. Token likely invalid/expired.');
-                    this._clearAuthData(); // Clear client-side data
+                    this._clearAuthData(); 
                     throw new Error(data.error || 'Authentication failed. Please log in again.');
                 }
                 throw new Error(data.error || 'API request failed');
@@ -173,7 +173,7 @@ class FantasyAPI {
 
     logout() {
         this._clearAuthData();
-        window.location.href = 'index.html'; // Redirect after logout
+        window.location.href = 'index.html'; 
     }
 
     isAuthenticated() {
@@ -195,7 +195,7 @@ class FantasyAPI {
             return true;
         } catch (error) {
             console.error('Error decoding or checking token expiry:', error);
-            this._clearAuthData(); // Clear data if there's a parsing error
+            this._clearAuthData(); // Clears data if there's a parsing error
             return false;
         }
     }
@@ -213,7 +213,7 @@ class FantasyAPI {
             return null; // Token invalid or expired, return null
         } catch (error) {
             console.error('Error parsing user data or token:', error);
-            this._clearAuthData(); // Clear data if there's a parsing error
+            this._clearAuthData(); // Clears data if there's a parsing error
             return null;
         }
     }
@@ -388,7 +388,7 @@ class FantasyAPI {
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
 
-        // Also clear any roster data that might be tied to the old session
+        // clears any roster data that might be tied to the old session
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
             if (key.startsWith('roster_')) {
