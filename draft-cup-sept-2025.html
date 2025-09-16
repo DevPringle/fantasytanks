@@ -1440,7 +1440,7 @@
                             <span class="status-badge" id="rosterStatus">Rosters Open</span>
                             <div class="cutoff-timer" id="cutoffTimer" style="display: none;">
                                 <span class="material-icons">schedule</span>
-                                <span id="timeRemaining">96:00:00/span>
+                                <span id="timeRemaining">96:00:00</span>
                             </div>
                         </div>
 
@@ -1802,7 +1802,7 @@
                         <span class="material-icons">people</span>
                         Fantasy Player Pool
                         <span id="currentMatchDayDisplay" style="color: #00d4ff; font-size: 1rem; margin-left: 1rem;">
-                            (Saturday, August 16)
+                            (Match Day 1)
                         </span>
                     </h2>
                     <div class="players-filters">
@@ -2265,9 +2265,9 @@
         const tournamentConfig = {
             totalMatchDays: 3,
             rosterCutoffs: {
-                1: new Date('2025-08-20T00:00:00Z'),
-                2: new Date('2025-08-21T00:00:00Z'),
-                3: new Date('2025-08-22T00:00:00Z')
+                1: new Date('2025-09-19T00:00:00Z'),
+                2: new Date('2025-09-20T00:00:00Z'),
+                3: new Date('2025-09-21T00:00:00Z')
             }
         };
 
@@ -2378,8 +2378,8 @@
         }
 
         function initializeLocalTimeDisplay() {
-
-            // Render matches for both days
+            if (typeof matchSchedule === 'undefined') { return; }
+            // Render matches for all available days
             renderMatches('day1', 'day1-matches');
             renderMatches('day2', 'day2-matches');
             renderMatches('day3', 'day3-matches');
@@ -2928,7 +2928,7 @@
             console.log('Tournament page loading...');
 
             initializeLocalTimeDisplay();
-            
+                        
             const scheduleTab = document.querySelector('[data-tab="schedule"]');
             if (scheduleTab) {
                 scheduleTab.addEventListener('click', function() {
