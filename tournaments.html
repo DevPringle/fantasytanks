@@ -1151,15 +1151,15 @@
                 </div>
 
                 <div class="tournament-grid active" id="liveGrid">
-                    <div class="tournament-card" data-tournament="na-15v15-summer-series">
+                    <div class="tournament-card" data-tournament="na-15v15-summer-series" data-phase="completed">
                         <div class="tournament-header">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                                     <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">emoji_events</span>
                                     <h3 class="tournament-title" style="margin: 0;">NA 15v15 Summer Series</h3>
-                                </div>
-                            </div>
-                            <span class="tournament-status status-live">Live Scoring</span>
+                                    </div>
+                                    </div>
+                                    <span class="tournament-status status-completed">Completed</span>
                         </div>
                         <div class="tournament-meta">
                             <div class="meta-item">
@@ -1198,7 +1198,55 @@
                         </div>
                     </div>
 
-                    <div class="tournament-card" data-tournament="clan-showdown-aug-2025">
+                    <div class="tournament-card" data-tournament="clan-showdown-aug-2025" data-phase="completed">
+                        <div class="tournament-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span class="material-icons" style="color: #00d4ff; font-size: 1.3rem;">workspace_premium</span>
+                                    <h3 class="tournament-title" style="margin: 0;">Clan Showdown - August 2025</h3>
+                                    </div>
+                                    </div>
+                                    <span class="tournament-status status-completed">Completed</span>
+                        </div>
+                        <div class="tournament-meta">
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">public</span>
+                                Global
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">groups</span>
+                                Pick 10 Players
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">sports_esports</span>
+                                0 Fantasy Teams
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons meta-icon">schedule</span>
+                                Playoffs
+                            </div>
+                        </div>
+                        <p class="tournament-description">Witness the best 15v15 teams from around the world go head-to-head on August 16 and 17 in the AMD Clan Showdown playoffs!</p>
+                        <div class="tournament-progress">
+                            <div class="progress-label">
+                                <span>Tournament Progress</span>
+                                <span>70%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 70%;"></div>
+                            </div>
+                        </div>
+                        <div class="tournament-footer">
+                            <span class="fantasy-teams">0 Fantasy Teams</span>
+                            <a href="clan-showdown-aug-2025.html" class="action-btn">
+                                <span class="material-icons" style="font-size: 1rem;">visibility</span>
+                                View Tournament
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Live reference copy of Clan Showdown -->
+                    <div class="tournament-card" data-tournament="clan-showdown-aug-2025" data-phase="live">
                         <div class="tournament-header">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -1286,8 +1334,8 @@
                     </div>
                 </div>
 
-                <div class="tournament-grid active">
-                    <div class="tournament-card" data-tournament="summer-championship-2025">
+                <div class="tournament-grid active" id="upcomingGrid">
+                    <div class="tournament-card" data-tournament="summer-championship-2025" data-phase="upcoming">
                         <div class="tournament-header">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -1334,7 +1382,7 @@
                         </div>
                     </div>
 
-                    <div class="tournament-card" data-tournament="russian-federation-cup-2025">
+                    <div class="tournament-card" data-tournament="russian-federation-cup-2025" data-phase="upcoming">
                         <div class="tournament-header">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -1381,7 +1429,7 @@
                         </div>
                     </div>
 
-                    <div class="tournament-card" data-tournament="world-championship-qualifier-2025">
+                    <div class="tournament-card" data-tournament="world-championship-qualifier-2025" data-phase="upcoming">
                         <div class="tournament-header">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -1428,6 +1476,30 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Completed Tournaments -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-icons" style="color: #9ca3af; margin-right: 0.5rem;">check_circle</span>
+                        Completed Fantasy Tournaments
+                        <span class="section-count">0</span>
+                    </h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">grid_view</span>Grid
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <span class="material-icons" style="font-size: 1rem; margin-right: 0.3rem;">view_list</span>List
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tournament-grid active" id="completedGrid">
+                                    </div>
+
+                <div class="tournament-list" id="completedList"></div>
             </div>
         </section>
     </main>
@@ -1704,6 +1776,58 @@
             });
         }
 
+        // Organize cards into sections based on data-phase or status class
+        function organizeTournaments() {
+            const liveGrid = document.getElementById('liveGrid');
+            const upcomingGrid = document.getElementById('upcomingGrid');
+            const completedGrid = document.getElementById('completedGrid');
+            if (!liveGrid || !upcomingGrid || !completedGrid) return;
+
+            const allCards = Array.from(document.querySelectorAll('.tournament-card'));
+
+            // Clear target grids
+            liveGrid.innerHTML = '';
+            upcomingGrid.innerHTML = '';
+            completedGrid.innerHTML = '';
+
+            allCards.forEach(card => {
+                let phase = (card.dataset.phase || '').toLowerCase();
+                if (!phase) {
+                    const statusEl = card.querySelector('.tournament-status');
+                    if (statusEl) {
+                        if (statusEl.classList.contains('status-live')) phase = 'live';
+                        else if (statusEl.classList.contains('status-upcoming')) phase = 'upcoming';
+                        else if (statusEl.classList.contains('status-completed')) phase = 'completed';
+                    }
+                }
+
+                switch (phase) {
+                    case 'live':
+                        liveGrid.appendChild(card);
+                        break;
+                    case 'completed':
+                    case 'past':
+                        completedGrid.appendChild(card);
+                        break;
+                    case 'upcoming':
+                    default:
+                        upcomingGrid.appendChild(card);
+                        break;
+                }
+            });
+        }
+
+        function updateSectionCounts() {
+            document.querySelectorAll('.section').forEach(section => {
+                const grid = section.querySelector('.tournament-grid');
+                const countEl = section.querySelector('.section-count');
+                if (grid && countEl) {
+                    const count = grid.querySelectorAll('.tournament-card').length;
+                    countEl.textContent = count;
+                }
+            });
+        }
+
         // Tournament Navigation Function
         function navigateToTournament(tournamentId) {
             // Maps tournament IDs to their detail pages
@@ -1730,6 +1854,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             // updates auth UI
             updateAuthUI();
+            // organize tournaments into sections based on data-phase
+            organizeTournaments();
+            updateSectionCounts();
             
             // click handlers for tournament cards
             document.querySelectorAll('.tournament-card').forEach(card => {
