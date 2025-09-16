@@ -2437,7 +2437,9 @@
         }
 
         function handleLogout() {
-            api.logout();
+            if (window.api && typeof window.api.logout === 'function') {
+                window.api.logout();
+            }
         }
 
         function toggleUserDropdown() {
@@ -2450,13 +2452,14 @@
             const userMenu = document.getElementById('userMenu');
             const authOverlay = document.getElementById('authOverlay');
             
-            if (api.isAuthenticated()) {
+            const hasApi = window.api && typeof window.api.isAuthenticated === 'function';
+            if (hasApi && window.api.isAuthenticated()) {
                 isAuthenticated = true;
-                const user = api.getCurrentUser();
+                const user = window.api.getCurrentUser();
                 
                 signInBtn.style.display = 'none';
                 userMenu.style.display = 'block';
-                document.getElementById('username').textContent = user.username;
+                document.getElementById('username').textContent = user?.username || '';
                 if (authOverlay) authOverlay.style.display = 'none';
                 
                 loadAllUserRosters();
@@ -3064,7 +3067,7 @@
         window.redirectToLogin = redirectToLogin;
     </script>
     
-        <script type="text/javascript" src="js/api.js"></script>
+        <script src="js/api.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Function to extract the tournament ID from the filename
@@ -3075,7 +3078,7 @@
             }
 
             const tournamentId = getTournamentIdFromUrl();
-            const detailsApi = window.api || new FantasyAPI();
+            const detailsApi = window.api || (typeof FantasyAPI !== 'undefined' ? new FantasyAPI() : null);
 
             async function fetchAndRenderTournamentData(id) {
                 try {
@@ -3094,8 +3097,10 @@
                 }
             }
 
-            if (tournamentId) {
+            if (tournamentId && detailsApi) {
                 fetchAndRenderTournamentData(tournamentId);
+            } else if (!detailsApi) {
+                console.error("API client not available; skipping details fetch.");
             } else {
                 console.error("Could not determine tournament ID from URL.");
             }
