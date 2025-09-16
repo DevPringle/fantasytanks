@@ -2260,6 +2260,8 @@
         let maxRosterSize = 7;
         let isAuthenticated = false;
         let dataLoaded = false;
+        // Global API instance reference for this page
+        var api;
 
         // Tournament configuration
         const tournamentConfig = {
@@ -2362,6 +2364,10 @@
             if (!container) return;
             
             const matches = matchSchedule[dayKey];
+            if (!matches || !Array.isArray(matches) || matches.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
             
             container.innerHTML = matches.map(match => `
                 <tr>
@@ -2379,10 +2385,10 @@
 
         function initializeLocalTimeDisplay() {
             if (typeof matchSchedule === 'undefined') { return; }
-            // Render matches for all available days
-            renderMatches('day1', 'day1-matches');
-            renderMatches('day2', 'day2-matches');
-            renderMatches('day3', 'day3-matches');
+            // Render matches only for containers that exist
+            if (document.getElementById('day1-matches')) renderMatches('day1', 'day1-matches');
+            if (document.getElementById('day2-matches')) renderMatches('day2', 'day2-matches');
+            if (document.getElementById('day3-matches')) renderMatches('day3', 'day3-matches');
         }
         
         // Tab Navigation System
@@ -2927,6 +2933,12 @@
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('Tournament page loading...');
 
+            // Ensure a global API client is available for auth/UI logic
+            if (typeof FantasyAPI !== 'undefined' && !window.api) {
+                window.api = new FantasyAPI();
+            }
+            api = window.api;
+
             initializeLocalTimeDisplay();
                         
             const scheduleTab = document.querySelector('[data-tab="schedule"]');
@@ -3063,11 +3075,11 @@
             }
 
             const tournamentId = getTournamentIdFromUrl();
-            const api = new FantasyAPI();
+            const detailsApi = window.api || new FantasyAPI();
 
             async function fetchAndRenderTournamentData(id) {
                 try {
-                    const tournamentData = await api.getTournamentDetails(id);
+                    const tournamentData = await detailsApi.getTournamentDetails(id);
                     console.log('Fetched data:', tournamentData);
 
                     // Update the title and tournament name with the fetched data
