@@ -1360,6 +1360,32 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+
+        .discord-sidebar {
+            position: fixed;
+            left: max(2rem, calc((100vw - 1400px) / 2 + 20px));
+            top: 50%;
+            transform: translateY(-50%);
+            transform-origin: right center;
+            width: 300px;
+            z-index: 1000;
+        }
+        .discord-iframe {
+            width: 100%;
+            height: 380px;
+            border: 0;
+            border-radius: 12px;
+            background: transparent;
+        }
+        @media (max-width: 1200px) {
+            .discord-sidebar { display: none; }
+        }
+
+        .compact-card { padding: 1.25rem; }
+        .compact-card .section-subtitle { margin-bottom: 0.5rem; }
+        .compact-card .teams-list .team-item { padding: 0.75rem 0.75rem; }
+        .compact-card .activity-list .activity-item { padding: 0.75rem 0; }
+        .compact-card .discord-iframe { height: 320px; }
     </style>
 </head>
 <body>
@@ -1559,7 +1585,7 @@
                     </div>
 
                     <div class="overview-sidebar">
-                        <div class="sidebar-card">
+                        <div class="sidebar-card compact-card">
                             <h3 class="section-subtitle">
                                 <span class="material-icons">emoji_events</span>
                                 Top Fantasy Teams
@@ -1586,24 +1612,10 @@
                                     </div>
                                     <span class="team-score"></span>
                                 </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">4</span>
-                                        <span class="team-name"></span>
-                                    </div>
-                                    <span class="team-score"></span>
-                                </li>
-                                <li class="team-item">
-                                    <div class="team-info">
-                                        <span class="team-rank">5</span>
-                                        <span class="team-name"></span>
-                                    </div>
-                                    <span class="team-score"></span>
-                                </li>
                             </ul>
                         </div>
 
-                        <div class="sidebar-card">
+                        <div class="sidebar-card compact-card">
                             <h3 class="section-subtitle">
                                 <span class="material-icons">notifications</span>
                                 Recent Activity
@@ -1639,6 +1651,18 @@
                                 </li>
                             </ul>
                         </div>
+                        <div class="sidebar-card compact-card" id="discordSidebarCard">
+                            <h3 class="section-subtitle">
+                                <span class="material-icons">group</span>
+                                Community Discord
+                            </h3>
+                            <iframe id="discordWidgetIframe" class="discord-iframe" title="Discord server widget" loading="lazy" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+                            <div id="discordWidgetStatus" style="margin-top:0.5rem; color: rgba(255,255,255,0.65); font-size: 0.85rem;"></div>
+                            <a href="https://www.discord.gg/57teqfx9Yg" target="_blank" rel="noopener" class="action-btn secondary discord-join-btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                                <span class="material-icons">group_add</span>
+                                Join Server
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1672,7 +1696,7 @@
                         </table>
                     </div>
                     <!-- MATCH DAY 2 -->
-                    <div class="sidebar-card schedule-day-card">
+                    <div class="sidebar-card schedule-day-card" style="margin-bottom: 2rem;"></div>
                         <h3 class="section-subtitle schedule-day-title" style="margin-bottom:1rem;">
                             <span class="material-icons">event</span>
                             Saturday, September 20
@@ -2232,7 +2256,7 @@
                 </div>
             </div>
         </section>
-    </main>
+            </main>
 
     <footer class="footer">
         <div class="container">
@@ -2260,8 +2284,72 @@
         let maxRosterSize = 7;
         let isAuthenticated = false;
         let dataLoaded = false;
-        // Global API instance reference for this page
+
         var api;
+
+        const DISCORD_SERVER_ID = '1382054719102390354'; 
+        const DISCORD_INVITE_CODE = '57teqfx9Yg';
+
+        function initializeDiscordWidget() {
+            const iframe = document.getElementById('discordWidgetIframe');
+            if (!iframe) return;
+
+            const serverId = (typeof window.DISCORD_SERVER_ID === 'string' && window.DISCORD_SERVER_ID.trim())
+                ? window.DISCORD_SERVER_ID.trim()
+                : (typeof DISCORD_SERVER_ID === 'string' && DISCORD_SERVER_ID.trim() ? DISCORD_SERVER_ID.trim() : null);
+
+            if (serverId) {
+                iframe.src = `https://discord.com/widget?id=${serverId}&theme=dark`;
+                iframe.setAttribute('sandbox', 'allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts');
+            }
+
+            const joinBtns = document.querySelectorAll('.discord-join-btn');
+            joinBtns.forEach(btn => {
+                const current = btn.getAttribute('href') || '';
+                if (!/discord\.gg/.test(current)) {
+                    btn.href = DISCORD_INVITE_CODE ? `https://discord.gg/${DISCORD_INVITE_CODE}` : 'https://discord.com/invite';
+                }
+            });
+        }
+
+        function positionDiscordSidebar() {
+            const sidebar = document.querySelector('.discord-sidebar');
+            const container = document.querySelector('.container');
+            if (!sidebar || !container) return;
+
+
+            let baseWidth = sidebar.dataset.baseWidth ? parseFloat(sidebar.dataset.baseWidth) : 0;
+            if (!baseWidth || isNaN(baseWidth)) {
+                baseWidth = sidebar.offsetWidth || 300;
+                sidebar.dataset.baseWidth = String(baseWidth);
+            }
+
+            const rect = container.getBoundingClientRect();
+            const vw = window.innerWidth || document.documentElement.clientWidth || 1920;
+
+            const gutter = vw >= 1800 ? 48 : vw >= 1600 ? 40 : vw >= 1366 ? 28 : 20;
+            const edgePad = 12;
+            const minScale = 0.85;
+
+            const available = rect.left - gutter - edgePad;
+
+            let scale = 1;
+            if (available < baseWidth) {
+                scale = Math.max(minScale, available / baseWidth);
+            }
+
+            if (available < baseWidth * minScale - 1) {
+                sidebar.style.display = 'none';
+                return;
+            }
+
+            sidebar.style.display = '';
+
+            const scaledWidth = baseWidth * scale;
+            const left = Math.round(rect.left - scaledWidth - gutter);
+            sidebar.style.left = left + 'px';
+            sidebar.style.transform = `translateY(-50%) scale(${scale})`;
+        }
 
         // Tournament configuration
         const tournamentConfig = {
@@ -2277,61 +2365,327 @@
         const matchSchedule = {
             day1: [
                 {
-                    utcTime: '2025-08-16T14:00:00Z', // 10:00 AM EST = 15:00 UTC
-                    teams: ['VORTEX', 'VULGUS'],
-                    round: 'Quarterfinals',
-                    seriesLength: 'BO9',
-                    status: 'Final (4-2)',
+                    utcTime: '2025-09-20T00:00:00Z', // 10:00 AM EST = 15:00 UTC
+                    teams: ['TEAM', 'DOGS'],
+                    round: 'Groups - Round 1',
+                    seriesLength: 'BO5',
+                    status: 'Final (1-3)',
                     statusClass: 'completed'
                 },
                 {
-                    utcTime: '2025-08-16T15:15:00Z', // 11:15 AM EST = 16:15 UTC
-                    teams: ['KYLIE', 'AURORA'],
-                    round: 'Quarterfinals',
-                    seriesLength: 'BO9',
-                    status: 'Final (2-4)',
+                    utcTime: '2025-09-20T00:00:00Z', // 11:15 AM EST = 16:15 UTC
+                    teams: ['Team Bye', 'Gym Class'],
+                    round: 'Groups - Round 1',
+                    seriesLength: 'BO5',
+                    status: 'Final (0-3)',
                     statusClass: 'completed'
                 },
                 {
-                    utcTime: '2025-08-16T16:30:00Z', // 12:30 PM EST = 17:30 UTC
-                    teams: ['CRAKD', 'MOTIVACIYA'],
-                    round: 'Quarterfinals',
-                    seriesLength: 'BO9',
-                    status: 'Final (0-4)',
+                    utcTime: '2025-09-20T00:00:00Z', // 12:30 PM EST = 17:30 UTC
+                    teams: ['ANIMAL CONTROL', 'BANANA'],
+                    round: 'Groups - Round 1',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-0)',
                     statusClass: 'completed'
                 },
                 {
-                    utcTime: '2025-08-16T17:45:00Z', // 1:45 PM EST = 18:45 UTC
-                    teams: ['INVIL', 'FINES'],
-                    round: 'Quarterfinals',
-                    seriesLength: 'BO9',
-                    status: 'Final (4-0)',
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['UNDERDOGS', 'BASED'],
+                    round: 'Groups - Round 1',
+                    seriesLength: 'BO5',
+                    status: 'Final (1-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BRIDGE', 'DOGS'],
+                    round: 'Groups - Round 2',
+                    seriesLength: 'BO5',
+                    status: 'Final (2-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['TEAM', 'GYM CLASS'],
+                    round: 'Groups - Round 2',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-2)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['TEAM BYE', 'ANIMAL CONTROL'],
+                    round: 'Groups - Round 2',
+                    seriesLength: 'BO5',
+                    status: 'Final (0-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['UNDERDOGS', 'BANANA'],
+                    round: 'Groups - Round 2',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-2)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['UNDERDOGS', 'TEAM BYE'],
+                    round: 'Groups - Round 3',
+                    seriesLength: 'BO5',
+                    status: 'Final (2-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['TEAM', 'ANIMAL CONTROL'],
+                    round: 'Groups - Round 3',
+                    seriesLength: 'BO5',
+                    status: 'Final (1-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['DOGS', 'GYM CLASS'],
+                    round: 'Groups - Round 3',
+                    seriesLength: 'BO5',
+                    status: 'Final (0-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BRIDGE', 'BASED'],
+                    round: 'Groups - Round 3',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-2)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['TEAM', 'UNDERDOGS'],
+                    round: 'Groups - Round 4',
+                    seriesLength: 'BO5',
+                    status: 'Final (1-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['DOGS', 'ANIMAL CONTROL'],
+                    round: 'Groups - Round 4',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-1)',
+                    statusClass: 'completed'
+                }, 
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BASED', 'BANANA'],
+                    round: 'Groups - Round 4',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-2)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-20T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BRIDGE', 'GYM CLASS'],
+                    round: 'Groups - Round 4',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-2)',
                     statusClass: 'completed'
                 }
             ],
             day2: [
                 {
-                    utcTime: '2025-08-17T14:00:00Z', // 10:00 AM EST = 15:00 UTC
-                    teams: ['VORTEX', 'AURORA'],
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['GYM CLASS', 'ANIMAL CONTROL'],
+                    round: 'Groups - Round 5',
+                    seriesLength: 'BO5',
+                    status: 'Final (2-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['DOGS', 'UNDERDOGS'],
+                    round: 'Groups - Round 5',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-1)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BASED', 'TEAM BYE'],
+                    round: 'Groups - Round 5',
+                    seriesLength: 'BO5',
+                    status: 'Final (1-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BRIDGE', 'BANANA'],
+                    round: 'Groups - Round 5',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-2)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BRIDGE', 'ANIMAL CONTROL'],
+                    round: 'Groups - Round 6',
+                    seriesLength: 'BO5',
+                    status: 'Final (2-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['GYM CLASS', 'UNDERDOGS'],
+                    round: 'Groups - Round 6',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-0)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BASED', 'TEAM'],
+                    round: 'Groups - Round 6',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-1)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BANANA', 'TEAM BYE'],
+                    round: 'Groups - Round 6',
+                    seriesLength: 'BO5',
+                    status: 'Final (2-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['ANIMAL CONTROL', 'UNDERDOGS'],
+                    round: 'Groups - Round 7',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-0)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BASED', 'DOGS'],
+                    round: 'Groups - Round 7',
+                    seriesLength: 'BO5',
+                    status: 'Final (0-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BANANA', 'TEAM'],
+                    round: 'Groups - Round 7',
+                    seriesLength: 'BO5',
+                    status: 'Final (0-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BRIDGE', 'TEAM BYE'],
+                    round: 'Groups - Round 7',
+                    seriesLength: 'BO5',
+                    status: 'Final (2-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['GYM CLASS', 'BASED'],
+                    round: 'Groups - Round 8',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-1)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BANANA', 'DOGS'],
+                    round: 'Groups - Round 8',
+                    seriesLength: 'BO5',
+                    status: 'Final (0-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['TEAM BYE', 'TEAM'],
+                    round: 'Groups - Round 8',
+                    seriesLength: 'BO5',
+                    status: 'Final (0-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BRIDGE', 'UNDERDOGS'],
+                    round: 'Groups - Round 8',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-1)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BANANA', 'GYM CLASS'],
+                    round: 'Groups - Round 9',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-2)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['ANIMAL CONTROL', 'BASED'],
+                    round: 'Groups - Round 9',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-1)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['TEAM BYE', 'DOGS'],
+                    round: 'Groups - Round 9',
+                    seriesLength: 'BO5',
+                    status: 'Final (1-3)',
+                    statusClass: 'completed'
+                },
+                {
+                    utcTime: '2025-09-21T00:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['BRIDGE', 'TEAM'],
+                    round: 'Groups - Round 9',
+                    seriesLength: 'BO5',
+                    status: 'Final (3-2)',
+                    statusClass: 'completed'
+                }
+            ],
+            day3: [
+                {
+                    utcTime: '2025-09-21T23:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['ANIMAL CONTROL', 'BRIDGE'],
                     round: 'Semifinals',
-                    seriesLength: 'BO9',
-                    status: 'Upcoming',
+                    seriesLength: 'BO7',
+                    status: 'TBD',
                     statusClass: 'upcoming'
                 },
                 {
-                    utcTime: '2025-08-16T15:15:00Z', // Estimated time
-                    teams: ['MOTIVACIYA', 'INVIL'],
+                    utcTime: '2025-09-21T23:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['DOGS', 'GYM CLASS ZEROS'],
                     round: 'Semifinals',
-                    seriesLength: 'BO9',
-                    status: 'Upcoming',
+                    seriesLength: 'BO7',
+                    status: 'TBD',
                     statusClass: 'upcoming'
                 },
                 {
-                    utcTime: 'TBD', // Estimated time
+                    utcTime: '2025-09-21T23:00:00Z', // 1:45 PM EST = 18:45 UTC
                     teams: ['TBD', 'TBD'],
-                    round: 'Grand Finals',
+                    round: 'Third Place Match',
+                    seriesLength: 'BO7',
+                    status: 'TBD',
+                    statusClass: 'upcoming'
+                },
+                {
+                    utcTime: '2025-09-21T23:00:00Z', // 1:45 PM EST = 18:45 UTC
+                    teams: ['TBD', 'TBD'],
+                    round: 'Grand Final',
                     seriesLength: 'BO9',
-                    status: 'Upcoming',
+                    status: 'TBD',
                     statusClass: 'upcoming'
                 }
             ]
@@ -2385,7 +2739,6 @@
 
         function initializeLocalTimeDisplay() {
             if (typeof matchSchedule === 'undefined') { return; }
-            // Render matches only for containers that exist
             if (document.getElementById('day1-matches')) renderMatches('day1', 'day1-matches');
             if (document.getElementById('day2-matches')) renderMatches('day2', 'day2-matches');
             if (document.getElementById('day3-matches')) renderMatches('day3', 'day3-matches');
@@ -2401,11 +2754,11 @@
                     
                     const targetTab = this.dataset.tab;
                     
-                    // Removes active from all tabs and contents
+
                     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                     
-                    // Adds active to current tab and content
+ 
                     this.classList.add('active');
                     
                     const targetContent = document.getElementById(targetTab);
@@ -2935,6 +3288,37 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('Tournament page loading...');
+
+            // Initialize Discord embed
+            try { initializeDiscordWidget(); } catch (e) { console.warn('Discord widget init error:', e); }
+            // Align Discord sidebar to the body boundary and handle visibility in tight viewports
+            try { positionDiscordSidebar(); window.addEventListener('resize', positionDiscordSidebar); } catch (e) { console.warn('Discord sidebar position error:', e); }
+            // Probe widget JSON to help diagnose if the widget is disabled
+            try {
+                const statusEl = document.getElementById('discordWidgetStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Checking Discord widget…';
+                    fetch('https://discord.com/api/guilds/1382054719102390354/widget.json', { cache: 'no-store' })
+                        .then(async (r) => {
+                            if (!r.ok) {
+                                const text = await r.text().catch(() => '');
+                                throw new Error(`HTTP ${r.status} ${text || ''}`);
+                            }
+                            return r.json();
+                        })
+                        .then((data) => {
+                            if (data && typeof data.presence_count !== 'undefined') {
+                                statusEl.textContent = `Online: ${data.presence_count}`;
+                            } else {
+                                statusEl.textContent = 'Discord widget enabled, awaiting presence data…';
+                            }
+                        })
+                        .catch((err) => {
+                            statusEl.innerHTML = 'Discord widget not returning member data. Ensure Server Settings → Widget is enabled and an invite channel is selected.';
+                            console.warn('Widget JSON fetch failed:', err);
+                        });
+                }
+            } catch (e) { console.warn('Widget status probe error:', e); }
 
             // Ensure a global API client is available for auth/UI logic
             if (typeof FantasyAPI !== 'undefined' && !window.api) {
