@@ -1845,7 +1845,6 @@
                                 <option value="OCTO">Banana</option>
                             </select>
                         </div>
-                        </div>
                         <div class="filter-group">
                             <span class="show-label">SHOW</span>
                         </div>
@@ -2263,8 +2262,7 @@
                         try {
                             showLoading(true);
 
-                        const view = bracketFilter.value; // '' for overall, 'match-day' for single day
-                        // Show days column only for overall
+                        const view = bracketFilter.value;
                         const daysHeader = document.getElementById('daysColumnHeader');
                         if (daysHeader) {
                             daysHeader.style.display = (view === 'match-day') ? 'none' : '';
@@ -2976,7 +2974,6 @@
             
             tabs.forEach(tab => {
                 const matchDay = parseInt(tab.dataset.matchDay);
-                // Always allow switching, just adjust UI for locked tabs
                 tab.onclick = () => switchMatchDay(matchDay);
                 if (isMatchDayLocked(matchDay)) {
                     tab.classList.add('locked');
@@ -3115,23 +3112,45 @@
             standingsTable.style.display = 'none';
         
             try {
+                const bracketFilter = document.getElementById('standingsBracketFilter');
                 const matchDayFilter = document.getElementById('standingsMatchDayFilter')?.value || '';
+
+                // determine view and whether to show the Days column
+                const view = bracketFilter ? bracketFilter.value : '';
+                const showDays = !(view === 'match-day');
+
+                // hide/show header cell for Days to match rows
+                const daysHeader = document.getElementById('daysColumnHeader');
+                if (daysHeader) daysHeader.style.display = showDays ? '' : 'none';
+
                 const response = await api.getLeaderboard('draft-cup-sept-2025', matchDayFilter || null);
-        
+
                 loadingState.style.display = 'none';
                 standingsTable.style.display = 'table';
                 
                 const tbody = document.getElementById('fantasyStandingsTableBody');
                 if (tbody && response.leaderboard) {
-                    tbody.innerHTML = response.leaderboard.map(entry => `
-                        <tr>
-                            <td class="rank-cell">${entry.rank}</td>
-                            <td class="username-cell">${entry.username}</td>
-                            <td class="score-cell">${entry.total_points}</td>
-                            <td>${entry.avg_points}</td>
-                            <td>${entry.match_days_played}</td>
-                        </tr>
-                    `).join('');
+                    if (showDays) {
+                        tbody.innerHTML = response.leaderboard.map(entry => `
+                            <tr>
+                                <td class="rank-cell">${entry.rank}</td>
+                                <td class="username-cell">${entry.username}</td>
+                                <td class="score-cell">${entry.total_points}</td>
+                                <td>${entry.avg_points}</td>
+                                <td>${entry.match_days_played}</td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        // single match-day view
+                        tbody.innerHTML = response.leaderboard.map(entry => `
+                            <tr>
+                                <td class="rank-cell">${entry.rank}</td>
+                                <td class="username-cell">${entry.username}</td>
+                                <td class="score-cell">${entry.total_points}</td>
+                                <td>${entry.avg_points}</td>
+                            </tr>
+                        `).join('');
+                    }
                 }
                 
             } catch (error) {
@@ -3140,9 +3159,14 @@
                 
                 const tbody = document.getElementById('fantasyStandingsTableBody');
                 if (tbody) {
+                    // match colspan to whether Days column is visible
+                    const bracketFilter = document.getElementById('standingsBracketFilter');
+                    const view = bracketFilter ? bracketFilter.value : '';
+                    const colspan = (view === 'match-day') ? 4 : 5;
+
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">
+                            <td colspan="${colspan}" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">
                                 <div style="font-size: 1.2rem; margin-bottom: 1rem;">⚠️ No Leaderboard Data</div>
                                 <div>No fantasy scores available yet. Player performance data needs to be added to calculate standings.</div>
                             </td>
@@ -3421,9 +3445,7 @@
 
             // Initialize Discord embed
             try { initializeDiscordWidget(); } catch (e) { console.warn('Discord widget init error:', e); }
-            // Align Discord sidebar to the body boundary and handle visibility in tight viewports
             try { positionDiscordSidebar(); window.addEventListener('resize', positionDiscordSidebar); } catch (e) { console.warn('Discord sidebar position error:', e); }
-            // Probe widget JSON to help diagnose if the widget is disabled
             try {
                 const statusEl = document.getElementById('discordWidgetStatus');
                 if (statusEl) {
@@ -3450,7 +3472,7 @@
                 }
             } catch (e) { console.warn('Widget status probe error:', e); }
 
-            // Ensure a global API client is available for auth/UI logic
+            // global API client for auth/UI logic
             if (typeof FantasyAPI !== 'undefined' && !window.api) {
                 window.api = new FantasyAPI();
             }
@@ -3599,14 +3621,14 @@
                     const tournamentData = await detailsApi.getTournamentDetails(id);
                     console.log('Fetched data:', tournamentData);
 
-                    // Update the title and tournament name with the fetched data
+                    // title and tournament name with data
                     document.title = `${tournamentData.tournament_name} - WoT Fantasy`;
                     document.querySelector('.tournament-name').textContent = tournamentData.tournament_name;
                     
 
                 } catch (error) {
                     console.error('Error fetching tournament data:', error);
-                    // Handle the error by showing a default or not-found message
+                    // Handle the error
                     document.querySelector('.tournament-name').textContent = "Tournament Not Found";
                 }
             }
