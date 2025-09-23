@@ -241,7 +241,9 @@ class FantasyAPI {
     }
 
     async getLeaderboard(tournamentId, matchDay = null, minRosterSize = 10) {
-        let endpoint = `/leaderboard/${tournamentId}?minRosterSize=${minRosterSize}`;
+        // Use a lower default minRosterSize so new tournaments with few rosters still show
+        const effectiveMin = minRosterSize == null ? 1 : minRosterSize;
+        let endpoint = `/leaderboard/${tournamentId}?minRosterSize=${effectiveMin}`;
         if (matchDay) {
             endpoint += `&matchDay=${matchDay}`;
         }
