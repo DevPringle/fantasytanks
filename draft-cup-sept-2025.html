@@ -2688,14 +2688,33 @@
                             renderPage();
                         }
 
+                        async function attemptFetchPaths(candidatePaths) {
+                            for (const p of candidatePaths) {
+                                try {
+                                    const resp = await fetch(p);
+                                    if (resp && resp.ok) {
+                                        const text = await resp.text();
+                                        return { text, usedPath: p };
+                                    }
+                                } catch (e) {
+                                
+                                }
+                            }
+                            return null;
+                        }
+
                         async function fetchAndLoad(path) {
                             if (!path) return;
                             loading.style.display = 'block';
                             try {
-                                const resp = await fetch(path);
-                                if (!resp.ok) throw new Error('Failed to fetch CSV: ' + resp.statusText);
-                                const text = await resp.text();
-                                const parsed = parseCSV(text, false);
+                                const candidates = [path, `stats/${path}`, `./stats/${path}`, `../stats/${path}`];
+                                const result = await attemptFetchPaths(candidates);
+                                if (!result) {
+                                    throw new Error('Failed to fetch CSV from any of: ' + candidates.join(', '));
+                                }
+                                // update the input to the successful relative path so future loads use it
+                                pathInput.value = result.usedPath;
+                                const parsed = parseCSV(result.text, false);
                                 initializeTable(parsed);
                             } catch (err) {
                                 console.error(err);
