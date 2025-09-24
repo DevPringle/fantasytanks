@@ -2706,6 +2706,10 @@
                             if (!path) return;
                             loading.style.display = 'block';
                             try {
+                           
+                                const encodeSegments = (p) => p.split('/').map(s => encodeURIComponent(s)).join('/');
+                                const encoded = encodeSegments(path);
+
                                 const candidates = [
                                     path,
                                     `stats/${path}`,
@@ -2716,8 +2720,16 @@
                                     `blob/main/stats/${path}`,
                                     `/blob/main/stats/${path}`,
                                     `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${path}`,
-                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/stats/${path}`
+                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/stats/${path}`,
+                            
+                                    encoded,
+                                    `stats/${encoded}`,
+                                    `./stats/${encoded}`,
+                                    `../stats/${encoded}`,
+                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${encoded}`,
+                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/stats/${encoded}`
                                 ];
+
                                 const result = await attemptFetchPaths(candidates);
                                 if (!result) {
                                     throw new Error('Failed to fetch CSV from any of: ' + candidates.join(', '));
