@@ -2390,7 +2390,7 @@
                         <div style="font-weight:600; color:#ffffff;">Player statistics (CSV)</div>
                         <div style="display:flex; gap:0.5rem; align-items:center;">
                             <label for="statsCsvPath" style="color: rgba(255,255,255,0.8); font-size:0.9rem;">CSV path (relative):</label>
-                            <input id="statsCsvPath" type="text" placeholder="stats/StatsDraft4.csv" value="StatsDraft4.csv" style="padding:0.4rem 0.6rem; border-radius:6px; background: rgba(255,255,255,0.04); color: #fff; border:1px solid rgba(255,255,255,0.06); min-width:260px;">
+                            <input id="statsCsvPath" type="text" value="StatsDraft4.csv" style="padding:0.4rem 0.6rem; border-radius:6px; background: rgba(255,255,255,0.04); color: #fff; border:1px solid rgba(255,255,255,0.06); min-width:260px;">
                             <button id="loadStatsBtn" class="action-btn secondary" style="padding:0.45rem 0.8rem;">Load CSV</button>
                         </div>
                     </div>
@@ -2712,22 +2712,11 @@
 
                                 const candidates = [
                                     path,
-                                    `stats/${path}`,
-                                    `./stats/${path}`,
-                                    `../stats/${path}`,
                                     `blob/main/${path}`,
                                     `/blob/main/${path}`,
-                                    `blob/main/stats/${path}`,
-                                    `/blob/main/stats/${path}`,
                                     `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${path}`,
-                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/stats/${path}`,
-                            
                                     encoded,
-                                    `stats/${encoded}`,
-                                    `./stats/${encoded}`,
-                                    `../stats/${encoded}`,
-                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${encoded}`,
-                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/stats/${encoded}`
+                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${encoded}`
                                 ];
 
                                 const result = await attemptFetchPaths(candidates);
