@@ -2688,16 +2688,9 @@
                         }
 
                         async function attemptFetchPaths(candidatePaths) {
-                  
-                            if (window.location.protocol === 'file:') {
-                                throw new Error('Page is opened via file:// - fetch will be blocked by the browser. Please run the local server (e.g. node server.js) and open via http://localhost:3000/');
-                            }
-
                             for (const p of candidatePaths) {
                                 try {
-                                    
-                                    const encoded = p.split('/').map(encodeURIComponent).join('/');
-                                    const resp = await fetch(encoded);
+                                    const resp = await fetch(p);
                                     if (resp && resp.ok) {
                                         const text = await resp.text();
                                         return { text, usedPath: p };
@@ -2713,49 +2706,22 @@
                             if (!path) return;
                             loading.style.display = 'block';
                             try {
-                    
-                                const pageDir = window.location.pathname.replace(/\/[^\/]*$/, '/');
-                                const origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
-
-                                const candidates = [];
-
-                              
-                                try {
-                                    const u = new URL(path, origin + pageDir);
-                                    if (u.protocol.startsWith('http')) {
-                                        candidates.push(path);
-                                    }
-                                } catch (e) {
-                                   
-                                }
-
-                               
-                                candidates.push(pageDir + path);
-                                candidates.push(pageDir + 'stats/' + path);
-
-                              
-                                candidates.push('stats/' + path);
-                                candidates.push('./stats/' + path);
-                                candidates.push('../stats/' + path);
-
-                               
-                                candidates.push(origin + pageDir + path);
-                                candidates.push(origin + pageDir + 'stats/' + path);
-
-                               
-                                const seen = new Set();
-                                const uniq = candidates.filter(p => {
-                                    if (!p) return false;
-                                    if (seen.has(p)) return false;
-                                    seen.add(p);
-                                    return true;
-                                });
-
-                                const result = await attemptFetchPaths(uniq);
+                                const candidates = [
+                                    path,
+                                    `stats/${path}`,
+                                    `./stats/${path}`,
+                                    `../stats/${path}`,
+                                    `blob/main/${path}`,
+                                    `/blob/main/${path}`,
+                                    `blob/main/stats/${path}`,
+                                    `/blob/main/stats/${path}`,
+                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${path}`,
+                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/stats/${path}`
+                                ];
+                                const result = await attemptFetchPaths(candidates);
                                 if (!result) {
-                                    throw new Error('Failed to fetch CSV from any of: ' + uniq.join(', '));
+                                    throw new Error('Failed to fetch CSV from any of: ' + candidates.join(', '));
                                 }
-                              
                                 pathInput.value = result.usedPath;
                                 const parsed = parseCSV(result.text, false);
                                 initializeTable(parsed);
