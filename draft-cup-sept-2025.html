@@ -2788,6 +2788,13 @@
                                 if (p) fetchAndLoad(p);
                             }
                         });
+                        // Expose a global loader so tab navigation can trigger stats load when the tab becomes active
+                        window.loadStatsTab = function() {
+                            // if already initialized, do nothing
+                            if (parsedData && parsedData.headers && parsedData.headers.length) return;
+                            const p = pathInput.value && pathInput.value.trim();
+                            if (p) fetchAndLoad(p);
+                        };
                     })();
                 </script>
             </div>
@@ -3310,6 +3317,12 @@
             switch(targetTab) {
                 case 'standings':
                     loadFantasyLeaderboard();
+                    break;
+                case 'stats':
+                  
+                    if (window.loadStatsTab && typeof window.loadStatsTab === 'function') {
+                        try { window.loadStatsTab(); } catch (e) { /* ignore */ }
+                    }
                     break;
                 case 'players':
                     if (dataLoaded) {
