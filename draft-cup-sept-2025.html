@@ -15,131 +15,6 @@
             font-size: 24px;
             line-height: 1;
             letter-spacing: normal;
-            text-transform: none;
-            display: inline-block;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            -webkit-font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Header */
-        .header {
-            background: rgba(15, 20, 25, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-
-        .logo {
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo img {
-            height: 36px;
-            width: auto;
-            max-width: 220px;
-            transition: all 0.3s ease;
-            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
-        }
-
-        .logo:hover img {
-            transform: scale(1.05);
-            filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 2.5rem;
-            list-style: none;
-        }
-
-        .nav-link {
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-            padding: 0.5rem 0;
-        }
-
-        .nav-link:hover {
-            color: #00d4ff;
-            transform: translateY(-2px);
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(135deg, #00d4ff, #00b8e6);
-            transition: width 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        .auth-section {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
-        .user-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 0.6rem 1rem;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
             transition: all 0.3s ease;
         }
 
@@ -2241,135 +2116,10 @@
                   }
                 }
               </script>
-            </div>
+                        </div>
+                        </div>
 
-            <script>
-
-                (function () {
-                    const tournamentId = 'draft-cup-sept-2025';
-                    const standingsTable = document.getElementById('fantasyStandingsTable');
-                    const standingsBody = document.getElementById('fantasyStandingsTableBody');
-                    const loadingState = document.getElementById('standingsLoadingState');
-                    const bracketFilter = document.getElementById('standingsBracketFilter');
-                    const matchDayFilter = document.getElementById('standingsMatchDayFilter');
-
-                    function showLoading(show) {
-                        loadingState.style.display = show ? 'block' : 'none';
-                        standingsTable.style.display = show ? 'none' : 'table';
-                    }
-
-                    async function fetchAndRender() {
-                        try {
-                            showLoading(true);
-
-                        const view = bracketFilter.value;
-                        const daysHeader = document.getElementById('daysColumnHeader');
-                        if (daysHeader) {
-                            daysHeader.style.display = (view === 'match-day') ? 'none' : '';
-                        }
-                            const matchDayVal = matchDayFilter.value;
-
-                            let data;
-                            if (view === 'match-day' && matchDayVal) {
-                                data = await api.getLeaderboard(tournamentId, parseInt(matchDayVal), 1);
-                            } else {
-                                // overall
-                                data = await api.getLeaderboard(tournamentId, null, 1);
-                            }
-
-                            const leaderboard = (data && data.leaderboard) ? data.leaderboard : [];
-
-                            // Clear table
-                            standingsBody.innerHTML = '';
-
-                            if (leaderboard.length === 0) {
-                                standingsBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: rgba(255,255,255,0.7);">No standings yet</td></tr>';
-                                return;
-                            }
-
-                            // Render rows
-                            for (const row of leaderboard) {
-                                const tr = document.createElement('tr');
-
-                                const rankTd = document.createElement('td');
-                                rankTd.className = 'rank-cell';
-                                rankTd.textContent = row.rank || '';
-
-                                const nameTd = document.createElement('td');
-                                nameTd.className = 'username-cell';
-                                nameTd.textContent = row.username || row.user_id || 'Unknown';
-
-                                const scoreTd = document.createElement('td');
-                                scoreTd.className = 'score-cell';
-                                scoreTd.textContent = (row.total_points != null) ? Number(row.total_points).toFixed(2) : '0.00';
-
-                                const avgTd = document.createElement('td');
-                                avgTd.className = 'avg-cell';
-                                avgTd.textContent = (row.avg_points != null) ? Number(row.avg_points).toFixed(2) : '0.00';
-
-                                const daysTd = document.createElement('td');
-                                daysTd.className = 'days-cell';
-                                daysTd.textContent = row.match_days_played != null ? row.match_days_played : '-';
-                             
-                                if (view === 'match-day') {
-                                    daysTd.style.display = 'none';
-                                }
-
-                                tr.appendChild(rankTd);
-                                tr.appendChild(nameTd);
-                                tr.appendChild(scoreTd);
-                                tr.appendChild(avgTd);
-                                tr.appendChild(daysTd);
-
-                                standingsBody.appendChild(tr);
-                            }
-
-                        } catch (err) {
-                            console.error('Error loading standings:', err);
-                            standingsBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: rgba(255,255,255,0.7);">Error loading standings</td></tr>';
-                        } finally {
-                            showLoading(false);
-                        }
-                    }
-
-                   
-                    bracketFilter.addEventListener('change', () => {
-                        // If selecting single match-day but no day chosen, default to 1
-                        if (bracketFilter.value === 'match-day' && !matchDayFilter.value) {
-                            matchDayFilter.value = '1';
-                        }
-                        fetchAndRender();
-                    });
-
-                    matchDayFilter.addEventListener('change', () => {
-                        // if currently in overall view but user picks a specific day, don't auto-switch view
-                        fetchAndRender();
-                    });
-
-                    // When the tab is clicked, refresh
-                    document.querySelectorAll('.nav-tab').forEach(tab => {
-                        tab.addEventListener('click', (e) => {
-                            const target = tab.getAttribute('data-tab');
-                            if (target === 'standings') {
-                                // give time for tab show
-                                setTimeout(fetchAndRender, 100);
-                            }
-                        });
-                    });
-
-                    // initial load when page ready
-                    document.addEventListener('DOMContentLoaded', () => {
-                        // If standings tab is active on load, fetch immediately
-                        const active = document.querySelector('.nav-tab.active');
-                        if (active && active.getAttribute('data-tab') === 'standings') {
-                            fetchAndRender();
-                        }
-                    });
-
-                    // debugging
-                    window._fantasyStandings = { fetchAndRender };
-                })();
-            </script>
+            
             <!-- Stats Tab-->
 
             <div id="stats" class="tab-content">
@@ -2553,7 +2303,134 @@
                     })();
                 </script>
             </div>
-        </section>
+                <script>
+
+                    (function () {
+                        const tournamentId = 'draft-cup-sept-2025';
+                        const standingsTable = document.getElementById('fantasyStandingsTable');
+                        const standingsBody = document.getElementById('fantasyStandingsTableBody');
+                        const loadingState = document.getElementById('standingsLoadingState');
+                        const bracketFilter = document.getElementById('standingsBracketFilter');
+                        const matchDayFilter = document.getElementById('standingsMatchDayFilter');
+
+                        function showLoading(show) {
+                            loadingState.style.display = show ? 'block' : 'none';
+                            standingsTable.style.display = show ? 'none' : 'table';
+                        }
+
+                        async function fetchAndRender() {
+                            try {
+                                showLoading(true);
+
+                            const view = bracketFilter.value;
+                            const daysHeader = document.getElementById('daysColumnHeader');
+                            if (daysHeader) {
+                                daysHeader.style.display = (view === 'match-day') ? 'none' : '';
+                            }
+                                const matchDayVal = matchDayFilter.value;
+
+                                let data;
+                                if (view === 'match-day' && matchDayVal) {
+                                    data = await api.getLeaderboard(tournamentId, parseInt(matchDayVal), 1);
+                                } else {
+                                    // overall
+                                    data = await api.getLeaderboard(tournamentId, null, 1);
+                                }
+
+                                const leaderboard = (data && data.leaderboard) ? data.leaderboard : [];
+
+                                // Clear table
+                                standingsBody.innerHTML = '';
+
+                                if (leaderboard.length === 0) {
+                                    standingsBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: rgba(255,255,255,0.7);">No standings yet</td></tr>';
+                                    return;
+                                }
+
+                                // Render rows
+                                for (const row of leaderboard) {
+                                    const tr = document.createElement('tr');
+
+                                    const rankTd = document.createElement('td');
+                                    rankTd.className = 'rank-cell';
+                                    rankTd.textContent = row.rank || '';
+
+                                    const nameTd = document.createElement('td');
+                                    nameTd.className = 'username-cell';
+                                    nameTd.textContent = row.username || row.user_id || 'Unknown';
+
+                                    const scoreTd = document.createElement('td');
+                                    scoreTd.className = 'score-cell';
+                                    scoreTd.textContent = (row.total_points != null) ? Number(row.total_points).toFixed(2) : '0.00';
+
+                                    const avgTd = document.createElement('td');
+                                    avgTd.className = 'avg-cell';
+                                    avgTd.textContent = (row.avg_points != null) ? Number(row.avg_points).toFixed(2) : '0.00';
+
+                                    const daysTd = document.createElement('td');
+                                    daysTd.className = 'days-cell';
+                                    daysTd.textContent = row.match_days_played != null ? row.match_days_played : '-';
+                             
+                                    if (view === 'match-day') {
+                                        daysTd.style.display = 'none';
+                                    }
+
+                                    tr.appendChild(rankTd);
+                                    tr.appendChild(nameTd);
+                                    tr.appendChild(scoreTd);
+                                    tr.appendChild(avgTd);
+                                    tr.appendChild(daysTd);
+
+                                    standingsBody.appendChild(tr);
+                                }
+
+                            } catch (err) {
+                                console.error('Error loading standings:', err);
+                                standingsBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: rgba(255,255,255,0.7);">Error loading standings</td></tr>';
+                            } finally {
+                                showLoading(false);
+                            }
+                        }
+
+                   
+                        bracketFilter.addEventListener('change', () => {
+                            // If selecting single match-day but no day chosen, default to 1
+                            if (bracketFilter.value === 'match-day' && !matchDayFilter.value) {
+                                matchDayFilter.value = '1';
+                            }
+                            fetchAndRender();
+                        });
+
+                        matchDayFilter.addEventListener('change', () => {
+                            // if currently in overall view but user picks a specific day, don't auto-switch view
+                            fetchAndRender();
+                        });
+
+                        // When the tab is clicked, refresh
+                        document.querySelectorAll('.nav-tab').forEach(tab => {
+                            tab.addEventListener('click', (e) => {
+                                const target = tab.getAttribute('data-tab');
+                                if (target === 'standings') {
+                                    // give time for tab show
+                                    setTimeout(fetchAndRender, 100);
+                                }
+                            });
+                        });
+
+                        // initial load when page ready
+                        document.addEventListener('DOMContentLoaded', () => {
+                            // If standings tab is active on load, fetch immediately
+                            const active = document.querySelector('.nav-tab.active');
+                            if (active && active.getAttribute('data-tab') === 'standings') {
+                                fetchAndRender();
+                            }
+                        });
+
+                        // debugging
+                        window._fantasyStandings = { fetchAndRender };
+                    })();
+                </script>
+            </section>
             </main>
 
     <footer class="footer">
