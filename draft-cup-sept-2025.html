@@ -2370,7 +2370,7 @@
                     window._fantasyStandings = { fetchAndRender };
                 })();
             </script>
-            <!-- Stats Tab (modern rebuild) -->
+            <!-- Stats Tab-->
 
             <div id="stats" class="tab-content">
                 <h2 class="section-title">
@@ -3757,6 +3757,23 @@
         window.redirectToLogin = redirectToLogin;
     </script>
     
+        <script>
+            (function(){
+                const bindTabs = ()=>{
+                    const tabs = document.querySelectorAll('.nav-tab');
+                    tabs.forEach(t=>{
+                        t.addEventListener('click', ()=>{
+                            const tab = t.getAttribute('data-tab');
+                            if(tab === 'stats' && typeof window.loadStatsTab === 'function'){
+                                try{ window.loadStatsTab(); }catch(e){ console.error('loadStatsTab error', e); }
+                            }
+                        });
+                    });
+                };
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindTabs); else bindTabs();
+            })();
+        </script>
+
         <script src="js/api.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
