@@ -2370,7 +2370,7 @@
                     window._fantasyStandings = { fetchAndRender };
                 })();
             </script>
-            <!-- Stats Tab -->
+            <!-- Stats Tab (modern rebuild) -->
 
             <div id="stats" class="tab-content">
                 <h2 class="section-title">
@@ -2385,30 +2385,28 @@
                     </div>
                 </div>
 
-                <div class="sidebar-card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-                        <div style="font-weight:600; color:#ffffff;">Player statistics (CSV)</div>
-                        <div style="display:flex; gap:0.5rem; align-items:center;">
-                            <label for="statsCsvPath" style="color: rgba(255,255,255,0.8); font-size:0.9rem;">CSV path (relative):</label>
-                            <input id="statsCsvPath" type="text" value="StatsDraft4.csv" style="padding:0.4rem 0.6rem; border-radius:6px; background: rgba(255,255,255,0.04); color: #fff; border:1px solid rgba(255,255,255,0.06); min-width:260px;">
-                            <button id="loadStatsBtn" class="action-btn secondary" style="padding:0.45rem 0.8rem;">Load CSV</button>
-                        </div>
+                <div class="sidebar-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display:flex; gap:1rem; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+                    <div style="min-width:220px;">
+                        <div style="font-weight:600; color:#ffffff; margin-bottom:0.35rem;">Player statistics (CSV)</div>
+                        <div style="color: rgba(255,255,255,0.7); font-size:0.9rem;">Loads <strong>StatsDraft4.csv</strong> from the repo root or upload a local CSV.</div>
                     </div>
-                    <div style="margin-top:0.75rem; color: rgba(255,255,255,0.7); font-size:0.9rem;">You can add the CSV file to the repo (relative path) or upload one locally using the file picker below.</div>
-                    <div style="margin-top:0.75rem; display:flex; gap:0.5rem; align-items:center;">
-                        <input id="statsFileInput" type="file" accept="text/csv" style="color: #fff;">
-                        <button id="clearStatsBtn" class="action-btn secondary" style="padding:0.45rem 0.8rem;">Clear</button>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <input id="statsCsvPath" type="text" value="StatsDraft4.csv" style="padding:0.45rem 0.7rem; border-radius:6px; background: rgba(255,255,255,0.04); color: #fff; border:1px solid rgba(255,255,255,0.06); min-width:260px;">
+                        <button id="loadStatsBtn" class="action-btn secondary" style="padding:0.45rem 0.9rem;">Load CSV</button>
+                        <input id="statsFileInput" type="file" accept="text/csv" style="display:none;">
+                        <button id="chooseStatsFile" class="action-btn" style="padding:0.45rem 0.9rem;">Upload CSV</button>
+                        <button id="clearStatsBtn" class="action-btn secondary" style="padding:0.45rem 0.9rem;">Clear</button>
                     </div>
                 </div>
 
-                <div class="standings-container" style="padding:1rem;">
-                    <div id="statsLoadingState" class="loading-state" style="display:none;">
+                <div class="standings-container" style="padding:0.5rem 0 1rem 0;">
+                    <div id="statsLoadingState" class="loading-state" style="display:none; margin-bottom:0.75rem;">
                         <div class="loading-spinner"></div>
                         <div>Loading stats...</div>
                     </div>
 
-                    <div id="statsTableWrapper" style="overflow-x:auto;">
-                        <table id="statsTable" class="standings-table" style="width:100%; display:none;">
+                    <div id="statsTableWrapper" style="overflow:auto; background: rgba(255,255,255,0.02); border-radius:8px; padding:0.5rem;">
+                        <table id="statsTable" class="standings-table" style="width:100%; display:none; border-collapse:separate; border-spacing:0 6px;">
                             <thead id="statsTableHead"></thead>
                             <tbody id="statsTableBody"></tbody>
                         </table>
@@ -2418,7 +2416,7 @@
                         <label style="color:rgba(255,255,255,0.8);">Rows:</label>
                         <select id="statsPageSize" style="padding:0.35rem; background: rgba(255,255,255,0.04); color:#fff; border:1px solid rgba(255,255,255,0.06);">
                             <option value="10">10</option>
-                            <option value="25">25</option>
+                            <option value="25" selected>25</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
                         </select>
@@ -2433,6 +2431,7 @@
                 <script>
                     (function(){
                         const csvInput = document.getElementById('statsFileInput');
+                        const chooseFileBtn = document.getElementById('chooseStatsFile');
                         const loadBtn = document.getElementById('loadStatsBtn');
                         const clearBtn = document.getElementById('clearStatsBtn');
                         const pathInput = document.getElementById('statsCsvPath');
@@ -2445,385 +2444,90 @@
                         const prevBtn = document.getElementById('statsPrev');
                         const nextBtn = document.getElementById('statsNext');
                         const pageInfo = document.getElementById('statsPageInfo');
-                        
                         const exportBtn = document.createElement('button');
                         exportBtn.id = 'statsExport';
                         exportBtn.className = 'action-btn';
                         exportBtn.style.padding = '0.35rem 0.6rem';
-                        exportBtn.textContent = 'Export raw CSV';
+                        exportBtn.textContent = 'Export CSV';
                         pager.insertBefore(exportBtn, prevBtn);
 
-                        
-                        let parsedData = null; 
+                        let parsedData = null;
                         let rows = [];
                         let filteredRows = [];
                         let columnIsNumeric = [];
-                        
                         let columnDerivedValueFuncs = [];
-                        let sortCol = -1;
-                        let sortDir = 1; 
+                        let sortCol = -1; let sortDir = -1;
                         let filters = [];
                         let pageSize = Number(pageSizeSelect.value) || 25;
                         let pageIdx = 0;
 
-                        function parseCSV(text, fromFile) {
-                        
+                        function parseCSV(text) {
                             const res = Papa.parse(text, { skipEmptyLines: true });
-                            if (res && res.data && res.data.length) {
-                                const headers = res.data[0].map(h => String(h || '').trim());
-                                const rows = res.data.slice(1).map(r => r.map(c => c == null ? '' : String(c)));
-                                return { headers, rows };
-                            }
-                            return { headers: [], rows: [] };
+                            if (!res || !res.data || !res.data.length) return { headers: [], rows: [] };
+                            const headers = res.data[0].map(h => String(h || '').trim());
+                            const rows = res.data.slice(1).map(r => r.map(c => c == null ? '' : String(c)));
+                            return { headers, rows };
                         }
 
                         function detectNumericColumns(parsed) {
                             const h = parsed.headers.length;
-                            const colNumeric = new Array(h).fill(false);
+                            const numeric = new Array(h).fill(false);
                             columnDerivedValueFuncs = new Array(h).fill(null);
-                            const sampleLimit = Math.min(parsed.rows.length, 200);
-                            for (let c = 0; c < h; c++) {
-                                const header = String(parsed.headers[c] || '').toLowerCase();
-                                
-                                if (/pen\s*hit/i.test(header) || header.indexOf('penhit') !== -1) {
-                                  
-                                    columnDerivedValueFuncs[c] = (val) => {
-                                        if (!val) return NaN;
-                                        const m = String(val).trim().match(/^(\d+)\s*\/\s*(\d+)$/);
-                                        if (!m) return NaN;
-                                        const hits = Number(m[1]);
-                                        const attempts = Number(m[2]);
-                                        if (!attempts) return NaN;
-                                        return hits / attempts;
+                            const sample = Math.min(parsed.rows.length, 200);
+                            for (let c=0;c<h;c++){
+                                const head = String(parsed.headers[c]||'').toLowerCase();
+                                if (/pen\s*hit/i.test(head) || head.indexOf('penhit')!==-1) {
+                                    columnDerivedValueFuncs[c] = (v)=>{
+                                        if (!v) return NaN; const m = String(v).trim().match(/^(\d+)\s*\/\s*(\d+)$/); if(!m) return NaN; const a=Number(m[1]), b=Number(m[2]); return b? a/b : NaN;
                                     };
-                                    colNumeric[c] = false; 
-                                    continue;
+                                    numeric[c]=false; continue;
                                 }
-
-                                let numericCount = 0;
-                                for (let r = 0; r < sampleLimit; r++) {
-                                    const v = parsed.rows[r][c] || '';
-                                    const n = parseFloat(String(v).replace(/[,\s%\$]/g, ''));
-                                    if (!isNaN(n) && isFinite(n)) numericCount++;
-                                }
-                                
-                                const threshold = Math.ceil(Math.max(1, sampleLimit * 0.6));
-                                colNumeric[c] = numericCount >= threshold;
+                                let cnt=0; for (let r=0;r<sample;r++){ const v=parsed.rows[r][c]||''; const n=parseFloat(String(v).replace(/[ ,%$]/g,'')); if(!isNaN(n) && isFinite(n)) cnt++; }
+                                numeric[c] = cnt >= Math.ceil(Math.max(1, sample*0.6));
                             }
-                            return colNumeric;
+                            return numeric;
                         }
 
-                        function buildHeader(parsed) {
-                            thead.innerHTML = '';
-                            const tr = document.createElement('tr');
-                            parsed.headers.forEach((h, idx) => {
-                                const th = document.createElement('th');
-                                th.textContent = h;
-                                th.style.cursor = 'pointer';
-                                th.dataset.col = String(idx);
-                                
-                                const sortSpan = document.createElement('span');
-                                sortSpan.style.marginLeft = '0.5rem';
-                                sortSpan.style.opacity = '0.7';
-                                sortSpan.className = 'sort-marker';
-                                th.appendChild(sortSpan);
-                                th.addEventListener('click', () => {
-                                    const col = Number(th.dataset.col);
-                                    if (sortCol === col) sortDir = -sortDir; else { sortCol = col; sortDir = -1; }
-                                    applySortFilterRender();
-                                });
-                                if (columnIsNumeric[idx]) {
-                                    th.style.textAlign = 'right';
-                                }
-                                tr.appendChild(th);
-                            });
-                            thead.appendChild(tr);
-
-                            // filter row
-                            const ftr = document.createElement('tr');
-                            parsed.headers.forEach((h, idx) => {
-                                const th = document.createElement('th');
-                                const input = document.createElement('input');
-                                input.type = 'text';
-                                input.placeholder = '';
-                                input.style.width = '100%';
-                                input.style.padding = '0.35rem';
-                                input.style.background = 'rgba(255,255,255,0.02)';
-                                input.style.border = '1px solid rgba(255,255,255,0.04)';
-                                input.style.color = '#fff';
-                                input.addEventListener('input', (e) => {
-                                    filters[idx] = e.target.value.trim().toLowerCase();
-                                    pageIdx = 0;
-                                    applySortFilterRender();
-                                });
-                                th.appendChild(input);
-                                if (columnIsNumeric[idx]) th.style.textAlign = 'right';
-                                ftr.appendChild(th);
-                            });
-                            thead.appendChild(ftr);
+                        function buildHeader(parsed){
+                            thead.innerHTML='';
+                            const row = document.createElement('tr');
+                            parsed.headers.forEach((h, i)=>{
+                                const th=document.createElement('th'); th.textContent=h; th.dataset.col=String(i); th.style.cursor='pointer';
+                                const m=document.createElement('span'); m.className='sort-marker'; m.style.marginLeft='0.5rem'; m.style.opacity='0.7'; th.appendChild(m);
+                                th.addEventListener('click', ()=>{ const col=Number(th.dataset.col); if(sortCol===col) sortDir=-sortDir; else{ sortCol=col; sortDir=-1;} applySortFilterRender(); });
+                                if(columnIsNumeric[i]) th.style.textAlign='right'; row.appendChild(th);
+                            }); thead.appendChild(row);
+                            const frow=document.createElement('tr'); parsed.headers.forEach((h,i)=>{ const th=document.createElement('th'); const inp=document.createElement('input'); inp.type='text'; inp.style.width='100%'; inp.style.padding='0.35rem'; inp.style.background='rgba(255,255,255,0.02)'; inp.style.border='1px solid rgba(255,255,255,0.04)'; inp.style.color='#fff'; inp.addEventListener('input', e=>{ filters[i]=e.target.value.trim().toLowerCase(); pageIdx=0; applySortFilterRender(); }); th.appendChild(inp); if(columnIsNumeric[i]) th.style.textAlign='right'; frow.appendChild(th); }); thead.appendChild(frow);
                         }
 
-                        function applyFilters(parsedRows) {
-                            if (!filters || filters.length === 0) return parsedRows.slice();
-                            return parsedRows.filter(row => {
-                                for (let c = 0; c < parsedData.headers.length; c++) {
-                                    const f = filters[c];
-                                    if (f && f.length > 0) {
-                                        const v = String(row[c] || '').toLowerCase();
-                                        if (!v.includes(f)) return false;
-                                    }
-                                }
-                                return true;
-                            });
-                        }
+                        function applyFilters(src){ if(!filters || filters.length===0) return src.slice(); return src.filter(r=>{ for(let c=0;c<parsedData.headers.length;c++){ const f=filters[c]; if(f && f.length){ const v=String(r[c]||'').toLowerCase(); if(!v.includes(f)) return false; }} return true; }); }
 
-                        function applySort(rowsToSort) {
-                            if (sortCol < 0) return rowsToSort;
-                            const col = sortCol;
-                            const isNum = columnIsNumeric[col];
-                            const derived = columnDerivedValueFuncs[col];
-                            const sorted = rowsToSort.slice().sort((a,b) => {
-                                const va = a[col] != null ? String(a[col]).trim() : '';
-                                const vb = b[col] != null ? String(b[col]).trim() : '';
-                                
-                                if (derived) {
-                                    const na = derived(va);
-                                    const nb = derived(vb);
-                                    const aIsNaN = isNaN(na) || !isFinite(na);
-                                    const bIsNaN = isNaN(nb) || !isFinite(nb);
-                                    if (aIsNaN && bIsNaN) return 0;
-                                    if (aIsNaN) return 1 * sortDir;
-                                    if (bIsNaN) return -1 * sortDir;
-                                    return (na - nb) * sortDir;
-                                }
-                                if (isNum) {
-                                    const na = parseFloat(va.replace(/[,\s%\$]/g, ''));
-                                    const nb = parseFloat(vb.replace(/[,\s%\$]/g, ''));
-                                    if (isNaN(na) && isNaN(nb)) return 0;
-                                    if (isNaN(na)) return 1 * sortDir;
-                                    if (isNaN(nb)) return -1 * sortDir;
-                                    return (na - nb) * sortDir;
-                                }
-                                // string compare
-                                return va.localeCompare(vb) * sortDir;
-                            });
-                            return sorted;
-                        }
+                        function applySort(src){ if(sortCol<0) return src; const col=sortCol; const isNum=columnIsNumeric[col]; const derived=columnDerivedValueFuncs[col]; return src.slice().sort((a,b)=>{ const va=a[col]!=null?String(a[col]).trim():''; const vb=b[col]!=null?String(b[col]).trim():''; if(derived){ const na=derived(va); const nb=derived(vb); const aNa=isNaN(na)||!isFinite(na); const bNa=isNaN(nb)||!isFinite(nb); if(aNa&&bNa) return 0; if(aNa) return 1*sortDir; if(bNa) return -1*sortDir; return (na-nb)*sortDir; } if(isNum){ const na=parseFloat(va.replace(/[ ,%$]/g,'')); const nb=parseFloat(vb.replace(/[ ,%$]/g,'')); if(isNaN(na)&&isNaN(nb)) return 0; if(isNaN(na)) return 1*sortDir; if(isNaN(nb)) return -1*sortDir; return (na-nb)*sortDir; } return va.localeCompare(vb)*sortDir; }); }
 
-                        function renderPage() {
-                            tbody.innerHTML = '';
-                            const total = filteredRows.length;
-                            const totalPages = Math.max(1, Math.ceil(total / pageSize));
-                            if (pageIdx >= totalPages) pageIdx = totalPages - 1;
-                            const start = pageIdx * pageSize;
-                            const end = Math.min(total, start + pageSize);
-                            for (let r = start; r < end; r++) {
-                                const row = filteredRows[r];
-                                const tr = document.createElement('tr');
-                                for (let c = 0; c < parsedData.headers.length; c++) {
-                                    const td = document.createElement('td');
-                                    const v = row[c] != null ? row[c] : '';
-                                    td.textContent = v;
-                                    if (columnIsNumeric[c]) td.style.textAlign = 'right';
-                                    tr.appendChild(td);
-                                }
-                                tbody.appendChild(tr);
-                            }
-                            table.style.display = parsedData && parsedData.headers.length ? '' : 'none';
-                            // pager
-                            pager.style.display = total <= pageSize && total === 0 ? 'none' : '';
-                            pageInfo.textContent = `Page ${pageIdx+1} / ${totalPages} (${total} rows)`;
-                                                        prevBtn.disabled = pageIdx === 0;
-                                                        nextBtn.disabled = pageIdx >= totalPages - 1;
-                                                        Array.from(thead.querySelectorAll('th')).forEach(th => {
-                                const colIdx = Number(th.dataset.col);
-                                const marker = th.querySelector('.sort-marker');
-                                if (!marker) return;
-                                if (colIdx === sortCol) marker.textContent = sortDir === -1 ? ' ▼' : ' ▲'; else marker.textContent = '';
-                            });
-                        }
+                        function renderPage(){ tbody.innerHTML=''; const total=filteredRows.length; const totalPages=Math.max(1, Math.ceil(total/pageSize)); if(pageIdx>=totalPages) pageIdx=totalPages-1; const start=pageIdx*pageSize; const end=Math.min(total, start+pageSize); for(let r=start;r<end;r++){ const row=filteredRows[r]; const tr=document.createElement('tr'); for(let c=0;c<parsedData.headers.length;c++){ const td=document.createElement('td'); const v=row[c]!=null?row[c]:''; td.textContent=v; if(columnIsNumeric[c]) td.style.textAlign='right'; tr.appendChild(td);} tbody.appendChild(tr);} table.style.display = parsedData && parsedData.headers.length ? '' : 'none'; pager.style.display = total===0? 'none' : ''; pageInfo.textContent = `Page ${pageIdx+1} / ${totalPages} (${total} rows)`; prevBtn.disabled = pageIdx===0; nextBtn.disabled = pageIdx>=totalPages-1; Array.from(thead.querySelectorAll('th')).forEach(th=>{ const idx=Number(th.dataset.col); const m=th.querySelector('.sort-marker'); if(!m) return; m.textContent = idx===sortCol ? (sortDir===-1? ' ▼':' ▲') : ''; }); }
 
-                        function applySortFilterRender() {
-                            // apply filters
-                            filteredRows = applyFilters(rows);
-                            // apply sort
-                            filteredRows = applySort(filteredRows);
-                            renderPage();
-                        }
+                        function applySortFilterRender(){ filteredRows = applyFilters(rows); filteredRows = applySort(filteredRows); renderPage(); }
 
-                        function initializeTable(parsed) {
-                            parsedData = parsed;
-                            rows = parsed.rows.map(r => {
-                                
-                                const arr = new Array(parsed.headers.length).fill('');
-                                for (let i = 0; i < parsed.headers.length; i++) arr[i] = r[i] != null ? r[i] : '';
-                                return arr;
-                            });
-                            
-                            
-                            const penIdx = parsed.headers.findIndex(h => /pen\s*hit/i.test(h) || String(h).toLowerCase().indexOf('penhit') !== -1);
-                            if (penIdx !== -1) {
-                               
-                                const newHeaders = parsed.headers.slice();
-                                newHeaders.splice(penIdx+1, 0, 'PenHit %');
-                                parsedData.headers = newHeaders;
-                               
-                                rows = rows.map(r => {
-                                    const clone = r.slice();
-                                    const val = String(r[penIdx] || '');
-                                    const m = val.trim().match(/^(\d+)\s*\/\s*(\d+)$/);
-                                    const pct = (m && Number(m[2])>0) ? (Number(m[1]) / Number(m[2]) * 100) : NaN;
-                                    clone.splice(penIdx+1, 0, isNaN(pct) ? '' : (Math.round(pct*10)/10) + '%');
-                                    return clone;
-                                });
-                               
-                            }
-                            filters = new Array(parsed.headers.length).fill('');
-                            columnIsNumeric = detectNumericColumns(parsed);
-                            sortCol = -1; sortDir = -1; pageIdx = 0;
-                            buildHeader(parsed);
-                            filteredRows = rows.slice();
-                            pageSize = Number(pageSizeSelect.value) || 25;
-                            renderPage();
-                        }
+                        function initializeTable(parsed){ parsedData = parsed; rows = parsed.rows.map(r=>{ const arr=new Array(parsed.headers.length).fill(''); for(let i=0;i<parsed.headers.length;i++) arr[i] = r[i]!=null? r[i] : ''; return arr; }); const penIdx = parsed.headers.findIndex(h=>/pen\s*hit/i.test(h) || String(h).toLowerCase().indexOf('penhit')!==-1); if(penIdx!==-1){ const newH = parsed.headers.slice(); newH.splice(penIdx+1,0,'PenHit %'); parsedData.headers = newH; rows = rows.map(r=>{ const clone = r.slice(); const val=String(r[penIdx]||''); const m=val.trim().match(/^(\d+)\s*\/\s*(\d+)$/); const pct=(m&&Number(m[2])>0)? (Number(m[1])/Number(m[2])*100) : NaN; clone.splice(penIdx+1,0, isNaN(pct)? '': (Math.round(pct*10)/10) + '%'); return clone; }); }
+                            filters = new Array(parsed.headers.length).fill(''); columnIsNumeric = detectNumericColumns(parsed); sortCol=-1; sortDir=-1; pageIdx=0; buildHeader(parsed); filteredRows = rows.slice(); pageSize = Number(pageSizeSelect.value)||25; renderPage(); }
 
-                        async function attemptFetchPaths(candidatePaths) {
-                            for (const p of candidatePaths) {
-                                try {
-                                    const resp = await fetch(p);
-                                    if (resp && resp.ok) {
-                                        const text = await resp.text();
-                                        return { text, usedPath: p };
-                                    }
-                                } catch (e) {
-                                   
-                                }
-                            }
-                            return null;
-                        }
+                        async function attemptFetch(paths){ for(const p of paths){ try{ const r = await fetch(p); if(r && r.ok){ const text = await r.text(); return {text, used:p}; } }catch(e){} } return null; }
 
-                        async function fetchAndLoad(path) {
-                            if (!path) return;
-                            loading.style.display = 'block';
-                            try {
-                           
-                                const encodeSegments = (p) => p.split('/').map(s => encodeURIComponent(s)).join('/');
-                                const encoded = encodeSegments(path);
+                        async function fetchAndLoad(path){ if(!path) return; loading.style.display='block'; try{ const encodeSegments = p=> p.split('/').map(s=>encodeURIComponent(s)).join('/'); const enc = encodeSegments(path); const candidates = [ path, `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${path}`, enc, `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${enc}` ]; const res = await attemptFetch(candidates); if(!res) throw new Error('Could not fetch CSV'); pathInput.value = res.used; const parsed = parseCSV(res.text); initializeTable(parsed); }catch(err){ alert('Error loading CSV. You can upload a file instead.'); console.error(err); } finally{ loading.style.display='none'; } }
 
-                                const candidates = [
-                                    path,
-                                    `blob/main/${path}`,
-                                    `/blob/main/${path}`,
-                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${path}`,
-                                    encoded,
-                                    `https://raw.githubusercontent.com/DevPringle/fantasytanks/main/${encoded}`
-                                ];
+                        loadBtn.addEventListener('click', ()=>{ const p = pathInput.value && pathInput.value.trim(); if(!p){ alert('Enter a path or upload a CSV file.'); return; } fetchAndLoad(p); });
+                        chooseFileBtn.addEventListener('click', ()=> csvInput.click());
+                        clearBtn.addEventListener('click', ()=>{ pathInput.value=''; csvInput.value=''; thead.innerHTML=''; tbody.innerHTML=''; table.style.display='none'; pager.style.display='none'; parsedData=null; rows=[]; filteredRows=[]; });
+                        csvInput.addEventListener('change', e=>{ const f = e.target.files && e.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = ev=>{ const parsed = parseCSV(ev.target.result); initializeTable(parsed); }; reader.readAsText(f); });
 
-                                const result = await attemptFetchPaths(candidates);
-                                if (!result) {
-                                    throw new Error('Failed to fetch CSV from any of: ' + candidates.join(', '));
-                                }
-                                pathInput.value = result.usedPath;
-                                const parsed = parseCSV(result.text, false);
-                                initializeTable(parsed);
-                            } catch (err) {
-                                console.error(err);
-                                alert('Error loading CSV: ' + err.message + '. You can instead upload a local CSV using the file selector.');
-                            } finally {
-                                loading.style.display = 'none';
-                            }
-                        }
+                        exportBtn.addEventListener('click', ()=>{ if(!parsedData){ alert('No data'); return; } const hdrs = parsedData.headers.slice(); const out = filteredRows.map(r=> hdrs.map((h,c)=>{ const v = r[c]!=null? String(r[c]) : ''; if(columnDerivedValueFuncs[c]){ const n = columnDerivedValueFuncs[c](v); return isNaN(n)? '' : String(n); } if(columnIsNumeric[c]) return v.replace(/,/g,''); return v; })); const csv = Papa.unparse({ fields: hdrs, data: out }); const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='stats-export.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); });
 
-                       
-                        loadBtn.addEventListener('click', () => {
-                            const p = pathInput.value && pathInput.value.trim();
-                            if (!p) { alert('Enter a relative path to the CSV file in the repo or upload one.'); return; }
-                            fetchAndLoad(p);
-                        });
+                        pageSizeSelect.addEventListener('change', ()=>{ pageSize = Number(pageSizeSelect.value)||25; pageIdx=0; renderPage(); });
+                        prevBtn.addEventListener('click', ()=>{ if(pageIdx>0){ pageIdx--; renderPage(); }});
+                        nextBtn.addEventListener('click', ()=>{ const tp = Math.max(1, Math.ceil(filteredRows.length/pageSize)); if(pageIdx<tp-1){ pageIdx++; renderPage(); }});
 
-                        clearBtn.addEventListener('click', () => {
-                            pathInput.value = '';
-                            csvInput.value = '';
-                            thead.innerHTML = '';
-                            tbody.innerHTML = '';
-                            table.style.display = 'none';
-                            pager.style.display = 'none';
-                            parsedData = null; rows = []; filteredRows = [];
-                        });
-
-                        csvInput.addEventListener('change', (e) => {
-                            const f = e.target.files && e.target.files[0];
-                            if (!f) return;
-                            const reader = new FileReader();
-                            reader.onload = function(ev) {
-                                const text = ev.target.result;
-                                const parsed = parseCSV(text, true);
-                                initializeTable(parsed);
-                            };
-                            reader.readAsText(f);
-                        });
-
-                       
-                        exportBtn.addEventListener('click', () => {
-                            if (!parsedData) { alert('No table loaded to export'); return; }
-                            const hdrs = parsedData.headers.slice();
-                            const outRows = filteredRows.map(r => {
-                                return hdrs.map((h, c) => {
-                                    const v = r[c] != null ? String(r[c]) : '';
-                                  
-                                    if (columnDerivedValueFuncs[c]) {
-                                        const n = columnDerivedValueFuncs[c](v);
-                                        return isNaN(n) ? '' : String(n);
-                                    }
-                                   
-                                    if (columnIsNumeric[c]) {
-                                        const n = v.replace(/,/g, '');
-                                        return n;
-                                    }
-                                    return v;
-                                });
-                            });
-                            const csv = Papa.unparse({ fields: hdrs, data: outRows });
-                            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'stats-export.csv';
-                            document.body.appendChild(a);
-                            a.click();
-                            a.remove();
-                            URL.revokeObjectURL(url);
-                        });
-
-                        pageSizeSelect.addEventListener('change', () => {
-                            pageSize = Number(pageSizeSelect.value) || 25;
-                            pageIdx = 0;
-                            renderPage();
-                        });
-
-                        prevBtn.addEventListener('click', () => {
-                            if (pageIdx > 0) { pageIdx--; renderPage(); }
-                        });
-                        nextBtn.addEventListener('click', () => {
-                            const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
-                            if (pageIdx < totalPages - 1) { pageIdx++; renderPage(); }
-                        });
-
-                        // auto-load default path if available on initial load when stats tab active
-                        document.addEventListener('DOMContentLoaded', () => {
-                            const active = document.querySelector('.nav-tab.active');
-                            if (active && active.getAttribute('data-tab') === 'stats') {
-                                const p = pathInput.value && pathInput.value.trim();
-                                if (p) fetchAndLoad(p);
-                            }
-                        });
-                        // Expose a global loader so tab navigation can trigger stats load when the tab becomes active
-                        window.loadStatsTab = function() {
-                            // if already initialized, do nothing
-                            if (parsedData && parsedData.headers && parsedData.headers.length) return;
-                            const p = pathInput.value && pathInput.value.trim();
-                            if (p) fetchAndLoad(p);
-                        };
+                        document.addEventListener('DOMContentLoaded', ()=>{ const active = document.querySelector('.nav-tab.active'); if(active && active.getAttribute('data-tab')==='stats'){ const p = pathInput.value && pathInput.value.trim(); if(p) fetchAndLoad(p); } });
+                        window.loadStatsTab = function(){ if(parsedData && parsedData.headers && parsedData.headers.length) return; const p = pathInput.value && pathInput.value.trim(); if(p) fetchAndLoad(p); };
                     })();
                 </script>
             </div>
