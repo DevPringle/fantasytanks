@@ -2633,10 +2633,9 @@
                             // pager
                             pager.style.display = total <= pageSize && total === 0 ? 'none' : '';
                             pageInfo.textContent = `Page ${pageIdx+1} / ${totalPages} (${total} rows)`;
-                            prevBtn.disabled = pageIdx === 0;
-                            nextBtn.disabled = pageIdx >= totalPages - 1;
-                          s
-                            Array.from(thead.querySelectorAll('th')).forEach(th => {
+                                                        prevBtn.disabled = pageIdx === 0;
+                                                        nextBtn.disabled = pageIdx >= totalPages - 1;
+                                                        Array.from(thead.querySelectorAll('th')).forEach(th => {
                                 const colIdx = Number(th.dataset.col);
                                 const marker = th.querySelector('.sort-marker');
                                 if (!marker) return;
@@ -2689,15 +2688,22 @@
                         }
 
                         async function attemptFetchPaths(candidatePaths) {
+                  
+                            if (window.location.protocol === 'file:') {
+                                throw new Error('Page is opened via file:// - fetch will be blocked by the browser. Please run the local server (e.g. node server.js) and open via http://localhost:3000/');
+                            }
+
                             for (const p of candidatePaths) {
                                 try {
-                                    const resp = await fetch(p);
+                                    
+                                    const encoded = p.split('/').map(encodeURIComponent).join('/');
+                                    const resp = await fetch(encoded);
                                     if (resp && resp.ok) {
                                         const text = await resp.text();
                                         return { text, usedPath: p };
                                     }
                                 } catch (e) {
-                                
+                                   
                                 }
                             }
                             return null;
@@ -2707,12 +2713,49 @@
                             if (!path) return;
                             loading.style.display = 'block';
                             try {
-                                const candidates = [path, `stats/${path}`, `./stats/${path}`, `../stats/${path}`];
-                                const result = await attemptFetchPaths(candidates);
-                                if (!result) {
-                                    throw new Error('Failed to fetch CSV from any of: ' + candidates.join(', '));
+                    
+                                const pageDir = window.location.pathname.replace(/\/[^\/]*$/, '/');
+                                const origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
+
+                                const candidates = [];
+
+                              
+                                try {
+                                    const u = new URL(path, origin + pageDir);
+                                    if (u.protocol.startsWith('http')) {
+                                        candidates.push(path);
+                                    }
+                                } catch (e) {
+                                   
                                 }
-                                // update the input to the successful relative path so future loads use it
+
+                               
+                                candidates.push(pageDir + path);
+                                candidates.push(pageDir + 'stats/' + path);
+
+                              
+                                candidates.push('stats/' + path);
+                                candidates.push('./stats/' + path);
+                                candidates.push('../stats/' + path);
+
+                               
+                                candidates.push(origin + pageDir + path);
+                                candidates.push(origin + pageDir + 'stats/' + path);
+
+                               
+                                const seen = new Set();
+                                const uniq = candidates.filter(p => {
+                                    if (!p) return false;
+                                    if (seen.has(p)) return false;
+                                    seen.add(p);
+                                    return true;
+                                });
+
+                                const result = await attemptFetchPaths(uniq);
+                                if (!result) {
+                                    throw new Error('Failed to fetch CSV from any of: ' + uniq.join(', '));
+                                }
+                              
                                 pathInput.value = result.usedPath;
                                 const parsed = parseCSV(result.text, false);
                                 initializeTable(parsed);
