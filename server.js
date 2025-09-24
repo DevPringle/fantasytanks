@@ -334,16 +334,6 @@ for (const tournament of tournamentsToSeed) {
   }
 }
 
-app.get('/stats/:fileName', (req, res) => {
-    const fileName = req.params.fileName;
-    res.sendFile(path.join(__dirname, 'stats', fileName), (err) => {
-        if (err) {
-            console.error('File not found:', err);
-            res.status(404).send('File not found');
-        }
-    });
-});
-
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
