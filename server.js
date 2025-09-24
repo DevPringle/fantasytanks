@@ -6,6 +6,7 @@ const { Pool } = require('pg');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -333,6 +334,16 @@ for (const tournament of tournamentsToSeed) {
     console.error('Error initializing database tables:', error);
   }
 }
+
+app.get('/stats/:fileName', (req, res) => {
+    const fileName = req.params.fileName;
+    res.sendFile(path.join(__dirname, 'stats', fileName), (err) => {
+        if (err) {
+            console.error('File not found:', err);
+            res.status(404).send('File not found');
+        }
+    });
+});
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
