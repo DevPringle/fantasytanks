@@ -6,7 +6,6 @@ const { Pool } = require('pg');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
