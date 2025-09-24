@@ -2244,7 +2244,7 @@
             </div>
 
             <script>
-                // Standings UI wiring
+
                 (function () {
                     const tournamentId = 'draft-cup-sept-2025';
                     const standingsTable = document.getElementById('fantasyStandingsTable');
@@ -2310,7 +2310,7 @@
                                 const daysTd = document.createElement('td');
                                 daysTd.className = 'days-cell';
                                 daysTd.textContent = row.match_days_played != null ? row.match_days_played : '-';
-                                // hide cell if in match-day view
+                             
                                 if (view === 'match-day') {
                                     daysTd.style.display = 'none';
                                 }
@@ -2332,7 +2332,7 @@
                         }
                     }
 
-                    // Wire up filters
+                   
                     bracketFilter.addEventListener('change', () => {
                         // If selecting single match-day but no day chosen, default to 1
                         if (bracketFilter.value === 'match-day' && !matchDayFilter.value) {
@@ -2366,7 +2366,7 @@
                         }
                     });
 
-                    // expose for debugging
+                    // debugging
                     window._fantasyStandings = { fetchAndRender };
                 })();
             </script>
@@ -2377,11 +2377,419 @@
                     <span class="material-icons">analytics</span>
                     Fantasy Statistics
                 </h2>
-                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
-                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">analytics</span>
-                    <h3 style="margin-bottom: 1rem;">Fantasy Stats Coming Soon</h3>
-                    <p>Detailed fantasy performance analytics, player trends, and optimal drafting insights will be available during the tournament.</p>
+
+                <div style="margin-bottom:1rem;">
+                    <div style="background: linear-gradient(90deg, rgba(0,212,255,0.06), rgba(0,184,230,0.02)); border-left:4px solid #00d4ff; padding:0.75rem 1rem; border-radius:8px; color:#e8faff;">
+                        <div style="font-weight:700; font-size:1rem;">Statistics compiled and provided by Mitsua</div>
+                        <div style="margin-top:0.15rem; color:rgba(255,255,255,0.85); font-size:0.85rem;">Curated tournament performance data for player insight and event reporting.</div>
+                    </div>
                 </div>
+
+                <div class="sidebar-card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+                        <div style="font-weight:600; color:#ffffff;">Player statistics (CSV)</div>
+                        <div style="display:flex; gap:0.5rem; align-items:center;">
+                            <label for="statsCsvPath" style="color: rgba(255,255,255,0.8); font-size:0.9rem;">CSV path (relative):</label>
+                            <input id="statsCsvPath" type="text" placeholder="stats/Stats Draft #4 - results-20250922-113852.csv" value="Stats Draft #4 - results-20250922-113852.csv" style="padding:0.4rem 0.6rem; border-radius:6px; background: rgba(255,255,255,0.04); color: #fff; border:1px solid rgba(255,255,255,0.06); min-width:260px;">
+                            <button id="loadStatsBtn" class="action-btn secondary" style="padding:0.45rem 0.8rem;">Load CSV</button>
+                        </div>
+                    </div>
+                    <div style="margin-top:0.75rem; color: rgba(255,255,255,0.7); font-size:0.9rem;">You can add the CSV file to the repo (relative path) or upload one locally using the file picker below.</div>
+                    <div style="margin-top:0.75rem; display:flex; gap:0.5rem; align-items:center;">
+                        <input id="statsFileInput" type="file" accept="text/csv" style="color: #fff;">
+                        <button id="clearStatsBtn" class="action-btn secondary" style="padding:0.45rem 0.8rem;">Clear</button>
+                    </div>
+                </div>
+
+                <div class="standings-container" style="padding:1rem;">
+                    <div id="statsLoadingState" class="loading-state" style="display:none;">
+                        <div class="loading-spinner"></div>
+                        <div>Loading stats...</div>
+                    </div>
+
+                    <div id="statsTableWrapper" style="overflow-x:auto;">
+                        <table id="statsTable" class="standings-table" style="width:100%; display:none;">
+                            <thead id="statsTableHead"></thead>
+                            <tbody id="statsTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="statsPager" style="display:none; margin-top:0.75rem; display:flex; gap:0.5rem; align-items:center; justify-content:flex-end;">
+                        <label style="color:rgba(255,255,255,0.8);">Rows:</label>
+                        <select id="statsPageSize" style="padding:0.35rem; background: rgba(255,255,255,0.04); color:#fff; border:1px solid rgba(255,255,255,0.06);">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <button id="statsPrev" class="action-btn secondary" style="padding:0.35rem 0.6rem;">Prev</button>
+                        <span id="statsPageInfo" style="color:rgba(255,255,255,0.8);">Page 1 / 1</span>
+                        <button id="statsNext" class="action-btn secondary" style="padding:0.35rem 0.6rem;">Next</button>
+                    </div>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+                <script>
+                    (function(){
+                        const csvInput = document.getElementById('statsFileInput');
+                        const loadBtn = document.getElementById('loadStatsBtn');
+                        const clearBtn = document.getElementById('clearStatsBtn');
+                        const pathInput = document.getElementById('statsCsvPath');
+                        const loading = document.getElementById('statsLoadingState');
+                        const table = document.getElementById('statsTable');
+                        const thead = document.getElementById('statsTableHead');
+                        const tbody = document.getElementById('statsTableBody');
+                        const pager = document.getElementById('statsPager');
+                        const pageSizeSelect = document.getElementById('statsPageSize');
+                        const prevBtn = document.getElementById('statsPrev');
+                        const nextBtn = document.getElementById('statsNext');
+                        const pageInfo = document.getElementById('statsPageInfo');
+                        
+                        const exportBtn = document.createElement('button');
+                        exportBtn.id = 'statsExport';
+                        exportBtn.className = 'action-btn';
+                        exportBtn.style.padding = '0.35rem 0.6rem';
+                        exportBtn.textContent = 'Export raw CSV';
+                        pager.insertBefore(exportBtn, prevBtn);
+
+                        
+                        let parsedData = null; 
+                        let rows = [];
+                        let filteredRows = [];
+                        let columnIsNumeric = [];
+                        
+                        let columnDerivedValueFuncs = [];
+                        let sortCol = -1;
+                        let sortDir = 1; 
+                        let filters = [];
+                        let pageSize = Number(pageSizeSelect.value) || 25;
+                        let pageIdx = 0;
+
+                        function parseCSV(text, fromFile) {
+                        
+                            const res = Papa.parse(text, { skipEmptyLines: true });
+                            if (res && res.data && res.data.length) {
+                                const headers = res.data[0].map(h => String(h || '').trim());
+                                const rows = res.data.slice(1).map(r => r.map(c => c == null ? '' : String(c)));
+                                return { headers, rows };
+                            }
+                            return { headers: [], rows: [] };
+                        }
+
+                        function detectNumericColumns(parsed) {
+                            const h = parsed.headers.length;
+                            const colNumeric = new Array(h).fill(false);
+                            columnDerivedValueFuncs = new Array(h).fill(null);
+                            const sampleLimit = Math.min(parsed.rows.length, 200);
+                            for (let c = 0; c < h; c++) {
+                                const header = String(parsed.headers[c] || '').toLowerCase();
+                                
+                                if (/pen\s*hit/i.test(header) || header.indexOf('penhit') !== -1) {
+                                  
+                                    columnDerivedValueFuncs[c] = (val) => {
+                                        if (!val) return NaN;
+                                        const m = String(val).trim().match(/^(\d+)\s*\/\s*(\d+)$/);
+                                        if (!m) return NaN;
+                                        const hits = Number(m[1]);
+                                        const attempts = Number(m[2]);
+                                        if (!attempts) return NaN;
+                                        return hits / attempts;
+                                    };
+                                    colNumeric[c] = false; 
+                                    continue;
+                                }
+
+                                let numericCount = 0;
+                                for (let r = 0; r < sampleLimit; r++) {
+                                    const v = parsed.rows[r][c] || '';
+                                    const n = parseFloat(String(v).replace(/[,\s%\$]/g, ''));
+                                    if (!isNaN(n) && isFinite(n)) numericCount++;
+                                }
+                                
+                                const threshold = Math.ceil(Math.max(1, sampleLimit * 0.6));
+                                colNumeric[c] = numericCount >= threshold;
+                            }
+                            return colNumeric;
+                        }
+
+                        function buildHeader(parsed) {
+                            thead.innerHTML = '';
+                            const tr = document.createElement('tr');
+                            parsed.headers.forEach((h, idx) => {
+                                const th = document.createElement('th');
+                                th.textContent = h;
+                                th.style.cursor = 'pointer';
+                                th.dataset.col = String(idx);
+                                
+                                const sortSpan = document.createElement('span');
+                                sortSpan.style.marginLeft = '0.5rem';
+                                sortSpan.style.opacity = '0.7';
+                                sortSpan.className = 'sort-marker';
+                                th.appendChild(sortSpan);
+                                th.addEventListener('click', () => {
+                                    const col = Number(th.dataset.col);
+                                    if (sortCol === col) sortDir = -sortDir; else { sortCol = col; sortDir = -1; }
+                                    applySortFilterRender();
+                                });
+                                if (columnIsNumeric[idx]) {
+                                    th.style.textAlign = 'right';
+                                }
+                                tr.appendChild(th);
+                            });
+                            thead.appendChild(tr);
+
+                            // filter row
+                            const ftr = document.createElement('tr');
+                            parsed.headers.forEach((h, idx) => {
+                                const th = document.createElement('th');
+                                const input = document.createElement('input');
+                                input.type = 'text';
+                                input.placeholder = '';
+                                input.style.width = '100%';
+                                input.style.padding = '0.35rem';
+                                input.style.background = 'rgba(255,255,255,0.02)';
+                                input.style.border = '1px solid rgba(255,255,255,0.04)';
+                                input.style.color = '#fff';
+                                input.addEventListener('input', (e) => {
+                                    filters[idx] = e.target.value.trim().toLowerCase();
+                                    pageIdx = 0;
+                                    applySortFilterRender();
+                                });
+                                th.appendChild(input);
+                                if (columnIsNumeric[idx]) th.style.textAlign = 'right';
+                                ftr.appendChild(th);
+                            });
+                            thead.appendChild(ftr);
+                        }
+
+                        function applyFilters(parsedRows) {
+                            if (!filters || filters.length === 0) return parsedRows.slice();
+                            return parsedRows.filter(row => {
+                                for (let c = 0; c < parsedData.headers.length; c++) {
+                                    const f = filters[c];
+                                    if (f && f.length > 0) {
+                                        const v = String(row[c] || '').toLowerCase();
+                                        if (!v.includes(f)) return false;
+                                    }
+                                }
+                                return true;
+                            });
+                        }
+
+                        function applySort(rowsToSort) {
+                            if (sortCol < 0) return rowsToSort;
+                            const col = sortCol;
+                            const isNum = columnIsNumeric[col];
+                            const derived = columnDerivedValueFuncs[col];
+                            const sorted = rowsToSort.slice().sort((a,b) => {
+                                const va = a[col] != null ? String(a[col]).trim() : '';
+                                const vb = b[col] != null ? String(b[col]).trim() : '';
+                                
+                                if (derived) {
+                                    const na = derived(va);
+                                    const nb = derived(vb);
+                                    const aIsNaN = isNaN(na) || !isFinite(na);
+                                    const bIsNaN = isNaN(nb) || !isFinite(nb);
+                                    if (aIsNaN && bIsNaN) return 0;
+                                    if (aIsNaN) return 1 * sortDir;
+                                    if (bIsNaN) return -1 * sortDir;
+                                    return (na - nb) * sortDir;
+                                }
+                                if (isNum) {
+                                    const na = parseFloat(va.replace(/[,\s%\$]/g, ''));
+                                    const nb = parseFloat(vb.replace(/[,\s%\$]/g, ''));
+                                    if (isNaN(na) && isNaN(nb)) return 0;
+                                    if (isNaN(na)) return 1 * sortDir;
+                                    if (isNaN(nb)) return -1 * sortDir;
+                                    return (na - nb) * sortDir;
+                                }
+                                // string compare
+                                return va.localeCompare(vb) * sortDir;
+                            });
+                            return sorted;
+                        }
+
+                        function renderPage() {
+                            tbody.innerHTML = '';
+                            const total = filteredRows.length;
+                            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+                            if (pageIdx >= totalPages) pageIdx = totalPages - 1;
+                            const start = pageIdx * pageSize;
+                            const end = Math.min(total, start + pageSize);
+                            for (let r = start; r < end; r++) {
+                                const row = filteredRows[r];
+                                const tr = document.createElement('tr');
+                                for (let c = 0; c < parsedData.headers.length; c++) {
+                                    const td = document.createElement('td');
+                                    const v = row[c] != null ? row[c] : '';
+                                    td.textContent = v;
+                                    if (columnIsNumeric[c]) td.style.textAlign = 'right';
+                                    tr.appendChild(td);
+                                }
+                                tbody.appendChild(tr);
+                            }
+                            table.style.display = parsedData && parsedData.headers.length ? '' : 'none';
+                            // pager
+                            pager.style.display = total <= pageSize && total === 0 ? 'none' : '';
+                            pageInfo.textContent = `Page ${pageIdx+1} / ${totalPages} (${total} rows)`;
+                            prevBtn.disabled = pageIdx === 0;
+                            nextBtn.disabled = pageIdx >= totalPages - 1;
+                          s
+                            Array.from(thead.querySelectorAll('th')).forEach(th => {
+                                const colIdx = Number(th.dataset.col);
+                                const marker = th.querySelector('.sort-marker');
+                                if (!marker) return;
+                                if (colIdx === sortCol) marker.textContent = sortDir === -1 ? ' ▼' : ' ▲'; else marker.textContent = '';
+                            });
+                        }
+
+                        function applySortFilterRender() {
+                            // apply filters
+                            filteredRows = applyFilters(rows);
+                            // apply sort
+                            filteredRows = applySort(filteredRows);
+                            renderPage();
+                        }
+
+                        function initializeTable(parsed) {
+                            parsedData = parsed;
+                            rows = parsed.rows.map(r => {
+                                
+                                const arr = new Array(parsed.headers.length).fill('');
+                                for (let i = 0; i < parsed.headers.length; i++) arr[i] = r[i] != null ? r[i] : '';
+                                return arr;
+                            });
+                            
+                            
+                            const penIdx = parsed.headers.findIndex(h => /pen\s*hit/i.test(h) || String(h).toLowerCase().indexOf('penhit') !== -1);
+                            if (penIdx !== -1) {
+                               
+                                const newHeaders = parsed.headers.slice();
+                                newHeaders.splice(penIdx+1, 0, 'PenHit %');
+                                parsedData.headers = newHeaders;
+                               
+                                rows = rows.map(r => {
+                                    const clone = r.slice();
+                                    const val = String(r[penIdx] || '');
+                                    const m = val.trim().match(/^(\d+)\s*\/\s*(\d+)$/);
+                                    const pct = (m && Number(m[2])>0) ? (Number(m[1]) / Number(m[2]) * 100) : NaN;
+                                    clone.splice(penIdx+1, 0, isNaN(pct) ? '' : (Math.round(pct*10)/10) + '%');
+                                    return clone;
+                                });
+                               
+                            }
+                            filters = new Array(parsed.headers.length).fill('');
+                            columnIsNumeric = detectNumericColumns(parsed);
+                            sortCol = -1; sortDir = -1; pageIdx = 0;
+                            buildHeader(parsed);
+                            filteredRows = rows.slice();
+                            pageSize = Number(pageSizeSelect.value) || 25;
+                            renderPage();
+                        }
+
+                        async function fetchAndLoad(path) {
+                            if (!path) return;
+                            loading.style.display = 'block';
+                            try {
+                                const resp = await fetch(path);
+                                if (!resp.ok) throw new Error('Failed to fetch CSV: ' + resp.statusText);
+                                const text = await resp.text();
+                                const parsed = parseCSV(text, false);
+                                initializeTable(parsed);
+                            } catch (err) {
+                                console.error(err);
+                                alert('Error loading CSV: ' + err.message + '. You can instead upload a local CSV using the file selector.');
+                            } finally {
+                                loading.style.display = 'none';
+                            }
+                        }
+
+                       
+                        loadBtn.addEventListener('click', () => {
+                            const p = pathInput.value && pathInput.value.trim();
+                            if (!p) { alert('Enter a relative path to the CSV file in the repo or upload one.'); return; }
+                            fetchAndLoad(p);
+                        });
+
+                        clearBtn.addEventListener('click', () => {
+                            pathInput.value = '';
+                            csvInput.value = '';
+                            thead.innerHTML = '';
+                            tbody.innerHTML = '';
+                            table.style.display = 'none';
+                            pager.style.display = 'none';
+                            parsedData = null; rows = []; filteredRows = [];
+                        });
+
+                        csvInput.addEventListener('change', (e) => {
+                            const f = e.target.files && e.target.files[0];
+                            if (!f) return;
+                            const reader = new FileReader();
+                            reader.onload = function(ev) {
+                                const text = ev.target.result;
+                                const parsed = parseCSV(text, true);
+                                initializeTable(parsed);
+                            };
+                            reader.readAsText(f);
+                        });
+
+                       
+                        exportBtn.addEventListener('click', () => {
+                            if (!parsedData) { alert('No table loaded to export'); return; }
+                            const hdrs = parsedData.headers.slice();
+                            const outRows = filteredRows.map(r => {
+                                return hdrs.map((h, c) => {
+                                    const v = r[c] != null ? String(r[c]) : '';
+                                  
+                                    if (columnDerivedValueFuncs[c]) {
+                                        const n = columnDerivedValueFuncs[c](v);
+                                        return isNaN(n) ? '' : String(n);
+                                    }
+                                   
+                                    if (columnIsNumeric[c]) {
+                                        const n = v.replace(/,/g, '');
+                                        return n;
+                                    }
+                                    return v;
+                                });
+                            });
+                            const csv = Papa.unparse({ fields: hdrs, data: outRows });
+                            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'stats-export.csv';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            URL.revokeObjectURL(url);
+                        });
+
+                        pageSizeSelect.addEventListener('change', () => {
+                            pageSize = Number(pageSizeSelect.value) || 25;
+                            pageIdx = 0;
+                            renderPage();
+                        });
+
+                        prevBtn.addEventListener('click', () => {
+                            if (pageIdx > 0) { pageIdx--; renderPage(); }
+                        });
+                        nextBtn.addEventListener('click', () => {
+                            const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+                            if (pageIdx < totalPages - 1) { pageIdx++; renderPage(); }
+                        });
+
+                        // auto-load default path if available on initial load when stats tab active
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const active = document.querySelector('.nav-tab.active');
+                            if (active && active.getAttribute('data-tab') === 'stats') {
+                                const p = pathInput.value && pathInput.value.trim();
+                                if (p) fetchAndLoad(p);
+                            }
+                        });
+                    })();
+                </script>
             </div>
         </section>
             </main>
