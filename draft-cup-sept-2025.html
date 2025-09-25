@@ -2245,113 +2245,16 @@
 
             <!-- Stats Tab -->
 
-
             <div id="stats" class="tab-content">
                 <h2 class="section-title">
                     <span class="material-icons">analytics</span>
                     Fantasy Statistics
                 </h2>
-
-                <div style="margin-bottom:1rem;">
-                    <div style="background: linear-gradient(90deg, rgba(0,212,255,0.06), rgba(0,184,230,0.02)); border-left:4px solid #00d4ff; padding:0.75rem 1rem; border-radius:8px; color:#e8faff;">
-                        <div style="font-weight:700; font-size:1rem;">Statistics compiled and provided by Mitsua</div>
-                        <div style="margin-top:0.15rem; color:rgba(255,255,255,0.85); font-size:0.85rem;">Curated tournament performance data for player insight and event reporting.</div>
-                    </div>
+                <div style="text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.6);">
+                    <span class="material-icons" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">analytics</span>
+                    <h3 style="margin-bottom: 1rem;">Fantasy Stats Coming Soon</h3>
+                    <p>Detailed fantasy performance analytics, player trends, and optimal drafting insights will be available during the tournament.</p>
                 </div>
-
-                <div class="sidebar-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display:flex; gap:1rem; align-items:center; justify-content:space-between; flex-wrap:wrap;">
-                    <div style="min-width:220px;">
-                        <div style="font-weight:600; color:#ffffff; margin-bottom:0.35rem;">Player statistics (CSV)</div>
-                        <div style="color: rgba(255,255,255,0.7); font-size:0.9rem;">Loads <strong>StatsDraft4.csv</strong> from the repo root or upload a local CSV.</div>
-                    </div>
-                    <div style="display:flex; gap:0.5rem; align-items:center;">
-                        <input id="statsCsvPath" type="text" value="StatsDraft4.csv" style="padding:0.45rem 0.7rem; border-radius:6px; background: rgba(255,255,255,0.04); color: #fff; border:1px solid rgba(255,255,255,0.06); min-width:260px;">
-                        <button id="loadStatsBtn" class="action-btn secondary" style="padding:0.45rem 0.9rem;">Load CSV</button>
-                        <input id="statsFileInput" type="file" accept="text/csv" style="display:none;">
-                        <button id="chooseStatsFile" class="action-btn" style="padding:0.45rem 0.9rem;">Upload CSV</button>
-                        <button id="clearStatsBtn" class="action-btn secondary" style="padding:0.45rem 0.9rem;">Clear</button>
-                    </div>
-                </div>
-
-                <div class="standings-container" style="padding:0.5rem 0 1rem 0;">
-                    <div id="statsLoadingState" class="loading-state" style="display:none; margin-bottom:0.75rem;">
-                        <div class="loading-spinner"></div>
-                        <div>Loading stats...</div>
-                    </div>
-
-                    <div id="statsTableWrapper" style="overflow:auto; background: rgba(255,255,255,0.02); border-radius:8px; padding:0.5rem;">
-                        <table id="statsTable" class="standings-table" style="width:100%; display:none; border-collapse:separate; border-spacing:0 6px;">
-                            <thead id="statsTableHead"></thead>
-                            <tbody id="statsTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div id="statsPager" style="display:none; margin-top:0.75rem; display:flex; gap:0.5rem; align-items:center; justify-content:flex-end;">
-                        <label style="color:rgba(255,255,255,0.8);">Rows:</label>
-                        <select id="statsPageSize" style="padding:0.35rem; background: rgba(255,255,255,0.04); color:#fff; border:1px solid rgba(255,255,255,0.06);">
-                            <option value="10">10</option>
-                            <option value="25" selected>25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                        <button id="statsPrev" class="action-btn secondary" style="padding:0.35rem 0.6rem;">Prev</button>
-                        <span id="statsPageInfo" style="color:rgba(255,255,255,0.8);">Page 1 / 1</span>
-                        <button id="statsNext" class="action-btn secondary" style="padding:0.35rem 0.6rem;">Next</button>
-                    </div>
-                </div>
-
-                <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-                <script>
-                    (function () {
-                        const tournamentId = 'draft-cup-sept-2025';
-                        const table = document.getElementById('statsTable');
-                        const thead = document.getElementById('statsTableHead');
-                        const tbody = document.getElementById('statsTableBody');
-                        const pager = document.getElementById('statsPager');
-                        const pageSizeSelect = document.getElementById('statsPageSize');
-                        const prevBtn = document.getElementById('statsPrev');
-                        const nextBtn = document.getElementById('statsNext');
-                        const pageInfo = document.getElementById('statsPageInfo');
-                        const loadBtn = document.getElementById('loadStatsBtn');
-                        const chooseBtn = document.getElementById('chooseStatsFile');
-                        const fileInput = document.getElementById('statsFileInput');
-                        const clearBtn = document.getElementById('clearStatsBtn');
-                        const pathInput = document.getElementById('statsCsvPath');
-                        const loadingState = document.getElementById('statsLoadingState');
-
-                        let parsedData = null; let rows = []; let headers = []; let filteredRows = []; let columnIsNumeric = []; let columnDerived = [];
-                        let sortCol = -1; let sortDir = -1; let pageIdx = 0; let pageSize = Number(pageSizeSelect.value) || 25;
-
-                        function parseCSVText(text){ const p = Papa.parse(text, { skipEmptyLines:true }); if(!p || !p.data || !p.data.length) return {headers:[],rows:[]}; const h = p.data[0].map(x=>String(x||'').trim()); const rs = p.data.slice(1).map(r=>r.map(c=>c==null?'':String(c))); return { headers:h, rows: rs }; }
-
-                        function detectCols(parsed){ headers = parsed.headers; rows = parsed.rows; columnIsNumeric = new Array(headers.length).fill(false); columnDerived = new Array(headers.length).fill(null); const sample = Math.min(rows.length,200); for(let c=0;c<headers.length;c++){ const key = String(headers[c]||'').toLowerCase(); if(/pen\s*hit|penhit/.test(key)){ columnDerived[c] = v=>{ if(!v) return NaN; const m=String(v).trim().match(/^(\d+)\s*\/\s*(\d+)$/); if(!m) return NaN; const a=Number(m[1]), b=Number(m[2]); return b? a/b : NaN }; columnIsNumeric[c]=false; continue; } let cnt=0; for(let r=0;r<sample;r++){ const v = String(rows[r][c]||''); const n = parseFloat(v.replace(/[ ,%$]/g,'')); if(!isNaN(n) && isFinite(n)) cnt++; } columnIsNumeric[c] = cnt >= Math.ceil(Math.max(1, sample*0.6)); } }
-
-                        function buildHeader(){ thead.innerHTML=''; const hr = document.createElement('tr'); headers.forEach((h,i)=>{ const th = document.createElement('th'); th.textContent = h; th.dataset.col = i; th.style.cursor = 'pointer'; const sortMark = document.createElement('span'); sortMark.style.marginLeft='0.4rem'; sortMark.style.opacity='0.7'; th.appendChild(sortMark); th.addEventListener('click', ()=>{ const col=Number(th.dataset.col); if(sortCol===col) sortDir = -sortDir; else{ sortCol = col; sortDir = -1; } render(); }); hr.appendChild(th); }); thead.appendChild(hr); const fr = document.createElement('tr'); fr.className='filters'; headers.forEach((h,i)=>{ const th = document.createElement('th'); const inp = document.createElement('input'); inp.type='text'; inp.style.width='100%'; inp.style.padding='0.35rem'; inp.style.background='rgba(255,255,255,0.02)'; inp.style.border='1px solid rgba(255,255,255,0.04)'; inp.style.color='#fff'; inp.addEventListener('input', ()=>{ pageIdx=0; render(); }); th.appendChild(inp); fr.appendChild(th); }); thead.appendChild(fr); }
-
-                        function applyFilters(src){ const filters = Array.from(thead.querySelectorAll('tr.filters input')).map(i=>i.value.trim().toLowerCase()); const q = ''; let out = src.slice(); if(filters.some(f=>f&&f.length)){ out = out.filter(r=>{ for(let c=0;c<filters.length;c++){ const f = filters[c]; if(f && String(r[c]||'').toLowerCase().indexOf(f)===-1) return false; } return true; }); } return out; }
-
-                        function applySort(src){ if(sortCol<0) return src; const col = sortCol; const isNum = columnIsNumeric[col]; const derived = columnDerived[col]; return src.slice().sort((a,b)=>{ const va = a[col]!=null?String(a[col]).trim():''; const vb = b[col]!=null?String(b[col]).trim():''; if(derived){ const na = derived(va); const nb = derived(vb); const aNa = isNaN(na)||!isFinite(na); const bNa = isNaN(nb)||!isFinite(nb); if(aNa&&bNa) return 0; if(aNa) return 1*sortDir; if(bNa) return -1*sortDir; return (na-nb)*sortDir; } if(isNum){ const na=parseFloat(va.replace(/[ ,%$]/g,'')); const nb=parseFloat(vb.replace(/[ ,%$]/g,'')); if(isNaN(na)&&isNaN(nb)) return 0; if(isNaN(na)) return 1*sortDir; if(isNaN(nb)) return -1*sortDir; return (na-nb)*sortDir; } return va.localeCompare(vb)*sortDir; }); }
-
-                        function render(){ filteredRows = applyFilters(rows); filteredRows = applySort(filteredRows); pageSize = Number(pageSizeSelect.value)||25; const total = filteredRows.length; const totalPages = Math.max(1, Math.ceil(total/pageSize)); if(pageIdx>=totalPages) pageIdx = totalPages-1; const start = pageIdx*pageSize; const end = Math.min(total, start+pageSize); tbody.innerHTML=''; for(let r=start;r<end;r++){ const tr = document.createElement('tr'); const row = filteredRows[r]; for(let c=0;c<headers.length;c++){ const td = document.createElement('td'); td.textContent = row[c]!=null? row[c] : ''; if(columnIsNumeric[c]||columnDerived[c]) td.style.textAlign='right'; tr.appendChild(td); } tbody.appendChild(tr); } pageInfo.textContent = `Page ${pageIdx+1} / ${totalPages} (${total} rows)`; prevBtn.disabled = pageIdx===0; nextBtn.disabled = pageIdx>=totalPages-1; table.style.display = headers && headers.length ? '' : 'none'; pager.style.display = total===0 ? 'none' : ''; Array.from(thead.querySelectorAll('th')).forEach(th=>{ const idx = Number(th.dataset.col); const m = th.querySelector('span'); if(!m) return; m.textContent = idx===sortCol ? (sortDir===-1? ' ▼' : ' ▲') : ''; }); }
-
-                        const encodeSegments = p => p.split('/').map(s=>encodeURIComponent(s)).join('/');
-
-                        async function attemptPaths(paths){ for(const p of paths){ try{ const r = await fetch(p); if(r && r.ok){ const text = await r.text(); return { text, used: p}; } }catch(e){} } return null; }
-
-                        async function fetchAndLoad(path){ if(!path) return; loadingState.style.display = 'block'; try{ const enc = encodeSegments(path); const candidates = [ path, enc, `https://raw.githubusercontent.com/DevPringle/Pre-Draft-Site-Files/main/${path}`, `https://raw.githubusercontent.com/DevPringle/Pre-Draft-Site-Files/main/${enc}` ]; const res = await attemptPaths(candidates); if(!res) throw new Error('Could not fetch CSV'); pathInput.value = res.used; const parsed = parseCSVText(res.text); detectCols(parsed); buildHeader(); render(); }catch(err){ console.error('Error loading CSV', err); }finally{ loadingState.style.display = 'none'; } }
-
-                        loadBtn.addEventListener('click', ()=> fetchAndLoad(pathInput.value && pathInput.value.trim() ? pathInput.value.trim() : 'StatsDraft4.csv'));
-                        chooseBtn.addEventListener('click', ()=> fileInput.click());
-                        fileInput.addEventListener('change', e=>{ const f = e.target.files && e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev=>{ const parsed = parseCSVText(ev.target.result); detectCols(parsed); buildHeader(); render(); }; r.readAsText(f); });
-                        clearBtn.addEventListener('click', ()=>{ thead.innerHTML=''; tbody.innerHTML=''; pathInput.value=''; parsedData=null; rows=[]; headers=[]; filteredRows=[]; table.style.display='none'; pager.style.display='none'; });
-                        prevBtn.addEventListener('click', ()=>{ if(pageIdx>0){ pageIdx--; render(); } });
-                        nextBtn.addEventListener('click', ()=>{ const tp = Math.max(1, Math.ceil(filteredRows.length/(Number(pageSizeSelect.value)||25))); if(pageIdx<tp-1){ pageIdx++; render(); } });
-
-                        document.addEventListener('DOMContentLoaded', ()=>{ fetchAndLoad('StatsDraft4.csv'); });
-                        window.loadStatsTab = function(){ if(headers && headers.length) return; fetchAndLoad('StatsDraft4.csv'); };
-                    })();
-                </script>
             </div>
 
             <script>
