@@ -1402,6 +1402,8 @@
         .stats-table td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.9); font-size: 0.95rem; }
         .stats-table tr:nth-child(even) td { background: rgba(255, 255, 255, 0.02); }
         .stats-table.compact td { padding: 0.6rem; }
+        .stats-table th[data-tooltip] { position: sticky; cursor: help; }
+        .stats-table th[data-tooltip]:hover::after { content: attr(data-tooltip); position: absolute; top: calc(100% + 6px); right: 0.5rem; background: rgba(15,20,25,0.95); color: #e9f8ff; border: 1px solid rgba(255,255,255,0.15); padding: 0.45rem 0.6rem; border-radius: 8px; white-space: nowrap; font-size: 0.8rem; z-index: 5; box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
         .stats-pagination { display: flex; align-items: center; gap: 0.75rem; justify-content: space-between; padding: 0.75rem 0; }
         .stats-page-controls { display: flex; align-items: center; gap: 0.5rem; }
         .stats-page-btn { padding: 0.5rem 0.9rem; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
@@ -2320,7 +2322,7 @@
                                 <th data-key="KPG" style="text-align:right;">KPG <span class="material-icons sort-icon">expand_more</span></th>
                                 <th data-key="DPG" style="text-align:right;">DPG <span class="material-icons sort-icon">expand_more</span></th>
                                 <th data-key="games" style="text-align:right;">Games <span class="material-icons sort-icon">expand_more</span></th>
-                                <th data-key="BaitFactor" style="text-align:right;">BaitFactor <span class="material-icons sort-icon">expand_more</span></th>
+                                <th data-key="BaitFactor" style="text-align:right;" data-tooltip="Damage dealt ÷ damage received">BaitFactor <span class="material-icons sort-icon">expand_more</span></th>
                                 <th data-key="PenRate" style="text-align:right;">PenRate <span class="material-icons sort-icon">expand_more</span></th>
                                 <th data-key="PenHit" style="text-align:right;">Pen/Hit <span class="material-icons sort-icon">expand_more</span></th>
                             </tr>
