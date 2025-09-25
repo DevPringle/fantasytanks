@@ -1395,11 +1395,13 @@
         .stats-btn:hover { background: rgba(255, 255, 255, 0.12); }
         .stats-table-container { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px); }
         .stats-table { width: 100%; border-collapse: collapse; }
-        .stats-table th { background: rgba(255, 255, 255, 0.08); padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: relative; cursor: pointer; user-select: none; }
-        .stats-table th .sort-icon { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font-family: 'Material Icons'; font-size: 1rem; opacity: 0.6; }
+        .stats-table th { background: rgba(255, 255, 255, 0.08); padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 2; cursor: pointer; user-select: none; }
+        .stats-table th .sort-icon { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 1rem; opacity: 0.6; }
         .stats-table th.asc .sort-icon { transform: translateY(-50%) rotate(180deg); opacity: 1; color: #00d4ff; }
         .stats-table th.desc .sort-icon { opacity: 1; color: #00d4ff; }
         .stats-table td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.9); font-size: 0.95rem; }
+        .stats-table tr:nth-child(even) td { background: rgba(255, 255, 255, 0.02); }
+        .stats-table.compact td { padding: 0.6rem; }
         .stats-pagination { display: flex; align-items: center; gap: 0.75rem; justify-content: space-between; padding: 0.75rem 0; }
         .stats-page-controls { display: flex; align-items: center; gap: 0.5rem; }
         .stats-page-btn { padding: 0.5rem 0.9rem; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
@@ -2270,6 +2272,11 @@
                     <span class="material-icons">analytics</span>
                     Fantasy Statistics
                 </h2>
+                <div style="margin: -0.5rem 0 1.25rem 0;">
+                    <div style="display:inline-block; padding:0.6rem 1rem; border:1px solid rgba(255,255,255,0.15); border-radius:10px; background: rgba(0,212,255,0.08); color:#e8fbff; font-weight:600;">
+                        Statistics curated and provided courtesy of <span style="color:#00d4ff;">Mitsua</span>
+                    </div>
+                </div>
                 <div class="stats-controls">
                     <div class="stats-search" style="max-width:480px;">
                         <input id="statsSearch" type="text" class="stats-input" placeholder="Search players or teams">
@@ -2299,21 +2306,23 @@
                     <div class="stats-toolbar" style="margin-left:auto;">
                         <button id="statsExportCsv" class="stats-btn"><span class="material-icons" style="font-size:1rem;">download</span>Export CSV</button>
                         <button id="statsCopy" class="stats-btn"><span class="material-icons" style="font-size:1rem;">content_copy</span>Copy</button>
+                        <button id="statsCompact" class="stats-btn"><span class="material-icons" style="font-size:1rem;">density_small</span>Compact</button>
+                        <button id="statsReset" class="stats-btn"><span class="material-icons" style="font-size:1rem;">restart_alt</span>Reset</button>
                     </div>
                 </div>
                 <div class="stats-table-container">
                     <table class="stats-table" id="statsTable">
                         <thead>
                             <tr>
-                                <th data-key="player_name">Player <span class="sort-icon">expand_more</span></th>
-                                <th data-key="team" style="min-width:120px;">Team <span class="sort-icon">expand_more</span></th>
-                                <th data-key="Recieved" style="text-align:right;">Received <span class="sort-icon">expand_more</span></th>
-                                <th data-key="KPG" style="text-align:right;">KPG <span class="sort-icon">expand_more</span></th>
-                                <th data-key="DPG" style="text-align:right;">DPG <span class="sort-icon">expand_more</span></th>
-                                <th data-key="games" style="text-align:right;">Games <span class="sort-icon">expand_more</span></th>
-                                <th data-key="BaitFactor" style="text-align:right;">BaitFactor <span class="sort-icon">expand_more</span></th>
-                                <th data-key="PenRate" style="text-align:right;">PenRate <span class="sort-icon">expand_more</span></th>
-                                <th data-key="PenHit" style="text-align:right;">Pen/Hit <span class="sort-icon">expand_more</span></th>
+                                <th data-key="player_name">Player <span class="material-icons sort-icon">expand_more</span></th>
+                                <th data-key="team" style="min-width:120px;">Team <span class="material-icons sort-icon">expand_more</span></th>
+                                <th data-key="Recieved" style="text-align:right;">Received <span class="material-icons sort-icon">expand_more</span></th>
+                                <th data-key="KPG" style="text-align:right;">KPG <span class="material-icons sort-icon">expand_more</span></th>
+                                <th data-key="DPG" style="text-align:right;">DPG <span class="material-icons sort-icon">expand_more</span></th>
+                                <th data-key="games" style="text-align:right;">Games <span class="material-icons sort-icon">expand_more</span></th>
+                                <th data-key="BaitFactor" style="text-align:right;">BaitFactor <span class="material-icons sort-icon">expand_more</span></th>
+                                <th data-key="PenRate" style="text-align:right;">PenRate <span class="material-icons sort-icon">expand_more</span></th>
+                                <th data-key="PenHit" style="text-align:right;">Pen/Hit <span class="material-icons sort-icon">expand_more</span></th>
                             </tr>
                         </thead>
                         <tbody id="statsTableBody"></tbody>
@@ -3942,6 +3951,18 @@
                 document.getElementById('statsNext').addEventListener('click', ()=>{ page++; render(); });
                 document.getElementById('statsExportCsv').addEventListener('click', exportCsv);
                 document.getElementById('statsCopy').addEventListener('click', copyToClipboard);
+                document.getElementById('statsCompact').addEventListener('click', ()=>{
+                    const table = document.getElementById('statsTable');
+                    if (table.classList.contains('compact')) { table.classList.remove('compact'); }
+                    else { table.classList.add('compact'); }
+                });
+                document.getElementById('statsReset').addEventListener('click', ()=>{
+                    document.getElementById('statsSearch').value='';
+                    document.getElementById('statsTeamFilter').value='';
+                    document.getElementById('statsRowsPerPage').value='10';
+                    rowsPerPage=10; page=1; sortKey='player_name'; sortDir='asc';
+                    applyFilters(); sortData(); render();
+                });
                 document.querySelectorAll('#statsTable thead th').forEach(th=>{
                     th.addEventListener('click', ()=>{
                         const key = th.getAttribute('data-key');
