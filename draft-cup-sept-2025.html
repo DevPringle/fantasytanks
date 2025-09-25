@@ -2154,6 +2154,7 @@
                   </div>
                 </div>
                 
+              </div>
               <style>
                 .teams-list-card-grid {
                   display: grid;
@@ -3720,7 +3721,7 @@
     </script>
     <script>
         (function(){
-            const csvPath = 'StatsDraft4.csv';
+            const csvCandidates = ['StatsDraft4.csv','../StatsDraft4.csv'];
             let statsRaw = [];
             let statsFiltered = [];
             let sortKey = 'player_name';
@@ -3757,8 +3758,17 @@
             }
 
             async function loadCsv(){
-                const res = await fetch(csvPath, { cache: 'no-store' });
-                const text = await res.text();
+                let text = '';
+                let lastErr = null;
+                for (const p of csvCandidates){
+                    try {
+                        const res = await fetch(p, { cache: 'no-store' });
+                        if (!res.ok) throw new Error(String(res.status));
+                        text = await res.text();
+                        if (text && text.trim().length) break;
+                    } catch(e){ lastErr = e; }
+                }
+                if (!text) throw lastErr || new Error('CSV not found');
                 const lines = text.split(/\r?\n/).filter(l=>l.trim().length>0);
                 if (lines.length === 0) return [];
                 const headers = lines[0].split(',').map(h=>h.trim());
