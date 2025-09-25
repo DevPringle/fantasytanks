@@ -1395,8 +1395,8 @@
         .stats-btn:hover { background: rgba(255, 255, 255, 0.12); }
         .stats-table-container { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px); }
         .stats-table { width: 100%; border-collapse: collapse; }
-        .stats-table th { background: rgba(255, 255, 255, 0.08); padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 2; cursor: pointer; user-select: none; }
-        .stats-table th .sort-icon { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 1rem; opacity: 0.6; }
+        .stats-table th { background: rgba(255, 255, 255, 0.08); padding: 1rem; padding-right: 2.25rem; text-align: left; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 2; cursor: pointer; user-select: none; }
+        .stats-table th .sort-icon { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.15rem; opacity: 0.7; }
         .stats-table th.asc .sort-icon { transform: translateY(-50%) rotate(180deg); opacity: 1; color: #00d4ff; }
         .stats-table th.desc .sort-icon { opacity: 1; color: #00d4ff; }
         .stats-table td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.9); font-size: 0.95rem; }
@@ -2464,7 +2464,6 @@
                         }
                     });
 
-                    // expose for debugging
                     window._fantasyStandings = { fetchAndRender };
                 })();
             </script>
@@ -3729,6 +3728,87 @@
         });
     </script>
     <script>
+        window.playerTeamOverrides = Object.assign({
+            "JhonJM_DONER": "Team O_P_HACKER",
+            "Sabo_Octo": "Banana",
+            "Muscles1__BURBO": "Gym Class Zeros",
+            "Chase591_TEAM": "TEAM",
+            "Ivory_FILTHY": "Team O_P_HACKER",
+            "Dejdy_BURBO": "Team Bye",
+            "MrSwindoll_FILTHY": "Dogs",
+            "Spirit__DOPA": "Gym Class Zeros",
+            "PM__DOPA": "Team Bye",
+            "Seas_GCZ": "Gym Class Zeros",
+            "Abe_QUOKKAS": "Bridge",
+            "Skyy_BRIDGE": "Bridge",
+            "Space_QUOKKAS": "Dogs",
+            "Kookie_Octo": "Banana",
+            "O_P_Hacker__STAKD": "Team O_P_HACKER",
+            "_Leiwii": "Gym Class Zeros",
+            "Niklas_Bench": "Dogs",
+            "Obliterator_DOGS": "Dogs",
+            "Kiwi_DOGS": "Underdogs",
+            "DarkNinja_BENCH": "BRIDGE",
+            "Jed_DELULU": "Bridge",
+            "Lemisandrus_7V7": "Team O_P_HACKER",
+            "Pasta_Bench": "Dogs",
+            "Nighty_10D_BANANA": "Banana",
+            "woterek__JESTERS": "Underdogs",
+            "Ruev_BRIDGE": "Bridge",
+            "Maeril_DELULU": "Team O_P_HACKER",
+            "verwi_Octo": "Banana",
+            "WOT457_TOURNAMENT_NA25": "Banana",
+            "Alex__FUMES": "Bridge",
+            "Mitsua_TEAM": "TEAM",
+            "PressAlt_TEAM": "TEAM",
+            "OBER_FILTHY": "BASED",
+            "Hobo_GCZ": "Gym Class Zeros",
+            "Gater_TEAM": "TEAM",
+            "Dragonwater_DOPA": "Bridge",
+            "Pubmaxxer_DOGS": "Underdogs",
+            "PHARAOH_FILTHY": "Team O_P_HACKER",
+            "Tankarino_DOGS": "Underdogs",
+            "External007_DOGS": "Underdogs",
+            "JyRyster_TEAM": "TEAM",
+            "Haasaka_Bench": "Dogs",
+            "jacmac1210_TEAM": "TEAM",
+            "Crisis_FILTHY": "BASED",
+            "Dika_DONER": "Dogs",
+            "Paradox_BASED": "BASED",
+            "Day__Muscles": "Gym Class Zeros",
+            "will_GCZ": "Gym Class Zeros",
+            "DagZFG_DOGS": "Dogs",
+            "Epic_GCZ": "Gym Class Zeros",
+            "mrhood_FUMES": "Bridge",
+            "Copium_ILoveDrapsM_Alex": "Bridge",
+            "Tayloo_BENCH": "BASED",
+            "defund_DOGS": "Underdogs",
+            "Flounder__BYE": "Team Bye",
+            "0ctobear_BURBO": "Banana",
+            "Hockey_DOPA": "Team Bye",
+            "Jim_BYE": "Team Bye",
+            "Avid_BASED": "BASED",
+            "Zray_FUMES": "Team Bye",
+            "RNG__BASED": "BASED",
+            "Simon__FUMES": "Bridge",
+            "Kapahna_DOGS": "Underdogs",
+            "Astatine_DOGS": "Underdogs",
+            "Aether_TEAM": "TEAM",
+            "Sprite_BEYOND": "BASED",
+            "Bolt__FUMES": "Team O_P_HACKER",
+            "Platinumdust_OCTO": "Banana",
+            "DrapsM_BURBO": "Team Bye",
+            "Ivory_AC": "Team O_P_HACKER",
+            "Reps_BYE": "Team Bye",
+            "theincredulousk_UNC": "Banana",
+            "doctapat_TEAM": "TEAM",
+            "WOT477_TOURNAMENT_NA25": "Underdogs",
+            "loip123_BYE": "Team Bye",
+            "platinumdust": "Banana",
+            "Loip__RNG": "BASED"
+        }, window.playerTeamOverrides || {});
+    </script>
+    <script>
         (function(){
             const csvCandidates = ['StatsDraft4.csv','../StatsDraft4.csv'];
             let statsRaw = [];
@@ -3745,26 +3825,7 @@
                 return isNaN(n) ? 0 : n;
             }
 
-            function parseTeamFromName(name){
-                if (!name) return '';
-                const parts = String(name).split('_');
-                if (parts.length >= 2) {
-                    const t = parts[parts.length-1];
-                    if (t.length <= 12 && /[A-Za-z]/.test(t)) return mapTeamCode(t);
-                }
-                return '';
-            }
-
-            function mapTeamCode(code){
-                const map = {
-                    FUMES: 'Bridge', BRIDGE: 'Bridge', TEAM: 'TEAM', DOGS: 'Dogs', BYE: 'Team Bye',
-                    BURBO: 'Gym Class Zeros', GCZ: 'Gym Class Zeros', ZEROS: 'Gym Class Zeros',
-                    BASED: 'BASED', OCTO: 'Banana', BANANA: 'Banana', FILTHY: 'Team O_P_HACKER', STAKD: 'Team O_P_HACKER',
-                    DOPA: 'Team Bye', QUOKKAS: 'Bridge', JESTERS: 'Underdogs', UNCL:'Underdogs', UNK:'',
-                    AC: 'Team O_P_HACKER', DELULU: 'Bridge', BENCH: 'BASED', BEYOND: 'BASED'
-                };
-                return map[code] || code;
-            }
+            
 
             async function loadCsv(){
                 let text = '';
@@ -3806,7 +3867,10 @@
             function normalize(rows){
                 return rows.map(r=>{
                     const player = r.player_name || r.Player || r.Name || '';
-                    const team = parseTeamFromName(player);
+                    const keyExact = player;
+                    const keyLower = player.toLowerCase();
+                    const overrides = window.playerTeamOverrides || {};
+                    const team = overrides[keyExact] || overrides[keyLower] || '';
                     return {
                         player_name: player,
                         team,
